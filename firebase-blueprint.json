@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "Contact": {
+      "title": "Contact Form Submission",
+      "description": "A lead or message from the contact page.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "company": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "timestamp" }
+      },
+      "required": ["name", "email", "message", "createdAt"]
+    },
+    "AuditLead": {
+      "title": "Audit Lead",
+      "description": "A lead captured during SEO Audit.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "url": { "type": "string" },
+        "createdAt": { "type": "timestamp" }
+      },
+      "required": ["name", "phone", "url", "createdAt"]
+    },
+    "SeoPage": {
+      "title": "SEO Page Metadata",
+      "description": "Store SEO info like title, description for client pages.",
+      "type": "object",
+      "properties": {
+        "url": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "customNotes": { "type": "string" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["url", "title", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/contacts/{contactId}": {
+      "schema": { "$ref": "#/entities/Contact" },
+      "description": "Messages from the contact form"
+    },
+    "/audit_leads/{leadId}": {
+      "schema": { "$ref": "#/entities/AuditLead" },
+      "description": "Leads collected during audit"
+    },
+    "/seo_pages/{pageId}": {
+      "schema": { "$ref": "#/entities/SeoPage" },
+      "description": "SEO Metadata management"
+    }
+  }
+}

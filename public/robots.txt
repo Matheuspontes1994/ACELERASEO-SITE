@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://acelera-seo.com.br/sitemap.xml
