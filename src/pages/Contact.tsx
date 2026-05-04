@@ -36,11 +36,17 @@ export default function Contact() {
       <Helmet>
         <title>Contato | Especialistas em Auditoria de SEO e Marketing SEO</title>
         <meta name="description" content="Fale com nossos especialistas em auditoria de SEO. Inicie seu projeto de SEO para sites focado na liderança orgânica hoje com a nossa agência seo." />
-        <link rel="canonical" href="https://acelera-seo.com.br/contato" />
+        <link rel="canonical" href="https://aceleraseo.com.br/contato" />
         <meta property="og:title" content="Contato | Especialistas em Auditoria de SEO e Marketing SEO" />
         <meta property="og:description" content="Fale com nossos especialistas em auditoria de SEO. Inicie seu projeto de SEO para sites focado na liderança orgânica hoje com a nossa agência seo." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://acelera-seo.com.br/contato" />
+        <meta property="og:url" content="https://aceleraseo.com.br/contato" />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Contato | Especialistas em Auditoria de SEO e Marketing SEO" />
+        <meta name="twitter:description" content="Fale com nossos especialistas em auditoria de SEO. Inicie seu projeto de SEO para sites focado na liderança orgânica hoje com a nossa agência seo." />
+        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6">

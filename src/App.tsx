@@ -29,7 +29,6 @@ import {
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link as RouterLink, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import logoUrl from './assets/logo.png';
 import AuditPage from './pages/Audit';
 import BlogPage from './pages/Blog';
 import BlogPost from './pages/BlogPost';
@@ -53,8 +52,8 @@ const structuredData = {
   "@type": "SEOAgency",
   "name": "Acelera SEO",
   "description": "Agência de SEO e Marketing SEO focada em SEO para sites, auditoria de SEO técnica e link building.",
-  "url": "https://acelera-seo.com.br",
-  "logo": "https://acelera-seo.com.br/logo.webp",
+  "url": "https://aceleraseo.com.br",
+  "logo": "https://aceleraseo.com.br/logo.png",
   "address": {
     "@type": "PostalAddress",
     "addressCountry": "BR"
@@ -95,7 +94,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6">
         <div className="flex items-center gap-3">
           <RouterLink to="/" className="flex items-center gap-3">
-            <img src={logoUrl} alt="Acelera SEO Logo" className="h-11 w-auto object-contain mix-blend-multiply" />
+            <img src="/logo.png" alt="Acelera SEO Logo" className="h-11 w-auto object-contain" />
             <span className={`text-2xl font-display font-bold tracking-tight ${isPortal && !isScrolled ? 'text-white' : 'text-slate-800'}`}>Acelera <span className="text-brand-600 font-light">SEO</span></span>
           </RouterLink>
         </div>
@@ -153,7 +152,7 @@ const Navbar = () => {
           {/* Header Mobile Menu */}
           <div className="flex justify-between items-center h-[80px] border-b border-slate-100/50 px-6">
             <RouterLink to="/" className="flex items-center gap-3" onClick={() => setMobileMenuOpen(false)}>
-              <img src={logoUrl} alt="Acelera SEO Logo" className="h-10 w-auto object-contain mix-blend-multiply" />
+              <img src="/logo.png" alt="Acelera SEO Logo" className="h-10 w-auto object-contain" />
               <span className="text-2xl font-display font-bold tracking-tight text-slate-900">Acelera<span className="text-brand-600 font-light">SEO</span></span>
             </RouterLink>
             <button className="text-slate-500 hover:bg-slate-100 rounded-full transition-colors bg-slate-50 border border-slate-100 p-2" onClick={() => setMobileMenuOpen(false)}>
@@ -558,7 +557,7 @@ const Footer = () => {
         
         <div className="lg:col-span-4 max-w-xl">
           <div className="flex items-center gap-3 mb-6">
-            <img src={logoUrl} alt="Acelera SEO Logo" className="h-10 w-auto object-contain mix-blend-multiply" />
+            <img src="/logo.png" alt="Acelera SEO Logo" className="h-10 w-auto object-contain" />
             <span className="text-xl font-display font-bold text-slate-800">Acelera <span className="text-brand-600 font-light">SEO</span></span>
           </div>
           <p className="text-sm text-slate-500 font-medium leading-relaxed mb-6 text-justify md:text-left">
@@ -689,12 +688,19 @@ function AppContent() {
     <div className="min-h-screen flex flex-col justify-between font-sans selection:bg-brand-200 selection:text-brand-900">
       <Helmet>
         <html lang="pt-BR" />
-        <title>Agência de SEO para Sites | Especialista em Venda de Backlinks e Auditoria SEO</title>
-        <meta name="description" content="A Acelera SEO é a agência de marketing SEO perfeita para escalar faturamento através de auditoria de SEO profunda, SEO para sites, conteúdo técnico e venda de backlinks com alta autoridade." />
-        <meta property="og:title" content="Acelera SEO | Agência de SEO de Alta Performance" />
-        <meta property="og:description" content="Engenharia reversa e otimização tech extrema focada em auditorias SEO para posicionar o site da sua empresa onde os clientes realmente buscam." />
+        <title>Acelera SEO | Agência de SEO Especializada em Otimização de Sites</title>
+        <meta name="description" content="Acelera SEO é uma agência focada em auditoria de SEO técnica, Link Building de alta autoridade e SEO On-Page para potencializar o seu ranqueamento no Google e as vendas orgânicas." />
+        <meta property="og:title" content="Acelera SEO | Agência de SEO Especializada" />
+        <meta property="og:description" content="Engenharia reversa e otimização tech extrema focada em auditorias SEO para posicionar o site da sua empresa no topo das buscas." />
         <meta property="og:type" content="website" />
-        <link rel="canonical" href="https://acelera-seo.com.br" />
+        <meta property="og:url" content="https://aceleraseo.com.br" />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Acelera SEO | Agência de SEO Especializada" />
+        <meta name="twitter:description" content="Otimização técnica experiente focada no crescimento do seu negócio através da aquisição orgânica." />
+        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
+        <link rel="canonical" href="https://aceleraseo.com.br" />
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
         </script>

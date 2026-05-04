@@ -10,11 +10,17 @@ export default function VendaBacklinksPage() {
       <Helmet>
         <title>Venda de Backlinks | Link Building e Digital PR | Agência SEO</title>
         <meta name="description" content="Na Acelera SEO você acessa a venda de backlinks essenciais para expandir o seu DR. Digital PR altamente qualificado em notícias, parceiros e blogs com alto tráfego." />
-        <link rel="canonical" href="https://acelera-seo.com.br/venda-backlinks" />
+        <link rel="canonical" href="https://aceleraseo.com.br/venda-backlinks" />
         <meta property="og:title" content="Venda de Backlinks | Link Building e Digital PR | Agência SEO" />
         <meta property="og:description" content="Na Acelera SEO você acessa a venda de backlinks essenciais para expandir o seu DR. Digital PR altamente qualificado em notícias, parceiros e blogs com alto tráfego." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://acelera-seo.com.br/venda-backlinks" />
+        <meta property="og:url" content="https://aceleraseo.com.br/venda-backlinks" />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Venda de Backlinks | Link Building e Digital PR | Agência SEO" />
+        <meta name="twitter:description" content="Na Acelera SEO você acessa a venda de backlinks essenciais para expandir o seu DR. Digital PR altamente qualificado em notícias, parceiros e blogs com alto tráfego." />
+        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
       {/* Hero Section */}

@@ -10,11 +10,17 @@ export default function About() {
       <Helmet>
         <title>Sobre a Agência SEO | Acelera SEO Especialistas</title>
         <meta name="description" content="Conheça a agência de marketing SEO especializada em transformar a sua engenharia de busca em lucro previsível. Fazemos muito mais do que simples SEO para sites." />
-        <link rel="canonical" href="https://acelera-seo.com.br/sobre" />
+        <link rel="canonical" href="https://aceleraseo.com.br/sobre" />
         <meta property="og:title" content="Sobre a Agência SEO | Acelera SEO Especialistas" />
         <meta property="og:description" content="Conheça a agência de marketing SEO especializada em transformar a sua engenharia de busca em lucro previsível. Fazemos muito mais do que simples SEO para sites." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://acelera-seo.com.br/sobre" />
+        <meta property="og:url" content="https://aceleraseo.com.br/sobre" />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Sobre a Agência SEO | Acelera SEO Especialistas" />
+        <meta name="twitter:description" content="Conheça a agência de marketing SEO especializada em transformar a sua web performance de busca em lucro através de tráfego orgânico." />
+        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
       {/* Hero Section */}

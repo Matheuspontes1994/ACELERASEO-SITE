@@ -94,11 +94,17 @@ export default function SeoLocalPage({ city, state, slug }: SeoLocalProps) {
       <Helmet>
         <title>{meta.title}</title>
         <meta name="description" content={meta.description} />
-        <link rel="canonical" href={`https://acelera-seo.com.br/${slug}`} />
+        <link rel="canonical" href={`https://aceleraseo.com.br/${slug}`} />
         <meta property="og:title" content={meta.title} />
         <meta property="og:description" content={meta.description} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://acelera-seo.com.br/${slug}`} />
+        <meta property="og:url" content={`https://aceleraseo.com.br/${slug}`} />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={meta.title} />
+        <meta name="twitter:description" content={meta.description} />
+        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
       {/* Hero Section */}

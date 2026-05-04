@@ -10,11 +10,17 @@ export default function EspecialistaSeoPage() {
       <Helmet>
         <title>Especialista em SEO | Consultoria de Alto Desempenho</title>
         <meta name="description" content="Contrate um especialista em SEO sênior para alavancar suas vendas orgânicas. Otimização técnica, consultoria avançada e estratégias validadas de posicionamento no Google." />
-        <link rel="canonical" href="https://acelera-seo.com.br/especialista-em-seo" />
+        <link rel="canonical" href="https://aceleraseo.com.br/especialista-em-seo" />
         <meta property="og:title" content="Especialista em SEO | Consultoria de Alto Desempenho" />
         <meta property="og:description" content="Contrate um especialista em SEO sênior para alavancar suas vendas orgânicas. Otimização técnica, consultoria avançada e estratégias validadas de posicionamento no Google." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://acelera-seo.com.br/especialista-em-seo" />
+        <meta property="og:url" content="https://aceleraseo.com.br/especialista-em-seo" />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Especialista em SEO | Consultoria de Alto Desempenho" />
+        <meta name="twitter:description" content="Contrate um especialista em SEO sênior para alavancar suas vendas orgânicas. Otimização técnica, consultoria avançada e estratégias validadas de posicionamento no Google." />
+        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
       {/* Hero Section */}

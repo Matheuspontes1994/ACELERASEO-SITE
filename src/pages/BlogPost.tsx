@@ -76,7 +76,7 @@ export default function BlogPost() {
     "@type": "Article",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://acelera-seo.com.br/blog/${post.slug}`
+      "@id": `https://aceleraseo.com.br/blog/${post.slug}`
     },
     "headline": post.titleString,
     "description": post.excerpt,
@@ -90,7 +90,7 @@ export default function BlogPost() {
       "name": "Acelera SEO",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://acelera-seo.com.br/logo.png"
+        "url": "https://aceleraseo.com.br/logo.png"
       }
     },
     "datePublished": post.createdAt ? (post.createdAt.toDate ? post.createdAt.toDate().toISOString() : new Date(post.createdAt).toISOString()) : new Date().toISOString(),
@@ -102,12 +102,17 @@ export default function BlogPost() {
       <Helmet>
         <title>{post.titleString} | Acelera SEO</title>
         <meta name="description" content={post.excerpt} />
-        <link rel="canonical" href={`https://acelera-seo.com.br/blog/${post.slug}`} />
+        <link rel="canonical" href={`https://aceleraseo.com.br/blog/${post.slug}`} />
         <meta property="og:title" content={`${post.titleString} | Acelera SEO`} />
         <meta property="og:description" content={post.excerpt} />
         <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://acelera-seo.com.br/blog/${post.slug}`} />
-        <meta property="og:image" content={post.coverImage} />
+        <meta property="og:url" content={`https://aceleraseo.com.br/blog/${post.slug}`} />
+        <meta property="og:image" content={post.coverImage || "https://aceleraseo.com.br/logo.png"} />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${post.titleString} | Acelera SEO`} />
+        <meta name="twitter:description" content={post.excerpt} />
+        <meta name="twitter:image" content={post.coverImage || "https://aceleraseo.com.br/logo.png"} />
         <script type="application/ld+json">
           {JSON.stringify(schemaOrgJSONLD)}
         </script>

@@ -47,6 +47,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center relative overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
       <Helmet>
         <title>Acesso | Acelera SEO</title>
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       {/* Decorative backdrop */}

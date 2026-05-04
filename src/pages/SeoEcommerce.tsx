@@ -10,11 +10,17 @@ export default function SeoEcommercePage() {
       <Helmet>
         <title>SEO para E-commerce | Aumente as Vendas da sua Loja Virtual</title>
         <meta name="description" content="Escale o faturamento da sua loja virtual saindo da dependência de anúncios. Agência especialista em SEO para E-commerce, categorias e Core Web Vitals." />
-        <link rel="canonical" href="https://acelera-seo.com.br/seo-ecommerce" />
+        <link rel="canonical" href="https://aceleraseo.com.br/seo-ecommerce" />
         <meta property="og:title" content="SEO para E-commerce | Aumente as Vendas da sua Loja Virtual" />
         <meta property="og:description" content="Escale o faturamento da sua loja virtual saindo da dependência de anúncios. Agência especialista em SEO para E-commerce, categorias e Core Web Vitals." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://acelera-seo.com.br/seo-ecommerce" />
+        <meta property="og:url" content="https://aceleraseo.com.br/seo-ecommerce" />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="SEO para E-commerce | Aumente as Vendas da sua Loja Virtual" />
+        <meta name="twitter:description" content="Escale o faturamento da sua loja virtual saindo da dependência de anúncios. Agência especialista em SEO para E-commerce, categorias e Core Web Vitals." />
+        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
       {/* Hero Section */}

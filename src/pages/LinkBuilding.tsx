@@ -10,11 +10,17 @@ export default function LinkBuildingPage() {
       <Helmet>
         <title>Agência de Link Building e Digital PR | Conquiste Backlinks de Alta Autoridade</title>
         <meta name="description" content="Escale a autoridade do seu domínio e conquiste o topo do Google com a principal agência de Link Building do mercado. Especialistas em Digital PR e Backlinks." />
-        <link rel="canonical" href="https://acelera-seo.com.br/agencia-link-building" />
+        <link rel="canonical" href="https://aceleraseo.com.br/agencia-link-building" />
         <meta property="og:title" content="Agência de Link Building e Digital PR | Conquiste Backlinks de Alta Autoridade" />
         <meta property="og:description" content="Escale a autoridade do seu domínio e conquiste o topo do Google com a principal agência de Link Building do mercado. Especialistas em Digital PR e Backlinks." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://acelera-seo.com.br/agencia-link-building" />
+        <meta property="og:url" content="https://aceleraseo.com.br/agencia-link-building" />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Agência de Link Building e Digital PR | Conquiste Backlinks de Alta Autoridade" />
+        <meta name="twitter:description" content="Escale a autoridade do seu domínio e conquiste o topo do Google com a principal agência de Link Building do mercado. Especialistas em Digital PR e Backlinks." />
+        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
       {/* Hero Section */}

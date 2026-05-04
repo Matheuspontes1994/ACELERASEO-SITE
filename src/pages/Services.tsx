@@ -51,11 +51,17 @@ export default function Services() {
       <Helmet>
         <title>Nossos Serviços | Agência de SEO Focada em Resultados e Venda de Backlinks</title>
         <meta name="description" content="Conheça nossas soluções completas como uma das melhores agências de marketing SEO. Oferecemos tudo, desde auditorias técnicas até venda de backlinks e SEO para sites." />
-        <link rel="canonical" href="https://acelera-seo.com.br/servicos" />
+        <link rel="canonical" href="https://aceleraseo.com.br/servicos" />
         <meta property="og:title" content="Nossos Serviços | Agência de SEO Focada em Resultados e Venda de Backlinks" />
         <meta property="og:description" content="Conheça nossas soluções completas como uma das melhores agências de marketing SEO. Oferecemos tudo, desde auditorias técnicas até venda de backlinks e SEO para sites." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://acelera-seo.com.br/servicos" />
+        <meta property="og:url" content="https://aceleraseo.com.br/servicos" />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Nossos Serviços | Agência de SEO Focada em Resultados" />
+        <meta name="twitter:description" content="Desde auditorias técnicas até Link Building avançado. Estratégias táticas para a escalabilidade da sua receita online." />
+        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
       {/* Hero Section */}

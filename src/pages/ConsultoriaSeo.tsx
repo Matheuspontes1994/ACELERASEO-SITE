@@ -10,11 +10,17 @@ export default function ConsultoriaSeoPage() {
       <Helmet>
         <title>Consultoria SEO Especializada | Acelere o Crescimento do seu Time</title>
         <meta name="description" content="Consultoria SEO técnica e estratégica. Entregamos roadmaps de alto impacto, documentação para desenvolvedores e direcionamento para equipes de marketing." />
-        <link rel="canonical" href="https://acelera-seo.com.br/consultoria-seo" />
+        <link rel="canonical" href="https://aceleraseo.com.br/consultoria-seo" />
         <meta property="og:title" content="Consultoria SEO Especializada | Agência de Alta Performance" />
         <meta property="og:description" content="Consultoria SEO técnica e estratégica. Entregamos roadmaps de alto impacto e direcionamento para equipes de marketing." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://acelera-seo.com.br/consultoria-seo" />
+        <meta property="og:url" content="https://aceleraseo.com.br/consultoria-seo" />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Consultoria SEO Especializada | Agência de Alta Performance" />
+        <meta name="twitter:description" content="Consultoria SEO técnica e estratégica. Entregamos roadmaps de alto impacto e direcionamento para equipes de marketing." />
+        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
       {/* Hero Section */}

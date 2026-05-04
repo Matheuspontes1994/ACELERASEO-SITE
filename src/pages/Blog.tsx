@@ -53,11 +53,17 @@ export default function Blog() {
       <Helmet>
         <title>Blog e Glossário SEO | Estratégias Avançadas - Acelera SEO</title>
         <meta name="description" content="Aprenda estratégias avançadas de SEO, link building, otimização on-page e conteúdo semântico. Domine o Google com artigos para especialistas e iniciantes." />
-        <link rel="canonical" href="https://acelera-seo.com.br/blog" />
+        <link rel="canonical" href="https://aceleraseo.com.br/blog" />
         <meta property="og:title" content="Blog e Glossário SEO | Estratégias Avançadas - Acelera SEO" />
         <meta property="og:description" content="Aprenda estratégias avançadas de SEO, link building, otimização on-page e conteúdo semântico. Domine o Google com artigos para especialistas e iniciantes." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://acelera-seo.com.br/blog" />
+        <meta property="og:url" content="https://aceleraseo.com.br/blog" />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Blog e Glossário SEO | Estratégias Avançadas - Acelera SEO" />
+        <meta name="twitter:description" content="Aprenda as mais poderosas estratégias de posicionamento orgânico e desvende o algoritmo dos motores de busca." />
+        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
       <div className="min-h-screen bg-slate-50 relative overflow-hidden pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-24">

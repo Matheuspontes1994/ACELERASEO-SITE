@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /login
+Disallow: /portal-cliente
+Disallow: /painel
+Disallow: /dashboard
 
-Sitemap: https://acelera-seo.com.br/sitemap.xml
+Sitemap: https://aceleraseo.com.br/sitemap.xml

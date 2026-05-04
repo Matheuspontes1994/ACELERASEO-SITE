@@ -284,6 +284,9 @@ Regras de Resposta:
 4. Títulos dos pontos devem ser curtos e profissionais.`;
 
       const { GoogleGenAI } = await import('@google/genai');
+      if (!process.env.GEMINI_API_KEY) {
+        return res.status(503).json({ error: "A chave GEMINI_API_KEY não está configurada. Por favor, adicione sua chave nas configurações do app." });
+      }
       let data = {};
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const geminiRes = await ai.models.generateContent({

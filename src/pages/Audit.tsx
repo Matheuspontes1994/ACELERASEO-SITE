@@ -110,11 +110,11 @@ export default function Audit() {
     <Helmet>
       <title>Auditoria de SEO Gratuita | Otimize com a nossa Agência SEO Profissional</title>
       <meta name="description" content="Nossa auditoria de SEO detalhada encontra as falhas de SEO que a sua empresa possui e o que não permite que você lidere as buscas online." />
-      <link rel="canonical" href="https://acelera-seo.com.br/auditoria" />
+      <link rel="canonical" href="https://aceleraseo.com.br/auditoria" />
       <meta property="og:title" content="Auditoria de SEO Gratuita | Otimize com a nossa Agência SEO Profissional" />
       <meta property="og:description" content="Nossa auditoria de SEO detalhada encontra as falhas de SEO que a sua empresa possui e o que não permite que você lidere as buscas online." />
       <meta property="og:type" content="website" />
-      <meta property="og:url" content="https://acelera-seo.com.br/auditoria" />
+      <meta property="og:url" content="https://aceleraseo.com.br/auditoria" />
     </Helmet>
 
     <div className="min-h-screen bg-slate-50/50 relative overflow-hidden pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-24">

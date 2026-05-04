@@ -922,6 +922,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pb-12">
       <Helmet>
         <title>Painel de Performance | Acelera SEO</title>
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       {/* Modern Agency Header */}
