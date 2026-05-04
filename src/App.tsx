@@ -29,6 +29,7 @@ import {
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link as RouterLink, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
+import logoUrl from './assets/logo.png';
 import AuditPage from './pages/Audit';
 import BlogPage from './pages/Blog';
 import BlogPost from './pages/BlogPost';
@@ -94,7 +95,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6">
         <div className="flex items-center gap-3">
           <RouterLink to="/" className="flex items-center gap-3">
-            <img src="/logo.png" alt="Acelera SEO Logo" className="h-11 w-auto object-contain mix-blend-multiply" />
+            <img src={logoUrl} alt="Acelera SEO Logo" className="h-11 w-auto object-contain mix-blend-multiply" />
             <span className={`text-2xl font-display font-bold tracking-tight ${isPortal && !isScrolled ? 'text-white' : 'text-slate-800'}`}>Acelera <span className="text-brand-600 font-light">SEO</span></span>
           </RouterLink>
         </div>
@@ -152,7 +153,7 @@ const Navbar = () => {
           {/* Header Mobile Menu */}
           <div className="flex justify-between items-center h-[80px] border-b border-slate-100/50 px-6">
             <RouterLink to="/" className="flex items-center gap-3" onClick={() => setMobileMenuOpen(false)}>
-              <img src="/logo.png" alt="Acelera SEO Logo" className="h-10 w-auto object-contain mix-blend-multiply" />
+              <img src={logoUrl} alt="Acelera SEO Logo" className="h-10 w-auto object-contain mix-blend-multiply" />
               <span className="text-2xl font-display font-bold tracking-tight text-slate-900">Acelera<span className="text-brand-600 font-light">SEO</span></span>
             </RouterLink>
             <button className="text-slate-500 hover:bg-slate-100 rounded-full transition-colors bg-slate-50 border border-slate-100 p-2" onClick={() => setMobileMenuOpen(false)}>
@@ -557,7 +558,7 @@ const Footer = () => {
         
         <div className="lg:col-span-4 max-w-xl">
           <div className="flex items-center gap-3 mb-6">
-            <img src="/logo.png" alt="Acelera SEO Logo" className="h-10 w-auto object-contain mix-blend-multiply" />
+            <img src={logoUrl} alt="Acelera SEO Logo" className="h-10 w-auto object-contain mix-blend-multiply" />
             <span className="text-xl font-display font-bold text-slate-800">Acelera <span className="text-brand-600 font-light">SEO</span></span>
           </div>
           <p className="text-sm text-slate-500 font-medium leading-relaxed mb-6 text-justify md:text-left">

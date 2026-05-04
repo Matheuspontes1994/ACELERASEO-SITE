@@ -244,14 +244,60 @@ async function startServer() {
         }
       };
 
-      // Return structured data for frontend to process with Gemini
       const jsonResponse = {
         structuredData,
         isClientDetected,
         targetUrl
       };
 
-      res.json(jsonResponse);
+      const persona = isClientDetected 
+        ? "Parceiro Estratégico de Crescimento e Sucesso do Cliente." 
+        : "Auditor de SEO Implacável e focado em Conversão de Vendas.";
+
+      const toneInstructions = isClientDetected
+        ? `Nível de Rigor: Construtivo e Positivo. O site analisado é de um CLIENTE ATUAL da agência.
+           - O objetivo é mostrar que o trabalho está no caminho certo e apontar 'Próximos Passos' para escala.
+           - Em vez de 'Erro' ou 'Crítico', use termos como 'Oportunidade de Otimização' ou 'Refinamento Estratégico'.
+           - A nota (score) deve ser motivadora, refletindo o cuidado que o site já recebe.`
+        : `Nível de Rigor: Crítico e Persuasivo. O site analisado é de um PROSPECT (cliente em potencial).
+           - O objetivo é gerar senso de urgência e mostrar o que ele está PERDENDO hoje.
+           - Use linguagem direta sobre falhas técnicas e impacto no faturamento.
+           - Seja rigoroso na nota para justificar a contratação da agência.`;
+
+      const prompt = `Você é um ${persona}
+Data atual: ${new Date().toLocaleDateString('pt-BR')}.
+
+${toneInstructions}
+
+Análise Técnica do Site: ${targetUrl}
+Dados Extraídos: ${JSON.stringify(structuredData, null, 2)}
+
+Regras de Resposta:
+1. Retorne APENAS um JSON puro (sem markdown):
+{
+  "score": number, 
+  "goodPoints": [ { "title": string, "description": string } ],
+  "badPoints": [ { "title": string, "description": string, "impact": "high" | "medium" | "low" } ]
+}
+2. 'goodPoints': Liste o que está bem feito tecnicamente.
+3. 'badPoints': Se for CLIENTE, trate como 'Oportunidades de Melhoria' para o futuro. Se for PROSPECT, trate como 'Erros Graves'.
+4. Títulos dos pontos devem ser curtos e profissionais.`;
+
+      const { GoogleGenAI } = await import('@google/genai');
+      let data = {};
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const geminiRes = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          temperature: 0.1,
+        }
+      });
+      const responseText = geminiRes.text || "{}";
+      data = JSON.parse(responseText);
+
+      res.json(data);
 
     } catch (error: any) {
       console.error("[SEO Audit Error]:", error);
