@@ -222,7 +222,7 @@ const Navbar = () => {
 
 const Hero = () => {
   return (
-    <section className="relative overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-[120px] lg:pt-40 pb-16 md:pb-20 lg:pb-24">
+    <section className="relative overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
       <div className="tech-grid" />
       <div className="hero-glow" />
       
@@ -236,7 +236,7 @@ const Hero = () => {
           <div className="inline-flex items-center w-fit max-w-[90vw] md:max-w-full whitespace-normal flex-wrap text-center justify-center rounded-2xl md:rounded-full bg-white border border-slate-200 shadow-sm text-[11px] sm:text-xs font-semibold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6 mx-auto lg:mx-0">
             <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> AGÊNCIA DE SEO
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[5rem] leading-[1.1] md:leading-[1.05] font-extrabold text-slate-900 font-display tracking-tight text-balance mb-6 mx-auto lg:mx-0 text-center md:text-center">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[5rem] leading-[1.1] md:leading-[1.05] font-extrabold text-slate-900 font-display tracking-tight text-balance mb-6 mx-auto lg:mx-0 text-center lg:text-left">
             A Agência de SEO <span className="text-brand-600">perfeita</span> para o seu Negócio.
           </h1>
           <p className="text-lg md:text-xl text-slate-500 max-w-xl font-light leading-relaxed text-justify md:text-left mb-10 mx-auto lg:mx-0">
@@ -348,7 +348,7 @@ const AboutSection = () => {
             <Users size={16} /> Especialistas em Resultados
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold font-display tracking-tight text-slate-900 mb-6 text-center md:text-left">Por que escolher nossa agência SEO?</h2>
-          <div className="space-y-5 text-slate-600 leading-relaxed font-light flex-1 text-justify md:text-left">
+          <div className="space-y-5 text-slate-600 leading-relaxed font-light flex-1 text-justify">
             <p>Somos uma <strong>agência de SEO</strong> dedicada e focada exclusivamente em performance orgânica e <strong className="font-semibold">venda de backlinks</strong> estratégicos de alta autoridade. Atuamos todos os dias ajudando empresas a dominarem o Google com metodologias ágeis e técnicas muito precisas.</p>
             <p>Cada projeto é rigorosamente construído a partir de uma <RouterLink to="/auditoria"><strong className="font-semibold text-brand-600 underline underline-offset-2 hover:opacity-80 transition-opacity">auditoria de SEO</strong></RouterLink> aprofundada, entregando sempre relatórios transparentes e um planejamento personalizado que vai muito além do básico de <strong>SEO para sites</strong> convencionais.</p>
             <p>Nossa abordagem combina as mais avançadas técnicas de otimização de mercado, focando sempre na conversão real. Afinal, um tráfego volumoso não é nada sem a atração de leads que sejam extremamente qualificados.</p>
@@ -359,7 +359,7 @@ const AboutSection = () => {
             <Search size={16} /> Entenda o Processo
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold font-display tracking-tight text-slate-900 mb-6 text-center md:text-left">O que podemos fazer pela sua empresa?</h2>
-          <div className="space-y-5 text-slate-600 leading-relaxed font-light flex-1 text-justify md:text-left">
+          <div className="space-y-5 text-slate-600 leading-relaxed font-light flex-1 text-justify">
             <p>Uma <strong>agência de marketing SEO</strong> é responsável por preparar todo o terreno do seu domínio para receber visitas de forma constante e escalonada. Na Acelera SEO, aplicamos as nossas principais <RouterLink to="/servicos" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">soluções estratégicas e técnicas de busca avançada</RouterLink>.</p>
             <p>Através da nossa rigorosa <strong>seo auditoria</strong>, detectamos falhas invisíveis para amadores e construímos uma fundação baseada em credibilidade. Diferente da publicidade temporária, a presença orgânica se torna o principal ativo da sua visibilidade a longo prazo.</p>
             <p>Faça parte do grupo de negócios que investe pesado em aquisições contínuas, seja lidando com consultorias especializadas ou buscando a curadoria única na <strong>venda de backlinks</strong> (link building exclusivo).</p>
@@ -443,7 +443,7 @@ const Services = () => {
               <div className="w-14 h-14 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 group-hover:scale-110 transition-transform duration-300 mb-6 mx-auto md:mx-0">
                 {s.icon}
               </div>
-              <h3 className="text-2xl font-extrabold text-slate-900 font-display tracking-tight group-hover:text-brand-600 transition-colors mb-4 text-center md:text-left">{s.title}</h3>
+              <h3 className="text-2xl font-extrabold text-slate-900 font-display tracking-tight group-hover:text-brand-600 transition-colors mb-4 text-center">{s.title}</h3>
               <p className="text-slate-500 leading-relaxed font-medium text-base mb-8 text-justify md:text-left">{s.desc}</p>
               <div className="flex flex-wrap mt-auto justify-center md:justify-start gap-2 w-full">
                 {s.features.map(f => (

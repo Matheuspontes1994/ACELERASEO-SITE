@@ -184,9 +184,9 @@ Regras de Resposta:
             >
               <div className="text-left order-2 lg:order-1 pt-0 lg:pt-8">
                 <div className="inline-flex items-center justify-center bg-white text-brand-600 border border-brand-100 rounded-2xl md:rounded-full shadow-sm text-[11px] sm:text-xs font-bold uppercase tracking-widest py-2 px-4 mb-6 gap-2 w-fit max-w-[90vw] whitespace-normal flex-wrap text-center mx-auto md:mx-0">
-                   <Search size={16} /> Diagnóstico Técnico Gratuito
+                   <Search size={16} /> DIAGNÓSTICO TÉCNICO GRATUITO IMEDIATO
                 </div>
-                <h1 className="text-4xl md:text-5xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] text-balance font-extrabold tracking-tight text-slate-900 font-display mb-8 text-center md:text-center">
+                <h1 className="text-4xl md:text-5xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] text-balance font-extrabold tracking-tight text-slate-900 font-display mb-8 text-center md:text-left">
                   Faça sua <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-brand-400">Auditoria de SEO</span>
                 </h1>
                 <p className="text-lg md:text-xl text-slate-600 font-light leading-relaxed mb-10 text-justify md:text-left">
