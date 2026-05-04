@@ -5,7 +5,7 @@ import rateLimit from "express-rate-limit";
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
   // Trust proxy for rate limiting behind Nginx/Cloud Run
   app.set("trust proxy", 1);
