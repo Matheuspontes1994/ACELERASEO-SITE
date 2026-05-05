@@ -26,26 +26,29 @@ import {
   ChevronDown,
   Award
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Link as RouterLink, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import AuditPage from './pages/Audit';
-import BlogPage from './pages/Blog';
-import BlogPost from './pages/BlogPost';
-import ServicesPage from './pages/Services';
-import AboutPage from './pages/About';
-import ContactPage from './pages/Contact';
-import SeoEcommercePage from './pages/SeoEcommerce';
-import ConsultoriaSeoPage from './pages/ConsultoriaSeo';
-import LinkBuildingPage from './pages/LinkBuilding';
-import VendaBacklinksPage from './pages/VendaBacklinks';
-import EspecialistaSeoPage from './pages/EspecialistaSeo';
-import SeoLocalPage from './pages/SeoLocal';
+const AuditPage = lazy(() => import('./pages/Audit'));
+const BlogPage = lazy(() => import('./pages/Blog'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
+const ServicesPage = lazy(() => import('./pages/Services'));
+const AboutPage = lazy(() => import('./pages/About'));
+const ContactPage = lazy(() => import('./pages/Contact'));
+const SeoEcommercePage = lazy(() => import('./pages/SeoEcommerce'));
+const ConsultoriaSeoPage = lazy(() => import('./pages/ConsultoriaSeo'));
+const LinkBuildingPage = lazy(() => import('./pages/LinkBuilding'));
+const VendaBacklinksPage = lazy(() => import('./pages/VendaBacklinks'));
+const EspecialistaSeoPage = lazy(() => import('./pages/EspecialistaSeo'));
+const SeoLocalPage = lazy(() => import('./pages/SeoLocal'));
 import { Tooltip } from './components/Tooltip';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
-
-import ClientDashboard from './pages/ClientDashboard';
-import DashboardPage from './pages/Dashboard';
+import AuthRoute from './components/AuthRoute';
+import { GlobalSeo } from './components/SeoHeader';
+import ScrollToTop from './components/ScrollToTop';
+const ClientDashboard = lazy(() => import('./pages/ClientDashboard'));
+const DashboardPage = lazy(() => import('./pages/Dashboard'));
+const LoginPage = lazy(() => import('./pages/Login'));
 
 // --- SEO Structured Data ---
 const structuredData = {
@@ -675,14 +678,6 @@ const Home = () => {
     </>
   );
 };
-
-import LoginPage from './pages/Login';
-import AuthRoute from './components/AuthRoute';
-
-import { GlobalSeo } from './components/SeoHeader';
-
-import ScrollToTop from './components/ScrollToTop';
-
 function AppContent() {
   const location = useLocation();
   const hideGlobalLayout = ['/portal-cliente', '/painel', '/dashboard'].includes(location.pathname);
@@ -712,33 +707,35 @@ function AppContent() {
       {!hideGlobalLayout && <Navbar />}
       
       <main className={`flex-grow ${hideGlobalLayout ? '' : 'pt-24'}`}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/sobre" element={<AboutPage />} />
-          <Route path="/servicos" element={<ServicesPage />} />
-          <Route path="/seo-ecommerce" element={<SeoEcommercePage />} />
-          <Route path="/consultoria-seo" element={<ConsultoriaSeoPage />} />
-          <Route path="/agencia-link-building" element={<LinkBuildingPage />} />
-          <Route path="/venda-backlinks" element={<VendaBacklinksPage />} />
-          <Route path="/especialista-em-seo" element={<EspecialistaSeoPage />} />
-          
-          {/* Regional SEO Pages - Sudeste e Sul */}
-          <Route path="/agencia-seo-sao-paulo" element={<SeoLocalPage city="São Paulo" state="SP" slug="agencia-seo-sao-paulo" />} />
-          <Route path="/agencia-seo-rio-de-janeiro" element={<SeoLocalPage city="Rio de Janeiro" state="RJ" slug="agencia-seo-rio-de-janeiro" />} />
-          <Route path="/agencia-seo-belo-horizonte" element={<SeoLocalPage city="Belo Horizonte" state="MG" slug="agencia-seo-belo-horizonte" />} />
-          <Route path="/agencia-seo-vitoria" element={<SeoLocalPage city="Vitória" state="ES" slug="agencia-seo-vitoria" />} />
-          <Route path="/agencia-seo-curitiba" element={<SeoLocalPage city="Curitiba" state="PR" slug="agencia-seo-curitiba" />} />
-          <Route path="/agencia-seo-florianopolis" element={<SeoLocalPage city="Florianópolis" state="SC" slug="agencia-seo-florianopolis" />} />
-          <Route path="/agencia-seo-porto-alegre" element={<SeoLocalPage city="Porto Alegre" state="RS" slug="agencia-seo-porto-alegre" />} />
+        <Suspense fallback={<div className="flex justify-center items-center h-64"><Activity className="animate-spin text-brand-600" size={40}/></div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/sobre" element={<AboutPage />} />
+            <Route path="/servicos" element={<ServicesPage />} />
+            <Route path="/seo-ecommerce" element={<SeoEcommercePage />} />
+            <Route path="/consultoria-seo" element={<ConsultoriaSeoPage />} />
+            <Route path="/agencia-link-building" element={<LinkBuildingPage />} />
+            <Route path="/venda-backlinks" element={<VendaBacklinksPage />} />
+            <Route path="/especialista-em-seo" element={<EspecialistaSeoPage />} />
+            
+            {/* Regional SEO Pages - Sudeste e Sul */}
+            <Route path="/agencia-seo-sao-paulo" element={<SeoLocalPage city="São Paulo" state="SP" slug="agencia-seo-sao-paulo" />} />
+            <Route path="/agencia-seo-rio-de-janeiro" element={<SeoLocalPage city="Rio de Janeiro" state="RJ" slug="agencia-seo-rio-de-janeiro" />} />
+            <Route path="/agencia-seo-belo-horizonte" element={<SeoLocalPage city="Belo Horizonte" state="MG" slug="agencia-seo-belo-horizonte" />} />
+            <Route path="/agencia-seo-vitoria" element={<SeoLocalPage city="Vitória" state="ES" slug="agencia-seo-vitoria" />} />
+            <Route path="/agencia-seo-curitiba" element={<SeoLocalPage city="Curitiba" state="PR" slug="agencia-seo-curitiba" />} />
+            <Route path="/agencia-seo-florianopolis" element={<SeoLocalPage city="Florianópolis" state="SC" slug="agencia-seo-florianopolis" />} />
+            <Route path="/agencia-seo-porto-alegre" element={<SeoLocalPage city="Porto Alegre" state="RS" slug="agencia-seo-porto-alegre" />} />
 
-          <Route path="/contato" element={<ContactPage />} />
-          <Route path="/auditoria" element={<AuditPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/portal-cliente" element={<AuthRoute><ClientDashboard /></AuthRoute>} />
-          <Route path="/painel" element={<AuthRoute><DashboardPage /></AuthRoute>} />
-        </Routes>
+            <Route path="/contato" element={<ContactPage />} />
+            <Route path="/auditoria" element={<AuditPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/portal-cliente" element={<AuthRoute><ClientDashboard /></AuthRoute>} />
+            <Route path="/painel" element={<AuthRoute><DashboardPage /></AuthRoute>} />
+          </Routes>
+        </Suspense>
         <GlobalSeo />
       </main>
 

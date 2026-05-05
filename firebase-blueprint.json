@@ -38,6 +38,29 @@
         "updatedAt": { "type": "timestamp" }
       },
       "required": ["url", "title", "createdAt", "updatedAt"]
+    },
+    "Client": {
+      "title": "Client",
+      "description": "Client information.",
+      "type": "object",
+      "properties": {
+        "agencyUid": { "type": "string" },
+        "clientEmail": { "type": "string" },
+        "websiteUrl": { "type": "string" }
+      },
+      "required": ["agencyUid", "clientEmail", "websiteUrl"]
+    },
+    "BlogPost": {
+      "title": "Blog Post",
+      "description": "A blog post.",
+      "type": "object",
+      "properties": {
+        "agencyUid": { "type": "string" },
+        "status": { "type": "string" },
+        "slug": { "type": "string" },
+        "content": { "type": "string" }
+      },
+      "required": ["agencyUid", "status", "slug"]
     }
   },
   "firestore": {
@@ -52,6 +75,14 @@
     "/seo_pages/{pageId}": {
       "schema": { "$ref": "#/entities/SeoPage" },
       "description": "SEO Metadata management"
+    },
+    "/clients/{clientId}": {
+      "schema": { "$ref": "#/entities/Client" },
+      "description": "Client management"
+    },
+    "/blog_posts/{postId}": {
+      "schema": { "$ref": "#/entities/BlogPost" },
+      "description": "Blog management"
     }
   }
 }
