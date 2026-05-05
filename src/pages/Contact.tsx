@@ -71,12 +71,22 @@ export default function Contact() {
               <div className="space-y-6 text-justify md:text-left">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-brand-600 shrink-0">
+                    <MapPin size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900">Sede Operacional</h4>
+                    <p className="text-slate-500 text-sm mt-1">Belo Horizonte, MG</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-brand-600 shrink-0">
                     <Mail size={20} />
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900">E-mail Comercial</h4>
                     <p className="text-slate-500 text-sm mt-1 mb-2">Para propostas e novos negócios</p>
-                    <a href="mailto:contato@aceleraseo.com.br" className="font-medium text-brand-600 hover:text-brand-800 transition-colors">contato@aceleraseo.com.br</a>
+                    <a href="mailto:aceleraseo@gmail.com" className="font-medium text-brand-600 hover:text-brand-800 transition-colors">aceleraseo@gmail.com</a>
                   </div>
                 </div>
 
@@ -87,21 +97,7 @@ export default function Contact() {
                   <div>
                     <h4 className="font-bold text-slate-900">Telefone / WhatsApp</h4>
                     <p className="text-slate-500 text-sm mt-1 mb-2">Respostas em menos de 10 minutos comerciais</p>
-                    <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer" className="font-medium text-brand-600 hover:text-brand-800 transition-colors">+55 (11) 99999-9999</a>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-brand-600 shrink-0">
-                    <MapPin size={20} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900">Sede Global</h4>
-                    <p className="text-slate-500 text-sm leading-relaxed mt-1 text-justify md:text-left">
-                      Av. Paulista, 1000 - Bela Vista<br />
-                      São Paulo - SP, 01310-100<br />
-                      Brasil
-                    </p>
+                    <a href="https://wa.me/553199229927" target="_blank" rel="noopener noreferrer" className="font-medium text-brand-600 hover:text-brand-800 transition-colors">+55 31 9922-9927</a>
                   </div>
                 </div>
               </div>

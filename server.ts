@@ -283,21 +283,31 @@ Regras de Resposta:
 3. 'badPoints': Se for CLIENTE, trate como 'Oportunidades de Melhoria' para o futuro. Se for PROSPECT, trate como 'Erros Graves'.
 4. Títulos dos pontos devem ser curtos e profissionais.`;
 
-      const { GoogleGenAI } = await import('@google/genai');
       if (!process.env.GEMINI_API_KEY) {
         return res.status(503).json({ error: "A chave GEMINI_API_KEY não está configurada. Por favor, adicione sua chave nas configurações do app." });
       }
+
       let data = {};
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const geminiRes = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          temperature: 0.1,
-        }
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+      const genResponse = await fetch(geminiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.1,
+            responseMimeType: "application/json"
+          }
+        })
       });
-      const responseText = geminiRes.text || "{}";
+
+      if (!genResponse.ok) {
+        const errText = await genResponse.text();
+        throw new Error(`Erro na API do Gemini: ${genResponse.status} - ${errText}`);
+      }
+
+      const geminiRes = await genResponse.json();
+      const responseText = geminiRes.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
       data = JSON.parse(responseText);
 
       res.json(data);
