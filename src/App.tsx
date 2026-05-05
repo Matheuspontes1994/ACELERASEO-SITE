@@ -29,7 +29,6 @@ import {
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link as RouterLink, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import logoUrl from './assets/logo.png';
 import AuditPage from './pages/Audit';
 import BlogPage from './pages/Blog';
 import BlogPost from './pages/BlogPost';
@@ -43,6 +42,7 @@ import VendaBacklinksPage from './pages/VendaBacklinks';
 import EspecialistaSeoPage from './pages/EspecialistaSeo';
 import SeoLocalPage from './pages/SeoLocal';
 import { Tooltip } from './components/Tooltip';
+import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 
 import ClientDashboard from './pages/ClientDashboard';
 import DashboardPage from './pages/Dashboard';
@@ -66,6 +66,7 @@ const structuredData = {
 // --- Components ---
 
 const Navbar = () => {
+  const { logoUrl } = useSettings();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [solutionsOpen, setSolutionsOpen] = useState(false);
@@ -552,6 +553,7 @@ const AuditSection = () => {
 };
 
 const Footer = () => {
+  const { logoUrl } = useSettings();
   return (
     <footer className="w-full border-t border-slate-200 bg-slate-50 px-6 py-16">
       <div className="grid grid-cols-1 lg:grid-cols-12 max-w-7xl mx-auto gap-8 md:gap-12 lg:gap-16">
@@ -747,11 +749,13 @@ function AppContent() {
 
 export default function App() {
   return (
-    <HelmetProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <AppContent />
-      </BrowserRouter>
-    </HelmetProvider>
+    <SettingsProvider>
+      <HelmetProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <AppContent />
+        </BrowserRouter>
+      </HelmetProvider>
+    </SettingsProvider>
   );
 }

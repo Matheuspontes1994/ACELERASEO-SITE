@@ -21,29 +21,54 @@ service cloud.firestore {
       );
     }
 
+    match /settings/{document=**} {
+      allow read: if true;
+      allow write: if isSignedIn() && (request.auth.token.email == 'matheuspontes290594@gmail.com' || request.auth.token.email == 'aceleraseo@gmail.com');
+    }
+
     match /clients/{clientId} {
       allow read: if isSignedIn() && (agencyOwns(resource.data.agencyUid) || isClient(resource.data));
-      allow write: if isSignedIn() && (agencyOwns(request.resource.data.agencyUid) || agencyOwns(resource.data.agencyUid));
+      allow create: if isSignedIn() && agencyOwns(request.resource.data.agencyUid);
+      allow update: if isSignedIn() && agencyOwns(request.resource.data.agencyUid) && agencyOwns(resource.data.agencyUid);
+      allow delete: if isSignedIn() && agencyOwns(resource.data.agencyUid);
     }
 
     match /keyword_universe/{id} {
       allow read: if isSignedIn() && (agencyOwns(resource.data.agencyUid) || isClient(resource.data));
-      allow write: if isSignedIn() && agencyOwns(request.resource.data.agencyUid);
+      allow create: if isSignedIn() && agencyOwns(request.resource.data.agencyUid);
+      allow update: if isSignedIn() && agencyOwns(request.resource.data.agencyUid) && agencyOwns(resource.data.agencyUid);
+      allow delete: if isSignedIn() && agencyOwns(resource.data.agencyUid);
     }
 
     match /blog_posts/{id} {
       allow read: if isSignedIn() && (agencyOwns(resource.data.agencyUid) || isClient(resource.data));
-      allow write: if isSignedIn() && agencyOwns(request.resource.data.agencyUid);
+      allow create: if isSignedIn() && agencyOwns(request.resource.data.agencyUid);
+      allow update: if isSignedIn() && agencyOwns(request.resource.data.agencyUid) && agencyOwns(resource.data.agencyUid);
+      allow delete: if isSignedIn() && agencyOwns(resource.data.agencyUid);
     }
 
     match /backlinks/{id} {
       allow read: if isSignedIn() && (agencyOwns(resource.data.agencyUid) || isClient(resource.data));
-      allow write: if isSignedIn() && agencyOwns(request.resource.data.agencyUid);
+      allow create: if isSignedIn() && agencyOwns(request.resource.data.agencyUid);
+      allow update: if isSignedIn() && agencyOwns(request.resource.data.agencyUid) && agencyOwns(resource.data.agencyUid);
+      allow delete: if isSignedIn() && agencyOwns(resource.data.agencyUid);
     }
 
     match /seo_pages/{id} {
-      allow read: if isSignedIn() && (agencyOwns(resource.data.agencyUid) || isClient(resource.data));
-      allow write: if isSignedIn() && agencyOwns(request.resource.data.agencyUid);
+      allow read: if true;
+      allow create: if isSignedIn() && agencyOwns(request.resource.data.agencyUid);
+      allow update: if isSignedIn() && agencyOwns(request.resource.data.agencyUid) && agencyOwns(resource.data.agencyUid);
+      allow delete: if isSignedIn() && agencyOwns(resource.data.agencyUid);
+    }
+
+    match /audit_leads/{id} {
+      allow create: if true;
+      allow read, update, delete: if isSignedIn() && (request.auth.token.email == 'matheuspontes290594@gmail.com' || request.auth.token.email == 'aceleraseo@gmail.com');
+    }
+
+    match /contacts/{id} {
+      allow create: if true;
+      allow read, update, delete: if isSignedIn() && (request.auth.token.email == 'matheuspontes290594@gmail.com' || request.auth.token.email == 'aceleraseo@gmail.com');
     }
   }
 }

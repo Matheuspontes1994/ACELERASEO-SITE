@@ -100,6 +100,7 @@ import { ContentAgency } from '../components/ContentAgency';
 import { HubClients } from '../components/HubClients';
 import { PostFormModal } from '../components/PostFormModal';
 import { BacklinkFormModal } from '../components/BacklinkFormModal';
+import SettingsGlobal from '../components/SettingsGlobal';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -1063,7 +1064,7 @@ export default function Dashboard() {
 
           <div className="flex overflow-x-auto no-scrollbar bg-slate-200/40 rounded-2xl border border-slate-200/50 gap-1 p-1 w-full max-w-full md:w-auto">
             {(portalMode === 'agencia' 
-               ? ['Visão Geral', 'Conteúdo Interno (Acelera)', 'Clientes & CRM']
+               ? ['Visão Geral', 'Conteúdo Interno (Acelera)', 'Clientes & CRM', 'Configurações']
                : ['Hub de Clientes', 'Aprovações Pendentes', 'Monitoramento de Rankings']
             ).map(tab => (
               <button 
@@ -1654,6 +1655,8 @@ export default function Dashboard() {
                </div>
             </div>
           </motion.div>
+        ) : activeTab === 'Configurações' ? (
+          <SettingsGlobal />
         ) : (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
