@@ -42,7 +42,7 @@ const VendaBacklinksPage = lazy(() => import('./pages/VendaBacklinks'));
 const EspecialistaSeoPage = lazy(() => import('./pages/EspecialistaSeo'));
 const SeoLocalPage = lazy(() => import('./pages/SeoLocal'));
 import { Tooltip } from './components/Tooltip';
-import { SettingsProvider, useSettings } from './contexts/SettingsContext';
+import { SettingsProvider, useSettings, getDefaultLogo } from './contexts/SettingsContext';
 import AuthRoute from './components/AuthRoute';
 import { GlobalSeo } from './components/SeoHeader';
 import ScrollToTop from './components/ScrollToTop';
@@ -99,7 +99,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6">
         <div className="flex items-center gap-3">
           <RouterLink to="/" className="flex items-center gap-3">
-            <img src={logoUrl} alt="Acelera SEO Logo" className="h-11 w-auto object-contain" />
+            <img src={logoUrl} alt="Acelera SEO Logo" className="h-11 w-auto object-contain" onError={(e) => (e.target as HTMLImageElement).src = getDefaultLogo()} />
             <span className={`text-2xl font-display font-bold tracking-tight ${isPortal && !isScrolled ? 'text-white' : 'text-slate-800'}`}>Acelera <span className="text-brand-600 font-light">SEO</span></span>
           </RouterLink>
         </div>
@@ -157,7 +157,7 @@ const Navbar = () => {
           {/* Header Mobile Menu */}
           <div className="flex justify-between items-center h-[80px] border-b border-slate-100/50 px-6">
             <RouterLink to="/" className="flex items-center gap-3" onClick={() => setMobileMenuOpen(false)}>
-              <img src={logoUrl} alt="Acelera SEO Logo" className="h-10 w-auto object-contain" />
+              <img src={logoUrl} alt="Acelera SEO Logo" className="h-10 w-auto object-contain" onError={(e) => (e.target as HTMLImageElement).src = getDefaultLogo()} />
               <span className="text-2xl font-display font-bold tracking-tight text-slate-900">Acelera<span className="text-brand-600 font-light">SEO</span></span>
             </RouterLink>
             <button className="text-slate-500 hover:bg-slate-100 rounded-full transition-colors bg-slate-50 border border-slate-100 p-2" onClick={() => setMobileMenuOpen(false)}>

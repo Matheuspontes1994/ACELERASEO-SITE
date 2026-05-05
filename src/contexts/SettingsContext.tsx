@@ -10,6 +10,7 @@ interface SettingsContextType {
 const SettingsContext = createContext<SettingsContextType>({ logoUrl: defaultLogo });
 
 export const useSettings = () => useContext(SettingsContext);
+export const getDefaultLogo = () => defaultLogo;
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [logoUrl, setLogoUrl] = useState(defaultLogo);
