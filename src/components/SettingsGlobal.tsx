@@ -77,16 +77,26 @@ export default function SettingsGlobal() {
           const ctx = canvas.getContext('2d');
           if (ctx) {
              ctx.drawImage(img, 0, 0, width, height);
-             const dataUrl = canvas.toDataURL('image/png');
              
-             // Base64 limit check ~1000KB roughly ~1.3MB string
+             // Always try PNG first as requested
+             let dataUrl = canvas.toDataURL('image/png');
+             
+             // If PNG is too large for Firestore (max 1MB doc), resize further or compress
              if (dataUrl.length > 1000000) {
-               // Further compress or notify
-               const dataUrlWebp = canvas.toDataURL('image/webp', 0.8);
-               setLogoUrl(dataUrlWebp);
-             } else {
-               setLogoUrl(dataUrl);
+               // Try slightly smaller dimensions first to keep PNG
+               const scale = 0.8;
+               canvas.width = width * scale;
+               canvas.height = height * scale;
+               ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+               dataUrl = canvas.toDataURL('image/png');
              }
+
+             // Final fallback if still too big (unlikely at 800px)
+             if (dataUrl.length > 1000000) {
+               dataUrl = canvas.toDataURL('image/webp', 0.7);
+             }
+
+             setLogoUrl(dataUrl);
           }
         };
         img.src = event.target.result as string;

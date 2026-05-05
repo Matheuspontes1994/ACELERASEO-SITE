@@ -22,8 +22,8 @@ async function startServer() {
     legacyHeaders: false,
   });
 
-  // Load Firebase Config once
-  let firebaseApp: any = null;
+  // Load Firebase Admin
+  let adminDb: any = null;
   const configPath = path.resolve(process.cwd(), "firebase-applet-config.json");
   let firebaseConfig: any = null;
   try {
@@ -35,17 +35,29 @@ async function startServer() {
     console.error("Erro ao carregar firebase-applet-config.json:", e);
   }
 
-  async function getFirebaseDb() {
-    if (!firebaseConfig) return null;
-    const { initializeApp, getApps } = await import("firebase/app");
-    const { getFirestore } = await import("firebase/firestore");
-    
-    if (!firebaseApp) {
-      const apps = getApps();
-      firebaseApp = apps.length > 0 ? apps[0] : initializeApp(firebaseConfig);
+  async function getFirebaseAdminDb() {
+    if (adminDb) return adminDb;
+    const admin = (await import("firebase-admin")).default;
+    if (admin.apps.length === 0) {
+      // If we have GOOGLE_SERVICE_ACCOUNT_JSON, use it. Otherwise, use project default.
+      const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+      if (serviceAccountJson) {
+        try {
+          const cert = JSON.parse(serviceAccountJson);
+          admin.initializeApp({
+            credential: admin.credential.cert(cert),
+            databaseURL: firebaseConfig?.firestoreDatabaseId ? `https://${firebaseConfig.firestoreDatabaseId}.firebaseio.com` : undefined
+          });
+        } catch (e) {
+          console.error("Erro ao parsear GOOGLE_SERVICE_ACCOUNT_JSON, falhando para default:", e);
+          admin.initializeApp();
+        }
+      } else {
+        admin.initializeApp();
+      }
     }
-    
-    return getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId);
+    adminDb = admin.firestore();
+    return adminDb;
   }
 
   // API para Auditoria Técnica (Health Check)
@@ -54,16 +66,11 @@ async function startServer() {
       const { agencyUid } = req.body;
       if (!agencyUid) return res.status(400).json({ error: "agencyUid é obrigatório" });
 
-      const db = await getFirebaseDb();
-      if (!db) throw new Error("Firebase não configurado.");
-
-      const { collection, getDocs, query, where, updateDoc, doc } = await import("firebase/firestore");
+      const db = await getFirebaseAdminDb();
       const axios = (await import("axios")).default;
 
       // Buscar todas as páginas SEO desta agência
-      const seoRef = collection(db, 'seo_pages');
-      const q = query(seoRef, where('agencyUid', '==', agencyUid));
-      const snapshot = await getDocs(q);
+      const snapshot = await db.collection('seo_pages').where('agencyUid', '==', agencyUid).get();
 
       const results = [];
       const promises = snapshot.docs.map(async (docSnapshot) => {
@@ -74,15 +81,14 @@ async function startServer() {
 
         try {
           const response = await axios.get(url, { 
-            timeout: 8000,
+            timeout: 10000,
             headers: { 'User-Agent': 'SEO-Bot-Auditor/1.0' },
-            validateStatus: () => true // Não jogar erro para 404, queremos o código
+            validateStatus: () => true
           });
 
           const status = response.status;
-          const statusText = status === 200 ? 'Online' : `Erro ${status}`;
           
-          await updateDoc(doc(db, 'seo_pages', docSnapshot.id), {
+          await docSnapshot.ref.update({
             lastAuditStatus: status,
             lastAuditAt: new Date().toISOString(),
             health: status === 200 ? 'healthy' : 'critical'
@@ -90,7 +96,7 @@ async function startServer() {
 
           results.push({ url, status });
         } catch (err) {
-          await updateDoc(doc(db, 'seo_pages', docSnapshot.id), {
+          await docSnapshot.ref.update({
             lastAuditStatus: 'Timeout/Error',
             lastAuditAt: new Date().toISOString(),
             health: 'critical'
@@ -102,7 +108,7 @@ async function startServer() {
       await Promise.all(promises);
       res.json({ success: true, count: results.length });
     } catch (err) {
-      console.error("Erro na auditoria:", err);
+      console.error("Erro na auditoria de saúde:", err);
       res.status(500).json({ error: err.message });
     }
   });
@@ -121,8 +127,6 @@ async function startServer() {
         return res.status(503).json({ error: "Credenciais da API não configuradas no servidor." });
       }
 
-      // O pacote googleapis pode ser importado via require inline ou você pode importá-lo no topo. 
-      // Mas já que é Typescript com ESM node mod, faremos require ou import de googleapis.
       const { google } = await import("googleapis");
 
       let credentials;
@@ -139,7 +143,6 @@ async function startServer() {
 
       const searchconsole = google.searchconsole({ version: "v1", auth });
 
-      // Search Console data is normally delayed by ~3 days
       const endDate = new Date();
       endDate.setDate(endDate.getDate() - 3);
       
@@ -148,7 +151,6 @@ async function startServer() {
 
       const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
-      // Query para cliques ao longo do tempo (últimos 30 dias)
       const timeResponse = await searchconsole.searchanalytics.query({
         siteUrl,
         requestBody: {
@@ -158,7 +160,6 @@ async function startServer() {
         },
       });
 
-      // Query para keywords mais clicadas (top 10)
       const kwResponse = await searchconsole.searchanalytics.query({
         siteUrl,
         requestBody: {
@@ -185,30 +186,23 @@ async function startServer() {
       const { targetUrl } = req.body;
       if (!targetUrl) return res.status(400).json({ error: "A URL é obrigatória" });
 
-      // Detect if it is a client automatically
+      // Detect if it is a client automatically using Admin SDK
       let isClientDetected = false;
       try {
-        const db = await getFirebaseDb();
-        if (db) {
-          const { collection, getDocs } = await import("firebase/firestore");
+        const db = await getFirebaseAdminDb();
+        const normalize = (u: string) => u.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '').toLowerCase();
+        const normalizedTarget = normalize(targetUrl);
 
-          // Normalize URL for comparison (remove protocol and trailing slash)
-          const normalize = (u: string) => u.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '').toLowerCase();
-          const normalizedTarget = normalize(targetUrl);
-
-          const clientsRef = collection(db, 'clients');
-          const snapshot = await getDocs(clientsRef);
-          
-          snapshot.forEach(doc => {
-            const clientData = doc.data();
-            if (clientData.websiteUrl) {
-              const normalizedClientUrl = normalize(clientData.websiteUrl);
-              if (normalizedClientUrl === normalizedTarget || normalizedTarget.includes(normalizedClientUrl)) {
-                isClientDetected = true;
-              }
+        const clientsSnapshot = await db.collection('clients').get();
+        clientsSnapshot.forEach((doc: any) => {
+          const clientData = doc.data();
+          if (clientData.websiteUrl) {
+            const normalizedClientUrl = normalize(clientData.websiteUrl);
+            if (normalizedClientUrl === normalizedTarget || normalizedTarget.includes(normalizedClientUrl)) {
+              isClientDetected = true;
             }
-          });
-        }
+          }
+        });
       } catch (dbErr) {
         console.error("[Audit Client Detection Error]:", dbErr);
       }
@@ -226,17 +220,15 @@ async function startServer() {
       }
 
       const html = await fetchRes.text();
-
-      // Utilizar cheerio para extrair dados estruturados
       const cheerio = await import("cheerio");
       const $ = cheerio.load(html);
 
       const structuredData = {
-        title: $("title").text(),
+        title: $("title").length > 0 ? $("title").text() : "Sem título definido",
         description: $('meta[name="description"]').attr("content") || "",
         headers: {
-          h1: $("h1").map((_, el) => $(el).text()).get(),
-          h2: $("h2").map((_, el) => $(el).text()).get().slice(0, 10),
+          h1: $("h1").map((_, el) => $(el).text()).get().filter(t => t.trim()),
+          h2: $("h2").map((_, el) => $(el).text()).get().filter(t => t.trim()).slice(0, 15),
         },
         links: {
           total: $("a").length,
@@ -244,77 +236,49 @@ async function startServer() {
         }
       };
 
-      const jsonResponse = {
-        structuredData,
-        isClientDetected,
-        targetUrl
-      };
-
       const persona = isClientDetected 
         ? "Parceiro Estratégico de Crescimento e Sucesso do Cliente." 
         : "Auditor de SEO Implacável e focado em Conversão de Vendas.";
 
       const toneInstructions = isClientDetected
-        ? `Nível de Rigor: Construtivo e Positivo. O site analisado é de um CLIENTE ATUAL da agência.
-           - O objetivo é mostrar que o trabalho está no caminho certo e apontar 'Próximos Passos' para escala.
-           - Em vez de 'Erro' ou 'Crítico', use termos como 'Oportunidade de Otimização' ou 'Refinamento Estratégico'.
-           - A nota (score) deve ser motivadora, refletindo o cuidado que o site já recebe.`
-        : `Nível de Rigor: Crítico e Persuasivo. O site analisado é de um PROSPECT (cliente em potencial).
-           - O objetivo é gerar senso de urgência e mostrar o que ele está PERDENDO hoje.
-           - Use linguagem direta sobre falhas técnicas e impacto no faturamento.
-           - Seja rigoroso na nota para justificar a contratação da agência.`;
+        ? `Nível de Rigor: Construtivo e Positivo. Site de CLIENTE ATUAL. Objetivo: Retenção e Próximos Passos.`
+        : `Nível de Rigor: Crítico e Persuasivo. Site de PROSPECT. Objetivo: Gerar urgência e converter venda.`;
 
       const prompt = `Você é um ${persona}
-Data atual: ${new Date().toLocaleDateString('pt-BR')}.
-
 ${toneInstructions}
-
-Análise Técnica do Site: ${targetUrl}
-Dados Extraídos: ${JSON.stringify(structuredData, null, 2)}
+Contexto: Auditoria SEO de ${targetUrl}
+Dados Extraídos: ${JSON.stringify(structuredData)}
 
 Regras de Resposta:
-1. Retorne APENAS um JSON puro (sem markdown):
-{
-  "score": number, 
-  "goodPoints": [ { "title": string, "description": string } ],
-  "badPoints": [ { "title": string, "description": string, "impact": "high" | "medium" | "low" } ]
-}
-2. 'goodPoints': Liste o que está bem feito tecnicamente.
-3. 'badPoints': Se for CLIENTE, trate como 'Oportunidades de Melhoria' para o futuro. Se for PROSPECT, trate como 'Erros Graves'.
-4. Títulos dos pontos devem ser curtos e profissionais.`;
+1. Retorne APENAS um JSON: { "score": number, "goodPoints": [{ "title", "description" }], "badPoints": [{ "title", "description", "impact" }] }
+2. Pontuação (score) deve ser sincera baseada no rigor acima.
+3. Descrições devem ser em Português do Brasil.`;
 
       if (!process.env.GEMINI_API_KEY) {
-        return res.status(503).json({ error: "A chave GEMINI_API_KEY não está configurada. Por favor, adicione sua chave nas configurações do app." });
+        throw new Error("GEMINI_API_KEY não configurada.");
       }
 
-      let data = {};
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
-      const genResponse = await fetch(geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.1,
-            responseMimeType: "application/json"
-          }
-        })
+      const { GoogleGenAI } = await import("@google/genai");
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      
+      // Using gemini-3.1-flash-lite-preview for maximum cost efficiency as requested (Flash/Lite version)
+      const genResponse = await ai.models.generateContent({
+        model: "gemini-3.1-flash-lite-preview",
+        contents: [{ parts: [{ text: prompt }] }],
+        config: {
+          temperature: 0.1,
+          responseMimeType: "application/json"
+        }
       });
 
-      if (!genResponse.ok) {
-        const errText = await genResponse.text();
-        throw new Error(`Erro na API do Gemini: ${genResponse.status} - ${errText}`);
-      }
+      const responseText = genResponse.text || "{}";
+      const auditResult = JSON.parse(responseText.replace(/```json|```/g, '').trim());
 
-      const geminiRes = await genResponse.json();
-      const responseText = geminiRes.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-      data = JSON.parse(responseText);
-
-      res.json(data);
+      res.json(auditResult);
 
     } catch (error: any) {
       console.error("[SEO Audit Error]:", error);
-      res.status(500).json({ error: error.message || "Erro ao capturar dados do site." });
+      res.status(500).json({ error: error.message || "Erro ao processar auditoria." });
     }
   });
 
@@ -322,71 +286,29 @@ Regras de Resposta:
   app.get("/sitemap.xml", async (req, res) => {
     res.header("Content-Type", "application/xml");
     try {
-      const db = await getFirebaseDb();
-      if (!db) throw new Error("Firebase não configurado.");
-
-      const { collection, getDocs, query, where } = await import("firebase/firestore");
-
+      const db = await getFirebaseAdminDb();
       const baseUrl = `https://${req.get("host")}`;
       const now = new Date().toISOString().split('T')[0];
 
-      let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${baseUrl}/</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/sobre</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/auditoria</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/servicos</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/blog</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-`;
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+      const staticPages = ['', '/sobre', '/auditoria', '/servicos', '/blog'];
+      staticPages.forEach(p => {
+        xml += `  <url>\n    <loc>${baseUrl}${p}</loc>\n    <lastmod>${now}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>${p === '' ? '1.0' : '0.8'}</priority>\n  </url>\n`;
+      });
 
-      const postsRef = collection(db, 'blog_posts');
-      const q = query(postsRef, where('status', '==', 'Publicado'));
-      const snapshot = await getDocs(q);
-
-      snapshot.forEach(doc => {
+      const snapshot = await db.collection('blog_posts').where('status', '==', 'Publicado').get();
+      snapshot.forEach((doc: any) => {
         const data = doc.data();
-        const slug = data.slug;
-        if (slug) {
-          xml += `  <url>\n    <loc>${baseUrl}/blog/${slug}</loc>\n`;
-          if (data.updatedAt) {
-            let updateDate = data.updatedAt.toDate ? data.updatedAt.toDate() : new Date(data.updatedAt);
-            if (!isNaN(updateDate.getTime())) {
-              xml += `    <lastmod>${updateDate.toISOString().split('T')[0]}</lastmod>\n`;
-            }
-          } else if (data.createdAt) {
-            let createDate = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
-            if (!isNaN(createDate.getTime())) {
-              xml += `    <lastmod>${createDate.toISOString().split('T')[0]}</lastmod>\n`;
-            }
-          }
-          xml += `    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
+        if (data.slug) {
+          xml += `  <url>\n    <loc>${baseUrl}/blog/${data.slug}</loc>\n`;
+          const date = data.updatedAt || data.publishedAt || now;
+          const formattedDate = date instanceof Date ? date.toISOString().split('T')[0] : (date.toDate ? date.toDate().toISOString().split('T')[0] : String(date).split('T')[0]);
+          xml += `    <lastmod>${formattedDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
         }
       });
 
       xml += `</urlset>`;
       res.send(xml);
-
     } catch (error) {
       console.error("[Sitemap Error]", error);
       res.status(500).send("Error generating sitemap");
@@ -409,7 +331,7 @@ Regras de Resposta:
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
+  app.listen(Number(PORT), "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
