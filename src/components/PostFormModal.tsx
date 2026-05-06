@@ -10,7 +10,7 @@ import { FileUploader } from './FileUploader';
 import { Users, FileText, X, Activity, Calendar } from 'lucide-react';
 
 export function PostFormModal({ 
-  postForm, setPostForm, showPostForm, setShowPostForm, handleSavePost, handleSaveDraft, clientsList, isSaving 
+  postForm, setPostForm, showPostForm, setShowPostForm, handleSavePost, handleSaveDraft, clientsList, categories = [], isSaving 
 }: any) {
   const quillRef = useRef<any>(null);
   const internalIsSaving = useRef(false);
@@ -34,15 +34,15 @@ export function PostFormModal({
   const imageHandler = () => {
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/png, image/webp');
+    input.setAttribute('accept', 'image/webp');
     input.click();
 
     input.onchange = async () => {
       const file = input.files ? input.files[0] : null;
       if (!file) return;
 
-      if (!['image/png', 'image/webp'].includes(file.type)) {
-        alert('Por favor, envie apenas imagens no formato PNG ou WEBP.');
+      if (file.type !== 'image/webp') {
+        alert('Por favor, envie apenas imagens no formato WEBP.');
         return;
       }
 
@@ -190,13 +190,17 @@ export function PostFormModal({
                     </div>
                     <div>
                       <label className="flex items-end h-8 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Categoria</label>
-                      <input 
-                        type="text" 
+                      <select 
+                        required
                         value={postForm.category} 
                         onChange={e => setPostForm({...postForm, category: e.target.value})} 
-                        className="w-full h-14 px-5 bg-white border border-slate-100 rounded-2xl font-semibold text-slate-900 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all shadow-sm" 
-                        placeholder="Ex: Tecnologia"
-                      />
+                        className="w-full h-14 px-5 bg-white border border-slate-100 rounded-2xl font-semibold text-slate-900 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all shadow-sm appearance-none cursor-pointer"
+                      >
+                        <option value="">Selecione...</option>
+                        {categories.map((cat: any) => (
+                          <option key={cat.id} value={cat.name}>{cat.name}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>

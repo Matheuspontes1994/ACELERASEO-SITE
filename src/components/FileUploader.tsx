@@ -10,7 +10,7 @@ interface FileUploaderProps {
   accept?: string;
 }
 
-export function FileUploader({ currentUrl, onUploadSuccess, folder, accept = "image/png,image/webp,application/pdf" }: FileUploaderProps) {
+export function FileUploader({ currentUrl, onUploadSuccess, folder, accept = "image/webp,application/pdf" }: FileUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
@@ -19,8 +19,8 @@ export function FileUploader({ currentUrl, onUploadSuccess, folder, accept = "im
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.type.startsWith('image/') && !['image/png', 'image/webp'].includes(file.type)) {
-      setError('Por favor, envie apenas imagens no formato PNG ou WEBP para economizar espaço.');
+    if (file.type.startsWith('image/') && file.type !== 'image/webp') {
+      setError('Por favor, envie apenas imagens no formato WEBP para máxima performance SEO.');
       return;
     }
 
@@ -104,7 +104,7 @@ export function FileUploader({ currentUrl, onUploadSuccess, folder, accept = "im
             <div className="flex flex-col items-center text-slate-500">
               <UploadCloud size={28} className="mb-2 text-slate-400" />
               <span className="text-sm font-medium">Clique ou arraste um arquivo</span>
-              <span className="text-xs text-slate-400 mt-1">Imagens (.webp, .png) ou Documentos (.pdf)</span>
+              <span className="text-xs text-slate-400 mt-1">Imagens (.webp) ou Documentos (.pdf)</span>
             </div>
           )}
           {error && (

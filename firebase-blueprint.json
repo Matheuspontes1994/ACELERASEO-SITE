@@ -1,133 +1,45 @@
 {
   "entities": {
-    "Contact": {
-      "title": "Contact Form Submission",
-      "description": "A lead or message from the contact page.",
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "email": { "type": "string" },
-        "company": { "type": "string" },
-        "message": { "type": "string" },
-        "createdAt": { "type": "timestamp" }
-      },
-      "required": ["name", "email", "message", "createdAt"]
-    },
-    "AuditLead": {
-      "title": "Audit Lead",
-      "description": "A lead captured during SEO Audit.",
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "phone": { "type": "string" },
-        "url": { "type": "string" },
-        "createdAt": { "type": "timestamp" }
-      },
-      "required": ["name", "phone", "url", "createdAt"]
-    },
-    "SeoPage": {
-      "title": "SEO Page Metadata",
-      "description": "Store SEO info like title, description for client pages.",
-      "type": "object",
-      "properties": {
-        "url": { "type": "string" },
-        "title": { "type": "string" },
-        "description": { "type": "string" },
-        "customNotes": { "type": "string" },
-        "createdAt": { "type": "timestamp" },
-        "updatedAt": { "type": "timestamp" }
-      },
-      "required": ["url", "title", "createdAt", "updatedAt"]
-    },
-    "Client": {
-      "title": "Client",
-      "description": "Client information.",
-      "type": "object",
-      "properties": {
-        "agencyUid": { "type": "string" },
-        "clientEmail": { "type": "string" },
-        "websiteUrl": { "type": "string" }
-      },
-      "required": ["agencyUid", "clientEmail", "websiteUrl"]
-    },
-    "BlogPost": {
+    "blog_posts": {
       "title": "Blog Post",
-      "description": "A blog post.",
+      "description": "Artigos do blog da agência ou dos clientes",
       "type": "object",
       "properties": {
-        "agencyUid": { "type": "string" },
-        "clientName": { "type": "string" },
-        "clientEmail": { "type": "string" },
         "title": { "type": "string" },
-        "status": { "type": "string" },
         "slug": { "type": "string" },
+        "description": { "type": "string" },
         "content": { "type": "string" },
-        "createdAt": { "type": "timestamp" },
-        "updatedAt": { "type": "timestamp" }
+        "category": { "type": "string" },
+        "coverImage": { "type": "string" },
+        "status": { "type": "string", "enum": ["Rascunho", "Planejado", "Aguardando Aprovação", "Publicado"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["agencyUid", "status", "slug"]
+      "required": ["title", "slug", "content", "category"]
     },
-    "Backlink": {
-      "title": "Backlink",
-      "description": "A backlink record.",
+    "blog_categories": {
+      "title": "Blog Category",
+      "description": "Categorias para organizar os artigos do blog",
       "type": "object",
       "properties": {
-        "agencyUid": { "type": "string" },
-        "clientName": { "type": "string" },
-        "clientEmail": { "type": "string" },
-        "title": { "type": "string" },
-        "status": { "type": "string" },
-        "createdAt": { "type": "timestamp" },
-        "updatedAt": { "type": "timestamp" }
-      }
-    },
-    "Keyword": {
-      "title": "Keyword Universe",
-      "description": "A keyword planning record.",
-      "type": "object",
-      "properties": {
-        "agencyUid": { "type": "string" },
-        "clientName": { "type": "string" },
-        "clientEmail": { "type": "string" },
-        "keyword": { "type": "string" },
-        "status": { "type": "string" },
-        "createdAt": { "type": "timestamp" },
-        "updatedAt": { "type": "timestamp" }
-      }
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" },
+        "seoTitle": { "type": "string" },
+        "seoDescription": { "type": "string" },
+        "isProtected": { "type": "boolean", "description": "Se true, não pode ser deletada (ex: Geral)" }
+      },
+      "required": ["name", "slug"]
     }
   },
   "firestore": {
-    "/contacts/{contactId}": {
-      "schema": { "$ref": "#/entities/Contact" },
-      "description": "Messages from the contact form"
+    "blog_posts": {
+      "schema": "blog_posts",
+      "description": "Coleção principal de artigos"
     },
-    "/audit_leads/{leadId}": {
-      "schema": { "$ref": "#/entities/AuditLead" },
-      "description": "Leads collected during audit"
-    },
-    "/seo_pages/{pageId}": {
-      "schema": { "$ref": "#/entities/SeoPage" },
-      "description": "SEO Metadata management"
-    },
-    "/clients/{clientId}": {
-      "schema": { "$ref": "#/entities/Client" },
-      "description": "Client management"
-    },
-    "/blog_posts/{postId}": {
-      "schema": { "$ref": "#/entities/BlogPost" },
-      "description": "Blog management"
-    },
-    "/backlinks/{backlinkId}": {
-      "schema": { "$ref": "#/entities/Backlink" },
-      "description": "Backlink management"
-    },
-    "/keyword_universe/{keywordId}": {
-      "schema": { "$ref": "#/entities/Keyword" },
-      "description": "Keyword planning"
-    },
-    "/settings/{settingId}": {
-      "schema": { "type": "object" },
-      "description": "Global settings"
+    "blog_categories": {
+      "schema": "blog_categories",
+      "description": "Coleção de categorias gerenciáveis"
     }
   }
 }

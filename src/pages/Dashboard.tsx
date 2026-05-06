@@ -176,6 +176,118 @@ export default function Dashboard() {
   
   const [loadedTabs, setLoadedTabs] = useState<Set<string>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Categories State
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [categoryForm, setCategoryForm] = useState({ id: '', name: '', slug: '', description: '', seoTitle: '', seoDescription: '', isProtected: false });
+
+  const loadCategories = async () => {
+    if (!auth.currentUser) return;
+    setLoadingCategories(true);
+    try {
+      const q = query(collection(db, 'blog_categories'), orderBy('name', 'asc'));
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as any[];
+      
+      // Ensure "Geral" exists
+      const hasGeral = data.find(c => c.name === 'Geral' || c.isProtected);
+      if (!hasGeral) {
+        const geralData = {
+          name: 'Geral',
+          slug: 'geral',
+          description: 'Categoria padrão para artigos.',
+          isProtected: true,
+          createdAt: serverTimestamp()
+        };
+        const docRef = await addDoc(collection(db, 'blog_categories'), geralData);
+        data.push({ ...geralData, id: docRef.id });
+      }
+      
+      setCategories(data);
+    } catch (err) {
+      console.error("Erro ao carregar categorias:", err);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  const handleSaveCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSaving) return;
+    setIsSaving(true);
+    try {
+      const { id, ...data } = categoryForm;
+      const slug = data.slug || data.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      
+      const payload = {
+        ...data,
+        slug,
+        updatedAt: serverTimestamp()
+      };
+
+      if (id) {
+        const oldCategory = categories.find(c => c.id === id);
+        await updateDoc(doc(db, 'blog_categories', id), payload);
+        
+        // If name changed, update all posts belonging to this category
+        if (oldCategory && oldCategory.name !== data.name) {
+          const postsQ = query(collection(db, 'blog_posts'), where('category', '==', oldCategory.name));
+          const postsSnap = await getDocs(postsQ);
+          const updatePromises = postsSnap.docs.map(postDoc => 
+            updateDoc(postDoc.ref, { category: data.name })
+          );
+          await Promise.all(updatePromises);
+        }
+      } else {
+        await addDoc(collection(db, 'blog_categories'), {
+          ...payload,
+          createdAt: serverTimestamp()
+        });
+      }
+      setShowCategoryForm(false);
+      loadCategories();
+      alert("Categoria salva com sucesso!");
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao salvar categoria.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteCategory = async (cat: any) => {
+    if (cat.isProtected || cat.name === 'Geral') {
+      alert("A categoria Geral é protegida e não pode ser excluída.");
+      return;
+    }
+
+    if (!confirm(`Tem certeza que deseja excluir a categoria "${cat.name}"? Todos os artigos vinculados a ela serão movidos para "Geral".`)) {
+      return;
+    }
+
+    try {
+      // 1. Find all posts with this category
+      const postsQ = query(collection(db, 'blog_posts'), where('category', '==', cat.name));
+      const postsSnap = await getDocs(postsQ);
+      
+      // 2. Update posts to "Geral"
+      const updatePromises = postsSnap.docs.map(postDoc => 
+        updateDoc(postDoc.ref, { category: 'Geral' })
+      );
+      await Promise.all(updatePromises);
+      
+      // 3. Delete the category
+      await deleteDoc(doc(db, 'blog_categories', cat.id));
+      
+      loadCategories();
+      alert(`Categoria excluída. ${updatePromises.length} artigos foram movidos para "Geral".`);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao excluir categoria.");
+    }
+  };
 
   // Pagination states
   const [auditLastDoc, setAuditLastDoc] = useState<any>(null);
@@ -1068,7 +1180,7 @@ export default function Dashboard() {
         {/* Improved Tab Navigation */}
         <HorizontalScroll className="mb-10">
           <div className="flex bg-slate-200/30 rounded-2xl border border-slate-200 gap-1 p-1 w-fit">
-            {['Visão Geral', 'Conteúdo Interno (Acelera)', 'Hub de Clientes', 'Planejamento', 'Artigos e Conteúdos', 'Backlinks', 'Monitoramento de Rankings', 'Aprovações Pendentes', 'Clientes & CRM', 'Configurações'].map(tab => (
+            {['Visão Geral', 'Conteúdo Interno (Acelera)', 'Hub de Clientes', 'Planejamento', 'Artigos e Conteúdos', 'Categorias', 'Backlinks', 'Monitoramento de Rankings', 'Aprovações Pendentes', 'Clientes & CRM', 'Configurações'].map(tab => (
               <button 
                 key={tab}
                 onClick={() => {
@@ -1083,8 +1195,132 @@ export default function Dashboard() {
           </div>
         </HorizontalScroll>
 
-        {/* Dashboard Grid / conditional content */}
-        {activeTab === 'Visão Geral' && (
+        {activeTab === 'Categorias' ? (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+            <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10">
+              <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-10">
+                <div>
+                  <h3 className="text-[10px] font-black text-brand-600 uppercase tracking-[0.4em] mb-2">Editor de Taxonomia</h3>
+                  <h2 className="text-3xl font-black text-slate-900 tracking-tight">Categorias do Blog</h2>
+                  <p className="text-slate-500 font-medium mt-1">Organização temática e otimização de taxonomia para SEO.</p>
+                </div>
+                <button onClick={() => {
+                  setCategoryForm({ id: '', name: '', slug: '', description: '', seoTitle: '', seoDescription: '', isProtected: false });
+                  setShowCategoryForm(true);
+                }} className="bg-slate-900 text-white font-black uppercase tracking-widest rounded-2xl text-[10px] hover:bg-brand-600 transition-all shadow-lg px-8 py-4">
+                  + Nova Categoria
+                </button>
+              </div>
+
+              {showCategoryForm && (
+                <motion.form 
+                  initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
+                  onSubmit={handleSaveCategory} className="bg-slate-50 border border-slate-200 rounded-[2rem] space-y-6 mb-12 p-8 lg:p-10">
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                      <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-2">Informações Base</h4>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Nome da Categoria</label>
+                        <input type="text" required value={categoryForm.name} onChange={e => setCategoryForm({...categoryForm, name: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold shadow-sm focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="Ex: SEO Técnico" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">URL Amigável (Slug)</label>
+                        <input type="text" value={categoryForm.slug} onChange={e => setCategoryForm({...categoryForm, slug: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold shadow-sm focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="seo-tecnico" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Descrição Curta</label>
+                        <textarea value={categoryForm.description} onChange={e => setCategoryForm({...categoryForm, description: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium shadow-sm focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" rows={3} placeholder="Explique do que se trata esta categoria..." />
+                      </div>
+                    </div>
+                    <div className="space-y-6">
+                      <h4 className="text-xs font-black text-brand-600 uppercase tracking-widest border-b border-brand-100 pb-2">Otimização SEO</h4>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">SEO Title</label>
+                        <input type="text" value={categoryForm.seoTitle} onChange={e => setCategoryForm({...categoryForm, seoTitle: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold shadow-sm focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="Título que aparecerá no Google" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Meta Description</label>
+                        <textarea value={categoryForm.seoDescription} onChange={e => setCategoryForm({...categoryForm, seoDescription: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium shadow-sm focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" rows={3} placeholder="Descrição para os resultados de busca..." />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-3 pt-6 border-t border-slate-200">
+                    <button type="button" onClick={() => setShowCategoryForm(false)} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 px-6 py-4">Descartar</button>
+                    <button type="submit" disabled={isSaving} className="bg-slate-900 text-white font-black uppercase tracking-widest rounded-2xl text-[10px] hover:bg-brand-600 px-10 py-4 shadow-lg transition-all active:scale-95 disabled:opacity-50">
+                      {isSaving ? 'Salvando...' : 'Salvar Categoria'}
+                    </button>
+                  </div>
+                </motion.form>
+              )}
+
+              <div className="overflow-x-auto no-scrollbar">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-100">
+                      <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4">Nome da Categoria</th>
+                      <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4">Slug / URL</th>
+                      <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4">SEO Health</th>
+                      <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4 text-right">Controle</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categories.map((cat) => (
+                      <tr key={cat.id} className="border-b border-slate-50 last:border-0 group hover:bg-slate-50/80 transition-colors">
+                        <td className="py-6 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-2.5 h-2.5 rounded-full ${cat.isProtected ? 'bg-brand-500 shadow-[0_0_8px_rgba(234,179,8,0.5)]' : 'bg-slate-300'}`}></div>
+                            <div>
+                               <span className="text-sm font-black text-slate-900 block leading-none mb-1">{cat.name}</span>
+                               <span className="text-[9px] font-medium text-slate-400 truncate max-w-[200px] block">{cat.description || 'Sem descrição'}</span>
+                            </div>
+                            {cat.isProtected && <span className="bg-slate-100 text-slate-400 text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Default</span>}
+                          </div>
+                        </td>
+                        <td className="py-6 px-4">
+                          <span className="text-[10px] font-bold text-slate-400 font-mono bg-slate-100 px-2 py-1 rounded">/blog/{cat.slug}</span>
+                        </td>
+                        <td className="py-6 px-4">
+                          <div className="flex gap-2">
+                            <div className={`w-3 h-3 rounded-full border-2 ${cat.seoTitle ? 'bg-emerald-500 border-emerald-100' : 'bg-slate-100 border-slate-200'}`} title="Title SEO"></div>
+                            <div className={`w-3 h-3 rounded-full border-2 ${cat.seoDescription ? 'bg-emerald-500 border-emerald-100' : 'bg-slate-100 border-slate-200'}`} title="Meta Description"></div>
+                          </div>
+                        </td>
+                        <td className="py-6 px-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button 
+                              onClick={() => {
+                                setCategoryForm(cat);
+                                setShowCategoryForm(true);
+                              }}
+                              className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-brand-600 hover:border-brand-200 transition-all shadow-sm"
+                            >
+                              <Edit2 size={16} />
+                            </button>
+                            {!cat.isProtected && (
+                              <button 
+                                onClick={() => handleDeleteCategory(cat)}
+                                className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {categories.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="text-center py-20">
+                          <p className="text-xs font-black text-slate-300 uppercase tracking-widest">Nenhuma categoria encontrada</p>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </motion.div>
+        ) : activeTab === 'Visão Geral' ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                {[
@@ -1177,10 +1413,95 @@ export default function Dashboard() {
                   </div>
                </div>
             </div>
-          </motion.div>
-        )}
+            
+            {/* SLAs and Rankings in Overview */}
+            <div className="grid lg:grid-cols-3 gap-8">
+               <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10">
+                  <div className="mb-8">
+                     <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-2">SLA & Pendências</h3>
+                     <p className="text-slate-500 font-medium text-sm">Acompanhamento e gargalos operacionais por cliente</p>
+                  </div>
+                  <div className="space-y-4">
+                    {(() => {
+                      const now = new Date();
+                      const currentMonthYear = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                      const slaIssues = clients.map(client => {
+                        const isExpired = Number(now.getDate()) >= Number(client.billingDay || 10) && client.lastPaymentMonth !== currentMonthYear;
+                        let targetPosts = Number(client.monthlyPosts || 0);
+                        let targetBacklinks = Number(client.monthlyBacklinks || 0);
+                        if (client.extraMonth === currentMonthYear) {
+                          targetPosts += Number(client.extraPosts || 0);
+                          targetBacklinks += Number(client.extraBacklinks || 0);
+                        }
+                        const clientPosts = blogPosts.filter(p => p.clientName === client.name && ['Publicado', 'Aprovado'].includes(p.status)).length;
+                        const clientLinks = backlinks.filter(b => b.clientName === client.name && ['Publicado'].includes(b.status)).length;
+                        const missingPosts = targetPosts > clientPosts;
+                        const missingLinks = targetBacklinks > clientLinks;
+                        return {
+                          ...client,
+                          isExpired,
+                          missingPosts: missingPosts ? (targetPosts - clientPosts) : 0,
+                          missingLinks: missingLinks ? (targetBacklinks - clientLinks) : 0,
+                          hasIssues: isExpired || missingPosts || missingLinks
+                        }
+                      }).filter(c => c.hasIssues);
 
-        {activeTab === 'Clientes & CRM' ? (
+                      if (slaIssues.length === 0) return (
+                        <div className="py-12 bg-slate-50 rounded-3xl border border-dashed border-slate-200 text-center">
+                          <CheckCircle2 size={32} className="mx-auto text-emerald-500 mb-4" />
+                          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Operação 100% em dia</p>
+                        </div>
+                      );
+
+                      return slaIssues.map(c => (
+                        <div key={c.id} className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-brand-200 transition-all">
+                          <div>
+                            <p className="text-base font-black text-slate-900 mb-2">{c.name}</p>
+                            <div className="flex gap-2">
+                              {c.missingPosts > 0 && <span className="px-2.5 py-1 bg-amber-100 text-amber-700 text-[9px] font-black uppercase rounded-lg">Faltam {c.missingPosts} Artigos</span>}
+                              {c.missingLinks > 0 && <span className="px-2.5 py-1 bg-amber-100 text-amber-700 text-[9px] font-black uppercase rounded-lg">Faltam {c.missingLinks} Backlinks</span>}
+                              {c.isExpired && <span className="px-2.5 py-1 bg-rose-100 text-rose-700 text-[9px] font-black uppercase rounded-lg">Pagamento Pendente</span>}
+                            </div>
+                          </div>
+                          <button onClick={() => { setActiveTab('Clientes & CRM'); setFilterClient(c.name); }} className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-brand-600 transition-all">
+                            <ArrowRight size={18} />
+                          </button>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+               </div>
+
+               <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10 overflow-hidden">
+                  <div className="mb-8">
+                     <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-2">Rankings</h3>
+                     <p className="text-slate-500 font-medium text-sm">Palavras principais em destaque</p>
+                  </div>
+                  <div className="space-y-6">
+                    {currentKwData.slice(0, 6).map((k: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between pb-4 border-b border-slate-50 last:border-0">
+                         <div className="flex-1 min-w-0">
+                           <p className="text-sm font-bold text-slate-800 truncate pr-4">{k.kw}</p>
+                           <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">{k.vol}</p>
+                         </div>
+                         <div className="flex items-center gap-2">
+                            <span className="text-sm font-black text-slate-900">#{k.pos}</span>
+                            {k.diff > 0 ? (
+                               <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 px-1.5 py-0.5 rounded">+{k.diff}</span>
+                            ) : k.diff < 0 ? (
+                               <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded">{k.diff}</span>
+                            ) : null}
+                         </div>
+                      </div>
+                    ))}
+                    <button onClick={() => setActiveTab('Monitoration de Rankings')} className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-brand-600 hover:bg-brand-50 rounded-2xl transition-all border border-brand-100 mt-4">
+                      Ver Relatório Completo
+                    </button>
+                  </div>
+               </div>
+            </div>
+          </motion.div>
+        ) : activeTab === 'Clientes & CRM' ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
             <div className="flex bg-slate-200/50 p-1 rounded-2xl border border-slate-200 gap-1 mb-8 w-fit">
               {['Clientes Ativos', 'Leads Auditoria', 'Mensagens Contato'].map(sub => (
@@ -1778,215 +2099,15 @@ export default function Dashboard() {
           </motion.div>
         ) : activeTab === 'Configurações' ? (
           <SettingsGlobal />
-        ) : (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-6 sm:space-y-8"
-        >
-          <motion.div 
-            initial="hidden"
-            animate="visible"
-            variants={{
-              hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: {
-                  staggerChildren: 0.1
-                }
-              }
-            }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
-          >
-            {[
-              { title: 'Tráfego Orgânico', val: totalClicksInfo, change: '+24%', icon: Activity, color: 'brand' },
-              { title: 'Keywords no Top 3', val: currentKwData.length > 5 ? '128' : currentKwData.length, change: '+12%', icon: Search, color: 'indigo' },
-              { title: 'Saúde SEO', val: '94/100', change: '+2 pts', icon: CheckCircle2, color: 'emerald' },
-              { title: 'Novos Backlinks', val: '24', change: '+5', icon: LinkIcon, color: 'amber' }
-            ].map((metric, i) => (
-              <motion.div 
-                key={i}
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0 }
-                }}
-                whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-xl hover:border-brand-100 transition-all duration-300 p-6"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className={`p-3 bg-${metric.color}-50 text-${metric.color}-600 rounded-2xl`}>
-                    <metric.icon size={22} />
-                  </div>
-                  <div className="flex items-center text-emerald-500 text-xs font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-100/50 gap-1">
-                    <TrendingUp size={14} /> {metric.change}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{metric.title}</p>
-                  <h3 className="text-3xl font-black text-slate-900 font-display tracking-tight mt-2 text-center md:text-left">
-                    {metric.val.toString().includes('/') ? (
-                      <>
-                        {metric.val.toString().split('/')[0]}
-                        <span className="text-lg text-slate-300 font-medium">/{metric.val.toString().split('/')[1]}</span>
-                      </>
-                    ) : metric.val}
-                  </h3>
-                </div>
-              </motion.div>
-            ))}
+        ) : activeTab === 'Planejamento' || activeTab === 'Artigos e Conteúdos' || activeTab === 'Backlinks' ? (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-20 flex flex-col items-center justify-center text-center">
+            <div className="w-20 h-20 bg-slate-50 text-slate-300 rounded-3xl flex items-center justify-center mb-6 border border-slate-100">
+              <Activity size={40} />
+            </div>
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Seção em Atualização</h3>
+            <p className="text-slate-500 font-medium max-w-sm">Estamos refinando a interface desta ferramenta para melhor performance técnica.</p>
           </motion.div>
-
-          {/* Charts and Tables Area */}
-          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Main Chart */}
-            <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 shadow-sm p-5 sm:p-6">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h3 className="text-xl font-black text-slate-900 font-display text-center md:text-left">Crescimento Orgânico</h3>
-                  <p className="text-sm text-slate-500 font-medium">Cliques (últimos 12 meses / 30 dias)</p>
-                </div>
-              </div>
-              <div className="h-[250px] sm:h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                    <RechartsTooltip 
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)' }}
-                      itemStyle={{ color: '#0ea5e9', fontWeight: 'bold' }}
-                    />
-                    <Area type="monotone" dataKey="clicks" stroke="#0ea5e9" strokeWidth={3} fillOpacity={1} fill="url(#colorClicks)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Keyword Rankings */}
-            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col p-5 sm:p-6">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h3 className="text-lg font-extrabold text-slate-900 font-display text-center md:text-left">Top Palavras-chave</h3>
-                  <p className="text-sm text-slate-500 font-medium">Maiores ganhos na semana</p>
-                </div>
-              </div>
-              <div className="flex-1 overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[400px]">
-                  <thead>
-                    <tr className="border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400 font-bold">
-                      <th className="pr-4 font-semibold pb-3">Keyword</th>
-                      <th className="font-semibold pb-3 px-2">Pos</th>
-                      <th className="pl-2 font-semibold text-right pb-3">Vol</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentKwData.map((k: any, i: number) => (
-                      <tr key={`kw-${k.kw}-${i}`} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                        <td className="pr-4 text-sm font-medium text-slate-800 truncate max-w-[120px] sm:max-w-[150px] py-3">{k.kw}</td>
-                        <td className="text-sm font-bold text-slate-900 flex items-center gap-1.5 py-3 px-2">
-                          #{k.pos}
-                          {k.diff > 0 ? (
-                            <span className="text-emerald-500 text-[10px] flex items-center bg-emerald-50 rounded px-1"><ArrowUpRight size={10}/> {k.diff}</span>
-                          ) : k.diff < 0 ? (
-                            <span className="text-rose-500 text-[10px] flex items-center bg-rose-50 rounded px-1"><TrendingUp size={10} className="rotate-180" /> {Math.abs(k.diff)}</span>
-                          ) : <span className="text-slate-300 text-[10px] px-1">-</span>}
-                        </td>
-                        <td className="pl-2 text-sm font-medium text-slate-500 text-right py-3">{k.vol}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <Link to="/painel" className="text-sm text-brand-600 font-bold hover:text-brand-700 flex items-center justify-center border-t border-slate-100 transition-colors mt-auto mt-4 gap-1 pt-4">
-                Ver todas <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
-
-          {/* Tasks Area */}
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-              <div>
-                <h3 className="text-lg font-extrabold text-slate-900 font-display text-center md:text-left">SLA & Pendências</h3>
-                <p className="text-sm text-slate-500 font-medium">Acompanhamento e gargalos dos clientes</p>
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              {(() => {
-                const now = new Date();
-                const currentMonthYear = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                
-                const slaIssues = clients.map(client => {
-                  const isExpired = Number(now.getDate()) >= Number(client.billingDay || 10) && client.lastPaymentMonth !== currentMonthYear;
-                  
-                  let targetPosts = Number(client.monthlyPosts || 0);
-                  let targetBacklinks = Number(client.monthlyBacklinks || 0);
-                  if (client.extraMonth === currentMonthYear) {
-                    targetPosts += Number(client.extraPosts || 0);
-                    targetBacklinks += Number(client.extraBacklinks || 0);
-                  }
-                  
-                  const clientPosts = blogPosts.filter(p => p.clientName === client.name && ['Publicado', 'Aprovado'].includes(p.status)).length;
-                  const clientLinks = backlinks.filter(b => b.clientName === client.name && ['Publicado'].includes(b.status)).length;
-                  
-                  const missingPosts = targetPosts > clientPosts;
-                  const missingLinks = targetBacklinks > clientLinks;
-                  
-                  return {
-                    ...client,
-                    isExpired,
-                    missingPosts: missingPosts ? (targetPosts - clientPosts) : 0,
-                    missingLinks: missingLinks ? (targetBacklinks - clientLinks) : 0,
-                    hasIssues: isExpired || missingPosts || missingLinks
-                  }
-                }).filter(c => c.hasIssues);
-
-                if (slaIssues.length === 0) {
-                  return (
-                    <div className="text-center text-slate-500 bg-slate-50 rounded-xl py-6">
-                      <CheckCircle2 size={32} className="mx-auto text-emerald-500 mb-2" />
-                      Tudo em dia! Nenhum cliente com pendência no momento.
-                    </div>
-                  );
-                }
-
-                return slaIssues.map(c => (
-                  <div key={c.id} className="flex flex-col sm:flex-row rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50/50 transition-colors p-4 gap-4">
-                    <div className="flex-1">
-                      <p className="font-bold text-slate-900">{c.name}</p>
-                      <div className="flex flex-wrap mt-2 gap-2">
-                        {c.missingPosts > 0 && (
-                          <span className="inline-flex items-center px-2.5 text-xs font-bold bg-amber-50 text-amber-600 rounded-md gap-1 py-1">
-                            Falta {c.missingPosts} Artigo(s)
-                          </span>
-                        )}
-                        {c.missingLinks > 0 && (
-                          <span className="inline-flex items-center px-2.5 text-xs font-bold bg-amber-50 text-amber-600 rounded-md gap-1 py-1">
-                            Falta {c.missingLinks} Backlink(s)
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <button onClick={() => { setActiveTab('Clientes & CRM'); setFilterClient(c.name); }} className="text-xs font-bold text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 py-1.5 rounded-lg transition-colors px-3">
-                        Ver Cliente
-                      </button>
-                    </div>
-                  </div>
-                ));
-              })()}
-            </div>
-          </div>
-        </motion.div>
-        )}
+        ) : null}
       </div>
 
       <PostFormModal 
@@ -1997,6 +2118,7 @@ export default function Dashboard() {
         handleSavePost={handleSavePost}
         handleSaveDraft={handleSaveDraft}
         clientsList={clientsList}
+        categories={categories}
         isSaving={isSaving}
       />
 

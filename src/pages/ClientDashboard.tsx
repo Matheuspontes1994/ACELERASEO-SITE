@@ -630,7 +630,7 @@ export default function ClientDashboard() {
                    ) : filteredBlogPosts.filter(p => p.status === 'Aguardando Aprovação' && (filterMonth ? p.targetMonth === filterMonth : true)).length === 0 ? (
                       <div className="col-span-full text-center border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50 py-16">
                         <CheckCircle2 size={56} className="mx-auto text-emerald-400 mb-6" />
-                        <h3 className="text-2xl font-bold text-slate-800 font-display mb-3 text-center md:text-left">Tudo revisado!</h3>
+                        <h3 className="text-2xl font-bold text-slate-800 font-display mb-3 text-center">Tudo revisado!</h3>
                         <p className="text-slate-500 text-lg">Nenhum conteúdo aguardando sua aprovação neste momento.</p>
                       </div>
                    ) : filteredBlogPosts.filter(p => p.status === 'Aguardando Aprovação' && (filterMonth ? p.targetMonth === filterMonth : true)).map((post, idx) => (
