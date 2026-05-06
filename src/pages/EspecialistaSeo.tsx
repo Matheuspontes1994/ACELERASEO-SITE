@@ -6,7 +6,7 @@ import { Target, Users, Search, CheckCircle2, TrendingUp, ShieldCheck, ArrowRigh
 
 export default function EspecialistaSeoPage() {
   return (
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-20">
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
       <Helmet>
         <title>Especialista em SEO | Consultoria de Alto Desempenho</title>
         <meta name="description" content="Contrate um especialista em SEO sênior para alavancar suas vendas orgânicas. Otimização técnica, consultoria avançada e estratégias validadas de posicionamento no Google." />

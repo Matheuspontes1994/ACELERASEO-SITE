@@ -3,12 +3,11 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { Link as LinkIcon, Target, TrendingUp, ShieldCheck, Activity, Globe, Award, CheckCircle2 } from 'lucide-react';
-import { Breadcrumbs } from '../components/Breadcrumbs';
 import { JsonLd } from '../components/JsonLd';
 
 export default function LinkBuildingPage() {
   return (
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-20">
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
       <Helmet>
         <title>Agência de Link Building e Digital PR | Conquiste Backlinks de Alta Autoridade</title>
         <meta name="description" content="Escale a autoridade do seu domínio e conquiste o topo do Google com a principal agência de Link Building do mercado. Especialistas em Digital PR e Backlinks." />
@@ -37,9 +36,7 @@ export default function LinkBuildingPage() {
         }
       }} />
 
-      <div className="max-w-7xl mx-auto px-6">
-        <Breadcrumbs />
-      </div>
+
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto relative px-6 mb-8 md:mb-8 lg:mb-24">
@@ -161,23 +158,13 @@ export default function LinkBuildingPage() {
                  decoding="async"
                />
             </div>
-            
-            <div className="absolute -bottom-8 -right-8 bg-white rounded-[2rem] shadow-2xl max-w-[280px] border border-slate-100 p-6 md:p-8">
-               <div className="flex items-center gap-4 mb-3">
-                 <div className="bg-green-100 rounded-full text-green-600 p-3">
-                    <TrendingUp size={24} />
-                 </div>
-                 <div className="text-sm font-bold text-slate-500 uppercase tracking-widest">DR Médio</div>
-               </div>
-               <div className="text-4xl font-black text-slate-900">+ 55.0</div>
-            </div>
           </div>
           
           <div className="order-1 md:order-2">
-             <div className="inline-flex items-center bg-amber-100 text-amber-800 rounded-lg text-sm font-bold tracking-wide uppercase gap-2 px-4 py-2 mb-6">
-                <Award size={18} /> Qualidade Absoluta
+             <div className="inline-flex items-center bg-amber-50 text-amber-900 rounded-lg text-[11px] font-bold tracking-widest uppercase gap-2 px-4 py-2 mb-6 border border-amber-100">
+                <Award size={14} /> Qualidade Absoluta
              </div>
-             <h2 className="text-3xl sm:text-4xl md:text-5xl leading-[1.15] md:leading-[1.1] text-balance font-extrabold text-slate-900 font-display leading-[1.1] mb-8 text-center md:text-center">O fim dos pacotes cegos e listas perigosas.</h2>
+             <h2 className="text-3xl sm:text-4xl md:text-5xl leading-[1.15] md:leading-[1.1] text-balance font-extrabold text-slate-900 font-display mb-8 text-center md:text-left">O fim dos pacotes cegos e listas perigosas.</h2>
              <p className="text-lg text-slate-600 font-light leading-relaxed mb-6 text-justify md:text-left">
                 O modelo atrasado de <strong>venda de backlinks</strong> baseava-se em "Pacotes com 50 links de alta qualidade" onde o cliente não via nada. Isso é passado.
              </p>
@@ -185,8 +172,8 @@ export default function LinkBuildingPage() {
                 A estruturação do Link Profile de uma marca requer transparência total. Você saberá exatamente de onde cada link está vindo, qual o DA/DR do projeto nativo e nós auxiliaremos na escolha da <strong>ancoragem (anchor text)</strong> perfeita para que pareça exatamente um voto orgânico e limpo. Isso protege o seu capital investido.
              </p>
 
-             <Link to="/contato" className="inline-flex items-center justify-center bg-slate-100 text-slate-800 font-bold text-lg rounded-xl hover:bg-slate-200 transition-colors gap-3 px-8 py-4">
-               Ver portfólio de cases Off-Page
+             <Link to="/contato" className="inline-flex items-center justify-center bg-brand-600 text-white font-bold text-lg rounded-xl hover:bg-brand-700 transition-all shadow-lg shadow-brand-500/20 px-10 py-5">
+               Solicitar Orçamento de Link Building
              </Link>
           </div>
         </div>

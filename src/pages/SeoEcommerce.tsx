@@ -3,12 +3,11 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, TrendingUp, Search, Zap, CheckCircle2, BarChart, Tag, Layers, Activity } from 'lucide-react';
-import { Breadcrumbs } from '../components/Breadcrumbs';
 import { JsonLd } from '../components/JsonLd';
 
 export default function SeoEcommercePage() {
   return (
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-20">
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
       <Helmet>
         <title>SEO para E-commerce | Aumente as Vendas da sua Loja Virtual</title>
         <meta name="description" content="Escale o faturamento da sua loja virtual saindo da dependência de anúncios. Agência especialista em SEO para E-commerce, categorias e Core Web Vitals." />
@@ -38,9 +37,7 @@ export default function SeoEcommercePage() {
         "serviceType": "Search Engine Optimization"
       }} />
 
-      <div className="max-w-7xl mx-auto px-6">
-        <Breadcrumbs />
-      </div>
+
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto relative px-6 mb-8 md:mb-8 lg:mb-24">
@@ -76,17 +73,6 @@ export default function SeoEcommercePage() {
                  alt="Especialista de performance de e-commerce analisando um terminal de pagamentos e a tela de vendas demonstrando alta conversão através de tráfego orgânico" 
                  className="w-full h-full object-cover" 
                />
-            </div>
-            <div className="absolute -bottom-8 -left-8 bg-white rounded-2xl shadow-xl border border-slate-100 max-w-[240px] p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
-                  <TrendingUp size={20} />
-                </div>
-                <div>
-                   <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tráfego Qualificado</div>
-                </div>
-              </div>
-              <div className="text-2xl font-black text-slate-900">+127% de ROI</div>
             </div>
           </div>
           <div className="order-1 md:order-2">

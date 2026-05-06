@@ -33,7 +33,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-20">
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
       <Helmet>
         <title>Contato | Especialistas em Auditoria de SEO e Marketing SEO</title>
         <meta name="description" content="Fale com nossos especialistas em auditoria de SEO. Inicie seu projeto de SEO para sites focado na liderança orgânica hoje com a nossa agência seo." />

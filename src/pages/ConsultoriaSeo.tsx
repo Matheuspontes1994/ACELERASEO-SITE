@@ -4,7 +4,6 @@ import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { Target, Users, Search, CheckCircle2, TrendingUp, Lightbulb, FileText, ArrowRight } from 'lucide-react';
 import { JsonLd } from '../components/JsonLd';
-import { Breadcrumbs } from '../components/Breadcrumbs';
 
 export default function ConsultoriaSeoPage() {
   const serviceSchema = {

@@ -67,13 +67,12 @@ export default function Blog() {
         <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
-      <div className="min-h-screen bg-slate-50 relative overflow-hidden pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-24">
+      <div className="min-h-screen bg-slate-50 relative overflow-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-24">
         {/* Background elements */}
         <div className="absolute top-0 right-0 w-full h-[500px] bg-gradient-to-b from-brand-900/5 to-transparent pointer-events-none"></div>
         <div className="absolute top-40 right-10 w-96 h-96 bg-brand-400/10 rounded-full blur-[120px] pointer-events-none"></div>
 
         <main className="max-w-7xl mx-auto relative z-10 px-6">
-          <Breadcrumbs />
           
           <header className="text-center mb-20">
             <div className="inline-flex w-16 h-16 items-center justify-center rounded-2xl bg-white text-brand-600 border border-brand-100 shadow-sm mb-6">

@@ -46,7 +46,6 @@ const ContactPage = lazy(() => import('./pages/Contact'));
 const SeoEcommercePage = lazy(() => import('./pages/SeoEcommerce'));
 const ConsultoriaSeoPage = lazy(() => import('./pages/ConsultoriaSeo'));
 const LinkBuildingPage = lazy(() => import('./pages/LinkBuilding'));
-const VendaBacklinksPage = lazy(() => import('./pages/VendaBacklinks'));
 const EspecialistaSeoPage = lazy(() => import('./pages/EspecialistaSeo'));
 const SeoLocalPage = lazy(() => import('./pages/SeoLocal'));
 import { Tooltip } from './components/Tooltip';
@@ -150,7 +149,7 @@ const Hero = () => {
             <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-brand-100/20 via-transparent to-brand-50/10 -z-10 group-hover/card:opacity-70 transition-opacity duration-500"></div>
 
             <div className="flex justify-between items-center mb-10">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Acelera SEO em Números</h3>
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Acelera SEO em Foco</h3>
               <div className="flex gap-2">
                 <div className="w-2 h-2 bg-brand-200 rounded-full animate-pulse"></div>
                 <div className="w-2 h-2 bg-brand-100 rounded-full"></div>
@@ -158,34 +157,34 @@ const Hero = () => {
               </div>
             </div>
             
-            <div className="space-y-3">
-              <div className="flex items-center group hover:bg-white/40 border border-transparent hover:border-white/60 rounded-[2rem] transition-all duration-500 gap-6 p-5 backdrop-blur-sm">
-                <div className="w-16 h-16 bg-white/80 shadow-sm rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-white">
-                  <Users size={28} className="text-brand-600" />
+            <div className="space-y-6">
+              <div className="flex items-center gap-6 p-5 backdrop-blur-sm">
+                <div className="w-16 h-16 bg-white/80 shadow-sm rounded-2xl flex items-center justify-center shrink-0 border border-white">
+                  <Activity size={28} className="text-brand-600" />
                 </div>
                 <div>
-                  <h4 className="text-4xl font-black text-slate-900 font-display tracking-tight">+100</h4>
-                  <p className="text-sm font-semibold text-slate-500">Clientes Atendidos</p>
+                  <h4 className="text-xl font-bold text-slate-900 font-display tracking-tight">Performance Máxima</h4>
+                  <p className="text-sm font-semibold text-slate-500">Otimização técnica extrema.</p>
                 </div>
               </div>
               
-              <div className="flex items-center group hover:bg-white/40 border border-transparent hover:border-white/60 rounded-[2rem] transition-all duration-500 gap-6 p-5 backdrop-blur-sm">
-                <div className="w-16 h-16 bg-white/80 shadow-sm rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500 border border-white">
-                  <Award size={28} className="text-brand-600" />
+              <div className="flex items-center gap-6 p-5 backdrop-blur-sm">
+                <div className="w-16 h-16 bg-white/80 shadow-sm rounded-2xl flex items-center justify-center shrink-0 border border-white">
+                  <Search size={28} className="text-brand-600" />
                 </div>
                 <div>
-                  <h4 className="text-4xl font-black text-slate-900 font-display">+10</h4>
-                  <p className="text-sm font-semibold text-slate-500">Anos de Experiência</p>
+                  <h4 className="text-xl font-bold text-slate-900 font-display tracking-tight">Inteligência de Busca</h4>
+                  <p className="text-sm font-semibold text-slate-500">Decodificamos o algoritmo.</p>
                 </div>
               </div>
 
-              <div className="flex items-center group hover:bg-white/40 border border-transparent hover:border-white/60 rounded-[2rem] transition-all duration-500 gap-6 p-5 backdrop-blur-sm">
-                <div className="w-16 h-16 bg-white/80 shadow-sm rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-white">
+              <div className="flex items-center gap-6 p-5 backdrop-blur-sm">
+                <div className="w-16 h-16 bg-white/80 shadow-sm rounded-2xl flex items-center justify-center shrink-0 border border-white">
                   <ShieldCheck size={28} className="text-brand-600" />
                 </div>
                 <div>
-                  <h4 className="text-4xl font-black text-slate-900 font-display">100%</h4>
-                  <p className="text-sm font-semibold text-slate-500">SEO White-Hat</p>
+                  <h4 className="text-xl font-bold text-slate-900 font-display tracking-tight">SEO Seguro</h4>
+                  <p className="text-sm font-semibold text-slate-500">Metodologias 100% White-Hat.</p>
                 </div>
               </div>
             </div>
@@ -487,41 +486,6 @@ const Home = () => {
     <>
       <Hero />
       <TechStackMarquee />
-      <section className="border-b border-slate-200/50 bg-white py-10">
-        <div className="max-w-7xl mx-auto overflow-hidden px-6">
-          <div className="text-center text-xs font-semibold text-slate-400 uppercase tracking-widest mb-6">Plataformas Utilizadas</div>
-          <div className="flex flex-wrap justify-center items-center opacity-50 grayscale hover:grayscale-0 transition-all duration-500 gap-4 md:gap-6 lg:gap-8">
-            <div className="flex items-center gap-1.5 text-sm md:text-base font-medium font-display tracking-tight text-slate-500">
-              <span className="font-bold text-slate-700">Google</span> Search Console
-            </div>
-            <div className="text-sm md:text-base font-bold font-display tracking-tight text-slate-700">
-              Ubersuggest
-            </div>
-            <div className="text-sm md:text-base font-black font-display tracking-tight text-orange-600">
-              SEMRUSH
-            </div>
-            <div className="flex items-center gap-1.5 text-sm md:text-base font-medium font-display tracking-tight text-slate-500">
-              <span className="font-bold text-slate-700">Google</span> Analytics
-            </div>
-            <div className="text-sm md:text-base font-bold font-display tracking-tight text-blue-500">
-              ahrefs
-            </div>
-            <div className="text-sm md:text-base font-bold font-display tracking-tight text-slate-700 flex items-center gap-1.5">
-              <span className="text-orange-500 text-[10px] md:text-xs">★★★★★</span>
-              MAJESTIC
-            </div>
-            <div className="text-base md:text-lg font-black font-display tracking-tighter text-sky-500">
-              MOZ
-            </div>
-            <div className="text-sm md:text-base font-bold font-display tracking-tight flex items-center gap-1">
-              <span className="text-blue-600">Similar</span><span className="text-slate-800">web</span>
-            </div>
-             <div className="text-sm md:text-base font-bold font-display tracking-tight text-slate-700">
-              Surfer<span className="text-brand-500">SEO</span>
-            </div>
-          </div>
-        </div>
-      </section>
       <AboutSection />
       <ObjectivesSection />
       <div id="solucoes"></div>
@@ -567,7 +531,6 @@ function AppContent() {
             <Route path="/seo-ecommerce" element={<SeoEcommercePage />} />
             <Route path="/consultoria-seo" element={<ConsultoriaSeoPage />} />
             <Route path="/agencia-link-building" element={<LinkBuildingPage />} />
-            <Route path="/venda-backlinks" element={<VendaBacklinksPage />} />
             <Route path="/especialista-em-seo" element={<EspecialistaSeoPage />} />
             
             {/* Regional SEO Pages */}

@@ -81,8 +81,7 @@ export const Navbar = () => {
                     { name: 'SEO para E-commerce', path: '/seo-ecommerce' },
                     { name: 'Consultoria SEO', path: '/consultoria-seo' },
                     { name: 'Especialista em SEO', path: '/especialista-em-seo' },
-                    { name: 'Agência Link Building', path: '/agencia-link-building' },
-                    { name: 'Venda de Backlinks', path: '/venda-backlinks' }
+                    { name: 'Agência Link Building', path: '/agencia-link-building' }
                   ].map((item) => (
                     <RouterLink 
                       key={item.path}
@@ -183,7 +182,6 @@ export const Navbar = () => {
                           { name: 'Consultoria SEO', path: '/consultoria-seo' },
                           { name: 'Agência Link Building', path: '/agencia-link-building' },
                           { name: 'Especialista SEO', path: '/especialista-em-seo' },
-                          { name: 'Venda Backlinks', path: '/venda-backlinks' },
                         ].map(s => (
                           <RouterLink key={s.path} to={s.path} className="text-lg text-slate-600 font-medium" onClick={() => setMobileMenuOpen(false)}>{s.name}</RouterLink>
                         ))}

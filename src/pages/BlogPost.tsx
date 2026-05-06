@@ -96,7 +96,7 @@ export default function BlogPost() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 selection:bg-brand-500 selection:text-white pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-20">
+    <div className="min-h-screen bg-slate-50 selection:bg-brand-500 selection:text-white pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
       <Helmet>
         <title>{post.titleString} | Acelera SEO</title>
         <meta name="description" content={post.excerpt} />
@@ -114,14 +114,6 @@ export default function BlogPost() {
       </Helmet>
 
       {blogSchema && <JsonLd data={blogSchema} />}
-
-      <div className="max-w-7xl mx-auto px-6 mb-8">
-        <Breadcrumbs items={[
-          { label: 'Início', path: '/' },
-          { label: 'Blog', path: '/blog' },
-          { label: post.titleString, path: `/blog/${post.slug}` }
-        ]} />
-      </div>
 
       <article className="max-w-7xl mx-auto grid lg:grid-cols-12 px-6 gap-12">
         {/* Header Content */}

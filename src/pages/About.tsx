@@ -25,7 +25,7 @@ export default function About() {
     }
   };
   return (
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-20">
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
       <Helmet>
         <title>Sobre a Agência SEO | Acelera SEO Especialistas</title>
         <meta name="description" content="Conheça a agência de marketing SEO especializada em transformar a sua engenharia de busca em lucro previsível. Fazemos muito mais do que simples SEO para sites." />
@@ -84,17 +84,6 @@ export default function About() {
                  loading="lazy"
                  decoding="async"
                />
-            </div>
-            
-            <div className="absolute -bottom-8 -left-8 bg-white rounded-[2rem] shadow-2xl max-w-[280px] border border-slate-100 p-6 md:p-8">
-               <div className="flex items-center gap-4 mb-3">
-                 <div className="bg-brand-100 rounded-full text-brand-600 p-3">
-                    <Award size={24} />
-                 </div>
-                 <div className="text-sm font-bold text-slate-500 uppercase tracking-widest">Excelência</div>
-               </div>
-               <div className="text-3xl font-black text-slate-900 mb-2">Top 1%</div>
-               <p className="text-slate-500 text-sm font-medium text-justify md:text-left">Das equipes especializadas no mercado de tráfego orgânico.</p>
             </div>
           </div>
           <div className="order-1 md:order-2">

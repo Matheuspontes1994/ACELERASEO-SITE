@@ -42,7 +42,7 @@ export const Breadcrumbs = ({ items }: BreadcrumbProps) => {
         {JSON.stringify(jsonLd)}
       </script>
       
-      <ol className="flex items-center gap-2 text-sm font-medium text-slate-500">
+      <ol className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400">
         {breadcrumbItems.map((item, index) => {
           const isLast = index === breadcrumbItems.length - 1;
           
@@ -51,13 +51,13 @@ export const Breadcrumbs = ({ items }: BreadcrumbProps) => {
               {index === 0 ? (
                 <Link 
                   to={item.path} 
-                  className="flex items-center hover:text-brand-600 transition-colors"
+                  className="flex items-center hover:text-brand-600 transition-colors text-brand-600/70"
                 >
-                  <Home size={14} className="mr-1" />
+                  <Home size={12} className="mr-1" />
                   <span className="hidden sm:inline">{item.label}</span>
                 </Link>
               ) : isLast ? (
-                <span className="text-slate-900 font-bold truncate max-w-[200px]" aria-current="page">
+                <span className="text-slate-900 font-black truncate max-w-[200px]" aria-current="page">
                   {item.label}
                 </span>
               ) : (
@@ -70,7 +70,7 @@ export const Breadcrumbs = ({ items }: BreadcrumbProps) => {
               )}
               
               {!isLast && (
-                <ChevronRight size={14} className="text-slate-300 shrink-0" />
+                <ChevronRight size={12} className="text-slate-300 shrink-0" />
               )}
             </li>
           );

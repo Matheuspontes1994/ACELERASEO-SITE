@@ -47,7 +47,7 @@ const services = [
 
 export default function Services() {
   return (
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-20">
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
       <Helmet>
         <title>Nossos Serviços | Agência de SEO Focada em Resultados e Venda de Backlinks</title>
         <meta name="description" content="Conheça nossas soluções completas como uma das melhores agências de marketing SEO. Oferecemos tudo, desde auditorias técnicas até venda de backlinks e SEO para sites." />

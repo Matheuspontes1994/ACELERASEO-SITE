@@ -123,7 +123,7 @@ export default function Audit() {
       <meta property="og:url" content="https://aceleraseo.com.br/auditoria" />
     </Helmet>
 
-    <div className="min-h-screen bg-slate-50/50 relative overflow-hidden pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-24">
+    <div className="min-h-screen bg-slate-50/50 relative overflow-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-24">
       {/* Background decorations */}
       <div className="absolute top-0 right-0 w-full h-[500px] bg-gradient-to-b from-brand-900/5 to-transparent pointer-events-none"></div>
 
@@ -404,7 +404,7 @@ export default function Audit() {
               Muitas empresas focam unicamente no conteúdo, esquecendo que o <Link to="/consultoria-seo" className="font-semibold text-brand-600 underline underline-offset-2 hover:opacity-80 transition-opacity">SEO Técnico e Consultoria Guiada</Link> são a base estrutural que mantém tudo de pé. Se a "casa" não tiver fundações sólidas (bom <Link to="/blog" className="font-semibold text-brand-600 underline underline-offset-2 hover:opacity-80 transition-opacity">Core Web Vitals</Link> e performance), nenhum conteúdo, por melhor que seja, conseguirá disputar o Top 3 em palavras-chave competitivas.
             </p>
             <p>
-              Outro aspecto extremamente negligenciado apontado por nossa auditoria é o seu perfil de backlinks. Uma <strong>Auditoria de SEO</strong> robusta verifica a saúde da sua autoridade online. Se existirem links tóxicos apontando para o seu domínio, é necessário removê-los e iniciar uma estratégia limpa com a nossa agência focada em <Link to="/agencia-link-building" className="font-semibold text-brand-600 underline underline-offset-2 hover:opacity-80 transition-opacity">link building</Link> ou explorar a <Link to="/venda-backlinks" className="font-semibold text-brand-600 underline underline-offset-2 hover:opacity-80 transition-opacity">presença premium e venda de backlinks</Link> garantindo indicações reais e qualificadas.
+              Outro aspecto extremamente negligenciado apontado por nossa auditoria é o seu perfil de backlinks. Uma <strong>Auditoria de SEO</strong> robusta verifica a saúde da sua autoridade online. Se existirem links tóxicos apontando para o seu domínio, é necessário removê-los e iniciar uma estratégia limpa com a nossa agência focada em <Link to="/agencia-link-building" className="font-semibold text-brand-600 underline underline-offset-2 hover:opacity-80 transition-opacity">link building</Link> garantindo indicações reais e qualificadas.
             </p>
             <p>
               E-commerces, especialmente, sofrem muito com páginas duplicadas e falta de otimização on-page. Nesses casos de escala, indicamos atuar com um <Link to="/especialista-em-seo" className="font-semibold text-brand-600 underline underline-offset-2 hover:opacity-80 transition-opacity">Especialista de SEO</Link> que entenda a fundo a arquitetura da sua plataforma, desenvolvendo as <Link to="/servicos" className="font-semibold text-brand-600 underline underline-offset-2 hover:opacity-80 transition-opacity">soluções</Link> focadas no melhor ROI. Não adie o reparo da sua infraestrutura; uma falha técnica pode estar custando leads qualificados hoje mesmo.
