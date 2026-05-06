@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Tooltip } from '../components/Tooltip';
+import { ServiceFAQ } from '../components/ServiceFAQ';
 
 const Hero = () => {
   const mouseX = useMotionValue(0);
@@ -36,7 +37,7 @@ const Hero = () => {
   return (
     <section 
       onMouseMove={handleMouseMove}
-      className="relative overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24"
+      className="relative overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-12 md:pt-20 pb-20 md:pb-32"
     >
       <div className="tech-grid" />
       <div className="hero-glow" />
@@ -51,14 +52,14 @@ const Hero = () => {
           <div className="inline-flex items-center w-fit max-w-[90vw] md:max-w-full whitespace-normal flex-wrap text-center justify-center rounded-2xl md:rounded-full bg-white border border-slate-200 shadow-sm text-[11px] sm:text-xs font-semibold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6 mx-auto lg:mx-0">
             <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> AGÊNCIA DE SEO
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[5rem] leading-[1.1] md:leading-[1.05] font-extrabold text-slate-900 font-display tracking-tight text-balance mb-6 mx-auto lg:mx-0 text-center lg:text-left">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] font-extrabold text-slate-900 font-display tracking-tight text-balance mb-6 mx-auto lg:mx-0 text-center lg:text-left">
             A Agência de SEO <span className="text-brand-600">perfeita</span> para o seu Negócio.
           </h1>
           <p className="text-lg md:text-xl text-slate-500 max-w-xl font-light leading-relaxed mb-10 mx-auto lg:mx-0">
             Nós decodificamos o algoritmo. Escale sua empresa com uma infraestrutura técnica feita por uma agência SEO focada em <Tooltip term="E-E-A-T" definition="Experiência, Especialidade, Autoridade e Confiabilidade. Critérios do Google para avaliar o nível de qualidade e credibilidade do seu site." />, entregando o melhor <Tooltip term="SEO On-Page" definition="Otimizações feitas dentro e na estrutura da própria página, como títulos, conteúdo e velocidade, para melhorar as posições da sua empresa nos buscadores." /> para o seu desenvolvimento tech e elaborando uma <Tooltip term="Arquitetura Semântica" definition="Organização lógica e estrutural do conteúdo do seu site para facilitar o entendimento pelos robôs." /> vencedora.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center lg:justify-start">
-            <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+preciso+escalar+meu+tr%C3%A1fego+org%C3%A2nico!" target="_blank" rel="noopener noreferrer" className="bg-brand-600 text-white font-bold text-base rounded-xl hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-500/30 transition-all flex justify-center items-center group px-8 py-4 gap-2 w-full sm:w-auto">
+            <a href="https://wa.me/5531999229927?text=Ol%C3%A1%2C+preciso+escalar+meu+tr%C3%A1fego+org%C3%A2nico!" target="_blank" rel="noopener noreferrer" className="bg-brand-600 text-white font-bold text-base rounded-xl hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-500/30 transition-all flex justify-center items-center group px-8 py-4 gap-2 w-full sm:w-auto">
               Falar com Especialista <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </a>
             <RouterLink to="/auditoria" className="bg-slate-900 border border-slate-800 text-white font-semibold text-base rounded-xl hover:bg-slate-800 transition-all flex justify-center items-center shadow-sm px-8 py-4 gap-2 w-full sm:w-auto">
@@ -301,26 +302,7 @@ const FaqSection = () => {
   ];
 
   return (
-    <section className="bg-white border-t border-slate-200 py-12 md:py-20 lg:py-24" id="faq">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 font-display text-center md:text-left">
-            Perguntas Frequentes
-          </h2>
-          <p className="text-slate-500 font-light text-lg mt-4 md:text-center">
-            Dúvidas rápidas sobre nossa agência SEO e nossa forma de trabalho com SEO para sites.
-          </p>
-        </div>
-        <div className="space-y-6">
-          {faqs.map((faq, i) => (
-            <div key={i} className="bg-slate-50 rounded-2xl border border-slate-100 p-6 md:p-8">
-              <h3 className="text-xl font-bold text-slate-800 font-display mb-3 text-center md:text-left">{faq.q}</h3>
-              <p className="text-slate-600 font-light leading-relaxed text-center md:text-left">{faq.a}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+    <ServiceFAQ faqs={faqs.map(f => ({ question: f.q, answer: f.a }))} />
   );
 };
 

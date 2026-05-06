@@ -123,44 +123,8 @@ export default function Audit() {
       <meta property="og:url" content="https://aceleraseo.com.br/auditoria" />
     </Helmet>
 
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-0 pb-0">
-    <Helmet>
-      <title>Auditoria de SEO Gratuita | Otimize com a nossa Agência SEO Profissional</title>
-      <meta name="description" content="Nossa auditoria de SEO detalhada encontra as falhas de SEO que a sua empresa possui e o que não permite que você lidere as buscas online." />
-      <link rel="canonical" href="https://aceleraseo.com.br/auditoria" />
-      <meta property="og:title" content="Auditoria de SEO Gratuita | Otimize com a nossa Agência SEO Profissional" />
-      <meta property="og:description" content="Nossa auditoria de SEO detalhada encontra as falhas de SEO que a sua empresa possui e o que não permite que você lidere as buscas online." />
-      <meta property="og:type" content="website" />
-      <meta property="og:url" content="https://aceleraseo.com.br/auditoria" />
-    </Helmet>
-
-    {/* Hero Section */}
-    <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
-      <div className="tech-grid" />
-      <div className="hero-glow" />
-      
-      <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center text-center">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl"
-        >
-          <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6 mx-auto">
-            <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Diagnóstico Técnico Imediato
-          </div>
-          
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8 text-balance">
-            Descubra as Falhas de <span className="text-brand-600">SEO</span> do seu Site Gratuitamente.
-          </h1>
-          
-          <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-2xl mx-auto text-balance">
-            Analise sua performance técnica, autoridade e conteúdo. Receba um relatório imediato do que está impedindo seu crescimento no Google.
-          </p>
-        </motion.div>
-      </div>
-    </section>
-
-    <main className="max-w-7xl mx-auto relative z-10 px-6 py-20 lg:py-24">
+    <div className="min-h-[calc(100vh-80px)] bg-slate-50 w-full overflow-x-hidden flex flex-col justify-center py-12 lg:py-20">
+    <main className="max-w-7xl mx-auto relative z-10 px-6 w-full">
         
         <AnimatePresence mode="wait">
           {status !== 'results' ? (
@@ -171,17 +135,17 @@ export default function Audit() {
               exit={{ opacity: 0, y: -20 }}
               className="grid lg:grid-cols-2 items-center gap-8 lg:gap-20 md:gap-16"
             >
-              <div className="text-left order-2 lg:order-1 pt-0 lg:pt-8">
-                <div className="inline-flex items-center justify-center bg-white text-brand-600 border border-brand-100 rounded-2xl md:rounded-full shadow-sm text-[11px] sm:text-xs font-bold uppercase tracking-widest py-2 px-4 mb-6 gap-2 w-fit max-w-[90vw] whitespace-normal flex-wrap text-center mx-auto md:mx-0">
-                   <Search size={16} /> DIAGNÓSTICO TÉCNICO GRATUITO IMEDIATO
+              <div className="text-left order-2 lg:order-1 pt-0 lg:pt-4">
+                <div className="inline-flex items-center justify-center bg-white text-brand-600 border border-brand-100 rounded-2xl md:rounded-full shadow-sm text-[10px] sm:text-[11px] font-bold uppercase tracking-widest py-1.5 px-3 mb-4 gap-2 w-fit max-w-[90vw] whitespace-normal flex-wrap text-center mx-auto md:mx-0">
+                   <Search size={14} /> DIAGNÓSTICO TÉCNICO GRATUITO IMEDIATO
                 </div>
-                <h1 className="text-4xl md:text-5xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] text-balance font-extrabold tracking-tight text-slate-900 font-display mb-8 text-center md:text-left">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8 text-center lg:text-left">
                   Faça sua <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-brand-400">Auditoria de SEO</span>
                 </h1>
-                <p className="text-lg md:text-xl text-slate-600 font-light leading-relaxed mb-10 text-justify md:text-left">
-                  Descubra os bloqueios que impedem o seu site de alcançar o topo do Google. Com nossa <strong>Auditoria de SEO</strong>, você terá um raio-x completo identificando falhas de estrutura, conteúdo e autoridade, para parar de perder vendas para seus concorrentes.
+                <p className="text-base md:text-lg text-slate-600 font-light leading-relaxed mb-8 text-justify md:text-left">
+                  Descubra os bloqueios que impedem o seu site de alcançar o topo do Google. Identificamos falhas de estrutura, conteúdo e autoridade instantaneamente.
                 </p>
-                <ul className="space-y-4 mb-12">
+                <ul className="space-y-3 mb-8">
                   <li className="flex items-center text-slate-700 font-medium gap-3">
                     <CheckCircle2 size={24} className="text-emerald-500 shrink-0" />
                     Análise técnica de código e performance (On-Page)
@@ -409,7 +373,7 @@ export default function Audit() {
                      Essa auditoria de SEO revela apenas a superfície do que seu domínio enfrenta. Existem falhas graves tirando você da primeira página todos os dias. Fale com um Especialista e descubra o plano de ação exato para alavancar seu crescimento orgânico.
                    </p>
                    
-                  <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+fiz+uma+auditoria+SEO+no+meu+site+e+percebi+que+preciso+de+ajuda!" target="_blank" rel="noopener noreferrer" className="flex flex-col sm:flex-row items-center justify-center w-full sm:w-auto bg-brand-600 text-white font-bold rounded-2xl hover:bg-brand-500 transition-all shadow-xl shadow-brand-500/20 text-base sm:text-lg group gap-3 px-8 sm:px-10 py-4 sm:py-5">
+                  <a href="https://wa.me/5531999229927?text=Ol%C3%A1%2C+fiz+uma+auditoria+SEO+no+meu+site+e+percebi+que+preciso+de+ajuda!" target="_blank" rel="noopener noreferrer" className="flex flex-col sm:flex-row items-center justify-center w-full sm:w-auto bg-brand-600 text-white font-bold rounded-2xl hover:bg-brand-500 transition-all shadow-xl shadow-brand-500/20 text-base sm:text-lg group gap-3 px-8 sm:px-10 py-4 sm:py-5">
                       Corrigir meu Site com um Especialista <ArrowRight size={20} className="hidden sm:inline group-hover:translate-x-1 transition-transform" />
                    </a>
                  </div>
@@ -425,7 +389,7 @@ export default function Audit() {
         </AnimatePresence>
       </main>
 
-      <section className="max-w-5xl mx-auto px-6 mt-8 lg:mt-24 md:mt-8 mb-12">
+      <section className="max-w-5xl mx-auto px-6 mt-32 lg:mt-48 mb-20">
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm relative z-10 p-8 md:p-12">
           <h2 className="text-3xl font-extrabold text-slate-900 font-display mb-6 text-center md:text-left">A Importância da Auditoria de SEO para o seu Negócio</h2>
           

@@ -45,7 +45,7 @@ const structuredData = {
   "logo": "https://aceleraseo.com.br/logo.png",
   "contactPoint": {
     "@type": "ContactPoint",
-    "telephone": "+55-11-99222-9927",
+    "telephone": "+55-31-99922-9927",
     "contactType": "customer service",
     "areaServed": "BR",
     "availableLanguage": "Portuguese"
@@ -85,7 +85,7 @@ function AppContent() {
 
       {!hideGlobalLayout && <Navbar />}
       
-      <main className={`flex-grow ${hideGlobalLayout ? '' : 'pt-24'}`}>
+      <main className={`flex-grow ${hideGlobalLayout ? '' : 'pt-20 md:pt-24'}`}>
         <Suspense fallback={<div className="flex justify-center items-center h-64"><Activity className="animate-spin text-brand-600" size={40}/></div>}>
           <Routes>
             <Route path="/" element={<Home />} />

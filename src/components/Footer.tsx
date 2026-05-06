@@ -22,17 +22,17 @@ export const Footer = () => {
           </p>
           
           <div className="space-y-4 mb-8">
-            <a href="tel:+5511992229927" className="flex items-center gap-3 text-sm text-slate-600 hover:text-brand-600 transition-colors group">
+            <a href="tel:+5531999229927" className="flex items-center gap-3 text-sm text-slate-600 hover:text-brand-600 transition-colors group">
               <div className="w-8 h-8 rounded-lg bg-white shadow-sm border border-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Phone size={14} className="text-brand-600" />
               </div>
-              (11) 99222-9927
+              (31) 99922-9927
             </a>
-            <a href="mailto:contato@aceleraseo.com.br" className="flex items-center gap-3 text-sm text-slate-600 hover:text-brand-600 transition-colors group">
+            <a href="mailto:aceleraseo@gmail.com" className="flex items-center gap-3 text-sm text-slate-600 hover:text-brand-600 transition-colors group">
               <div className="w-8 h-8 rounded-lg bg-white shadow-sm border border-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Mail size={14} className="text-brand-600" />
               </div>
-              contato@aceleraseo.com.br
+              aceleraseo@gmail.com
             </a>
           </div>
 

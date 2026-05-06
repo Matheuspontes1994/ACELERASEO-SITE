@@ -24,6 +24,7 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { useNavigate, Link } from 'react-router-dom';
 import PostChat from '../components/PostChat';
+import { HorizontalScroll } from '../components/HorizontalScroll';
 
 enum OperationType {
   CREATE = 'create',
@@ -81,9 +82,6 @@ export default function ClientDashboard() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        loadBlogPosts();
-        loadBacklinks();
-        loadKeywordsUniverse();
         const userEmail = user.email;
         const isUserAdmin = userEmail === 'matheuspontes290594@gmail.com' || userEmail === 'aceleraseo@gmail.com';
         setIsAdmin(isUserAdmin);
@@ -95,16 +93,31 @@ export default function ClientDashboard() {
             : query(collection(db, path), where('clientEmail', '==', userEmail));
             
           const clientsSnap = await getDocs(clientsQuery);
-          setClientsData(clientsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+          const clients = clientsSnap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
+          setClientsData(clients);
+
+          // Se for admin e não tiver cliente selecionado, pega o primeiro da lista
+          if (isUserAdmin && clients.length > 0 && !selectedClient) {
+            setSelectedClient(clients[0].name);
+          }
         } catch (error) {
           handleFirestoreError(error, OperationType.GET, path);
         }
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [selectedClient]);
 
   useEffect(() => {
+    const userEmail = auth.currentUser?.email;
+    if (!userEmail) return;
+
+    loadBlogPosts();
+    loadBacklinks();
+    loadKeywordsUniverse();
+  }, [selectedClient]);
+
+  const loadBlogPosts = async () => {
     const userEmail = auth.currentUser?.email;
     if (!userEmail) return;
 
@@ -113,40 +126,26 @@ export default function ClientDashboard() {
     const path = 'blog_posts';
     
     if (isAdmin) {
-      q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(100));
+      if (selectedClient) {
+        q = query(collection(db, path), where('clientName', '==', selectedClient), orderBy('createdAt', 'desc'), limit(100));
+      } else {
+        q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(100));
+      }
     } else {
       q = query(collection(db, path), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(100));
     }
 
     setLoadingPosts(true);
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const posts: any[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.clientName && data.clientName !== 'Agência') {
-          posts.push({ id: doc.id, ...data });
-        }
-      });
-      setBlogPosts(posts);
-      
-      // Update reviewing post if it's currently open
-      setReviewingPost((prev: any) => {
-        if (!prev) return null;
-        const updated = posts.find(p => p.id === prev.id);
-        return updated || prev;
-      });
-      
-      setLoadingPosts(false);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.GET, path);
-      setLoadingPosts(false);
+    const snapshot = await getDocs(q);
+    const posts: any[] = [];
+    snapshot.forEach((doc) => {
+      const data = doc.data() as any;
+      if (data.clientName && data.clientName !== 'Agência') {
+        posts.push({ id: doc.id, ...data });
+      }
     });
-
-    return () => unsubscribe();
-  }, []);
-
-  const loadBlogPosts = async () => {
-    // Keep this as a dummy or remove if unused, but we're using onSnapshot now
+    setBlogPosts(posts);
+    setLoadingPosts(false);
   };
 
   const loadBacklinks = async () => {
@@ -158,7 +157,11 @@ export default function ClientDashboard() {
       let q;
       
       if (isAdmin) {
-        q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(100));
+        if (selectedClient) {
+          q = query(collection(db, path), where('clientName', '==', selectedClient), orderBy('createdAt', 'desc'), limit(100));
+        } else {
+          q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(100));
+        }
       } else {
         q = query(collection(db, path), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(100));
       }
@@ -185,7 +188,11 @@ export default function ClientDashboard() {
       const isAdmin = userEmail === 'matheuspontes290594@gmail.com' || userEmail === 'aceleraseo@gmail.com';
       let q;
       if (isAdmin) {
-        q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(500));
+        if (selectedClient) {
+          q = query(collection(db, path), where('clientName', '==', selectedClient), orderBy('createdAt', 'desc'), limit(500));
+        } else {
+          q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(500));
+        }
       } else {
         q = query(collection(db, path), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(500));
       }
@@ -272,12 +279,24 @@ export default function ClientDashboard() {
 
           <div className="flex items-center gap-2 sm:gap-4">
             {isAdmin && (
-              <button 
-                onClick={() => navigate('/painel')} 
-                className="flex items-center bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-brand-600 transition-all shadow-lg shadow-slate-900/10 active:scale-95 hidden sm:flex gap-2 px-4 py-2"
-              >
-                <TrendingUp size={14} /> Painel Agência
-              </button>
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedClient}
+                  onChange={(e) => setSelectedClient(e.target.value)}
+                  className="bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest rounded-2xl px-4 py-2 outline-none focus:ring-2 focus:ring-brand-500 shadow-sm"
+                >
+                  <option value="">Selecionar Cliente</option>
+                  {clientNames.map(name => (
+                    <option key={name} value={name}>{name}</option>
+                  ))}
+                </select>
+                <button 
+                  onClick={() => navigate('/painel')} 
+                  className="flex items-center bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-brand-600 transition-all shadow-lg shadow-slate-900/10 active:scale-95 hidden sm:flex gap-2 px-4 py-2"
+                >
+                  <TrendingUp size={14} /> Painel Agência
+                </button>
+              </div>
             )}
             <div className="w-px h-6 bg-slate-200 hidden md:block mx-2"></div>
             <button 
@@ -335,25 +354,27 @@ export default function ClientDashboard() {
         </motion.div>
 
         {/* Tab Navigation */}
-        <div 
-          className="flex overflow-x-auto no-scrollbar bg-slate-200/30 rounded-2xl border border-slate-200 gap-1 mb-10 p-1 w-full max-w-full"
-          role="tablist"
-          aria-label="Seções do Portal"
-        >
-          {['Visão Geral', 'Aprovação de Conteúdos', 'Conteúdos Publicados', 'Backlinks Publicados', 'Estratégia de Palavras'].map(tab => (
-            <button 
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              role="tab"
-              aria-selected={activeTab === tab}
-              aria-controls={`panel-${tab.replace(/\s+/g, '-').toLowerCase()}`}
-              id={`tab-${tab.replace(/\s+/g, '-').toLowerCase()}`}
-              className={`relative px-6 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all rounded-xl ${activeTab === tab ? 'bg-white text-brand-600 shadow-sm border border-slate-200' : 'text-slate-400 hover:text-slate-600'}`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+        <HorizontalScroll className="mb-10">
+          <div 
+            className="flex bg-slate-200/30 rounded-2xl border border-slate-200 gap-1 p-1 w-fit"
+            role="tablist"
+            aria-label="Seções do Portal"
+          >
+            {['Visão Geral', 'Aprovação de Conteúdos', 'Conteúdos Publicados', 'Backlinks Publicados', 'Estratégia de Palavras'].map(tab => (
+              <button 
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                role="tab"
+                aria-selected={activeTab === tab}
+                aria-controls={`panel-${tab.replace(/\s+/g, '-').toLowerCase()}`}
+                id={`tab-${tab.replace(/\s+/g, '-').toLowerCase()}`}
+                className={`relative px-6 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all rounded-xl ${activeTab === tab ? 'bg-white text-brand-600 shadow-sm border border-slate-200' : 'text-slate-400 hover:text-slate-600'}`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        </HorizontalScroll>
 
         <div className="tab-content">
           <div 
@@ -517,7 +538,7 @@ export default function ClientDashboard() {
                     </button>
                     
                     <div className="bg-slate-50 border border-slate-200 rounded-3xl relative p-6 sm:p-8">
-                       <h3 className="text-xl font-bold text-slate-800 font-display mb-6 text-center md:text-left">Informações e Metadados do Artigo</h3>
+                       <h3 className="text-xl font-bold text-slate-800 font-display mb-6 text-center">Informações e Metadados do Artigo</h3>
                        <div className="grid sm:grid-cols-2 gap-y-4 gap-x-6 text-sm">
                          <div className="bg-white rounded-xl border border-slate-100 p-4"><strong className="text-slate-900 block mb-1">Palavra-chave Foco:</strong> <span className="text-slate-600">{reviewingPost.focusKeywords || '-'}</span></div>
                          <div className="bg-white rounded-xl border border-slate-100 p-4"><strong className="text-slate-900 block mb-1">Âncora:</strong> <span className="text-slate-600">{reviewingPost.anchor || '-'}</span></div>
@@ -649,7 +670,7 @@ export default function ClientDashboard() {
                  </div>
                </div>
 
-               <div className="overflow-x-auto rounded-[2rem] border border-slate-200 animate-in fade-in duration-700 relative z-10">
+               <HorizontalScroll className="rounded-[2rem] border border-slate-200 animate-in fade-in duration-700 relative z-10">
                  <table className="w-full text-left border-separate border-spacing-y-2 min-w-[800px]">
                    <thead>
                      <tr className="bg-slate-50/50 border-b border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
@@ -694,7 +715,7 @@ export default function ClientDashboard() {
                      ))}
                    </tbody>
                  </table>
-               </div>
+               </HorizontalScroll>
             </div>
               </motion.div>
             )}
@@ -716,7 +737,7 @@ export default function ClientDashboard() {
                  </div>
                </div>
 
-               <div className="overflow-x-auto rounded-[2rem] border border-slate-200 relative z-10">
+               <HorizontalScroll className="rounded-[2rem] border border-slate-200 relative z-10">
                  <table className="w-full text-left border-separate border-spacing-y-2 min-w-[800px]">
                    <thead>
                      <tr className="bg-slate-50/50 border-b border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
@@ -761,7 +782,7 @@ export default function ClientDashboard() {
                      ))}
                    </tbody>
                  </table>
-               </div>
+               </HorizontalScroll>
             </div>
               </motion.div>
             )}
@@ -784,7 +805,7 @@ export default function ClientDashboard() {
                </div>
 
                 <h3 className="text-xl font-bold text-slate-800 mb-4 px-2 text-center md:text-left">Palavras-chave Planejadas</h3>
-               <div className="overflow-x-auto rounded-2xl border border-slate-200 mb-10">
+               <HorizontalScroll className="rounded-2xl border border-slate-200 mb-10">
                  <table className="w-[1000px] lg:w-full text-left border-collapse">
                    <thead>
                      <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-800 uppercase tracking-wider">
@@ -813,10 +834,10 @@ export default function ClientDashboard() {
                      ))}
                    </tbody>
                  </table>
-               </div>
+               </HorizontalScroll>
 
                <h3 className="text-xl font-bold text-slate-800 mb-4 px-2 text-center md:text-left">Backlinks Programados</h3>
-               <div className="overflow-x-auto rounded-2xl border border-slate-200 mb-10">
+               <HorizontalScroll className="rounded-2xl border border-slate-200 mb-10">
                  <table className="w-[1000px] lg:w-full text-left border-collapse">
                    <thead>
                      <tr className="bg-rose-50 border-b border-rose-100 text-xs font-bold text-rose-800 uppercase tracking-wider">
@@ -854,10 +875,10 @@ export default function ClientDashboard() {
                      ))}
                    </tbody>
                  </table>
-               </div>
+               </HorizontalScroll>
 
                <h3 className="text-xl font-bold text-slate-800 mb-4 px-2 text-center md:text-left">Artigos de Blog</h3>
-               <div className="overflow-x-auto rounded-2xl border border-slate-200">
+               <HorizontalScroll className="rounded-2xl border border-slate-200">
                  <table className="w-[1000px] lg:w-full text-left border-collapse">
                    <thead>
                      <tr className="bg-indigo-50 border-b border-indigo-100 text-xs font-bold text-indigo-800 uppercase tracking-wider">
@@ -895,7 +916,7 @@ export default function ClientDashboard() {
                      ))}
                    </tbody>
                  </table>
-               </div>
+               </HorizontalScroll>
             </div>
           </motion.div>
         )}

@@ -33,7 +33,10 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-0 pb-0">
+    <div className="min-h-screen bg-white w-full overflow-x-hidden pt-0 pb-0 relative">
+      <div className="absolute inset-0 tech-grid opacity-[0.03] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-brand-50/30 blur-[120px] rounded-full pointer-events-none" />
+      
       <Helmet>
         <title>Contato | Especialistas em Auditoria de SEO e Marketing SEO</title>
         <meta name="description" content="Fale com nossos especialistas em auditoria de SEO. Inicie seu projeto de SEO para sites focado na liderança orgânica hoje com a nossa agência seo." />
@@ -46,90 +49,75 @@ export default function Contact() {
         <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
-      {/* Hero Section */}
-      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
-        <div className="tech-grid" />
-        <div className="hero-glow" />
-        
-        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center text-center">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-4xl"
-          >
-            <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6 mx-auto">
-              <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Fale Conosco
-            </div>
-            
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8 text-balance">
-              Inicie seu Projeto com a <span className="text-brand-600">Elite</span> do SEO.
-            </h1>
-            
-            <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-2xl mx-auto text-balance">
-              Nossa equipe de especialistas está pronta para realizar uma profunda auditoria no seu site e apresentar um plano de ação escalável.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      <div className="max-w-7xl mx-auto px-6 py-20 lg:py-24">
-
-        <div className="grid lg:grid-cols-2 items-start gap-8 lg:gap-24">
+      <div className="max-w-7xl mx-auto px-6 pt-10 md:pt-14 pb-20 lg:pb-32 relative z-10">
+        <div className="grid lg:grid-cols-2 items-start gap-8 lg:gap-16">
           {/* Contact Info */}
-          <div className="space-y-10">
-            <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden p-8">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-50 rounded-full blur-[40px] opacity-60 mix-blend-multiply"></div>
-              <h3 className="text-2xl font-bold text-slate-900 font-display mb-8">Informações de Contato</h3>
+          <div className="space-y-6">
+            <div className="bg-white rounded-[2rem] border border-slate-200/60 shadow-sm relative overflow-hidden p-8 md:p-10 group hover:border-brand-200 transition-colors">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-50/50 rounded-full blur-[40px] opacity-60 mix-blend-multiply group-hover:opacity-100 transition-opacity"></div>
+              <h3 className="text-xl font-bold text-slate-900 font-display mb-8">Informações de Contato</h3>
               
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-brand-600 shrink-0">
+              <div className="space-y-8">
+                <div className="flex items-start gap-5">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-brand-600 shrink-0 group-hover:bg-brand-50 group-hover:border-brand-100 transition-colors">
                     <MapPin size={20} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900">Sede Operacional</h4>
+                    <h4 className="font-bold text-slate-900 tracking-tight">Sede Operacional</h4>
                     <p className="text-slate-500 text-sm mt-1">Belo Horizonte, MG</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-brand-600 shrink-0">
+                <div className="flex items-start gap-5">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-brand-600 shrink-0 group-hover:bg-brand-50 group-hover:border-brand-100 transition-colors">
                     <Mail size={20} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900">E-mail Comercial</h4>
+                    <h4 className="font-bold text-slate-900 tracking-tight">E-mail Comercial</h4>
                     <p className="text-slate-500 text-sm mt-1 mb-2">Para propostas e novos negócios</p>
-                    <a href="mailto:contato@aceleraseo.com.br" className="font-medium text-brand-600 hover:text-brand-800 transition-colors">contato@aceleraseo.com.br</a>
+                    <a href="mailto:aceleraseo@gmail.com" className="font-bold text-brand-600 hover:text-brand-700 transition-colors relative inline-block after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-brand-600/30">aceleraseo@gmail.com</a>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-brand-600 shrink-0">
+                <div className="flex items-start gap-5">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-brand-600 shrink-0 group-hover:bg-brand-50 group-hover:border-brand-100 transition-colors">
                     <Phone size={20} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900">Telefone / WhatsApp</h4>
-                    <p className="text-slate-500 text-sm mt-1 mb-2">Respostas em menos de 10 minutos comerciais</p>
-                    <a href="https://wa.me/5511992229927" target="_blank" rel="noopener noreferrer" className="font-medium text-brand-600 hover:text-brand-800 transition-colors">+55 11 99222-9927</a>
+                    <h4 className="font-bold text-slate-900 tracking-tight">Telefone / WhatsApp</h4>
+                    <p className="text-slate-500 text-sm mt-1 mb-2">Respostas em menos de 10 min comerciais</p>
+                    <a href="https://wa.me/5531999229927" target="_blank" rel="noopener noreferrer" className="font-bold text-brand-600 hover:text-brand-700 transition-colors text-lg tracking-tight">+55 31 99922-9927</a>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-slate-900 rounded-[2rem] border border-slate-800 shadow-xl text-white p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <Clock className="text-brand-400" size={24} />
-                <h4 className="font-bold text-lg">Horário de Atendimento</h4>
+            <div className="bg-slate-900 rounded-[2rem] border border-slate-800 shadow-2xl text-white p-8 md:p-10 relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.1),transparent)] pointer-events-none" />
+              <div className="flex items-center gap-4 mb-6 relative z-10">
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-brand-400">
+                  <Clock size={20} />
+                </div>
+                <h4 className="font-bold text-lg tracking-tight">Horário de Atendimento</h4>
               </div>
-              <p className="text-slate-400 text-sm mb-2">Segunda à Sexta, das 09h às 18h (BRT)</p>
-              <p className="text-slate-500 text-xs mt-4">* Atendemos clientes Enterprise em regime 24/7 nas auditorias emergenciais (queda de tráfego).</p>
+              <p className="text-slate-400 font-medium relative z-10">Segunda à Sexta, das 09h às 18h <span className="text-slate-600 italic ml-2">(Horário de Brasília)</span></p>
+              <div className="mt-8 pt-8 border-t border-white/5 relative z-10">
+                <p className="text-slate-500 text-xs leading-relaxed">* Atendemos clientes Enterprise em regime 24/7 nas auditorias emergenciais (queda de tráfego).</p>
+              </div>
             </div>
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/50 p-8 md:p-12">
-            <h3 className="text-2xl font-bold text-slate-900 font-display mb-2 text-center md:text-left">Mande sua mensagem</h3>
-            <p className="text-slate-500 font-medium mb-8">Você também pode iniciar um projeto preenchendo o formulário abaixo.</p>
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-[2.5rem] border border-slate-200 shadow-2xl shadow-slate-200/60 p-8 md:p-12 relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl opacity-50 pointer-events-none" />
+            
+            <h3 className="text-2xl font-bold text-slate-900 font-display mb-2 relative z-10">Mande sua mensagem</h3>
+            <p className="text-slate-500 font-medium mb-10 relative z-10">Inicie seu projeto preenchendo o formulário abaixo.</p>
 
             {status === 'success' ? (
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-emerald-50 rounded-2xl border border-emerald-100 text-center p-8">
@@ -182,11 +170,11 @@ export default function Contact() {
                       value={formData.whatsapp}
                       onChange={e => setFormData({ ...formData, whatsapp: e.target.value })}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all font-medium text-slate-800 px-4 py-3"
-                      placeholder="(11) 99999-9999"
+                      placeholder="(31) 99999-9999"
                     />
                   </div>
                   <div className="sm:col-span-1">
-                    <label htmlFor="company" className="block text-sm font-bold text-slate-700 mb-2">Empresa / Site</label>
+                    <label htmlFor="company" className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Empresa / Site</label>
                     <input 
                       type="text" 
                       id="company" 
@@ -197,37 +185,40 @@ export default function Contact() {
                     />
                   </div>
                 </div>
-                <div>
-                  <label htmlFor="message" className="block text-sm font-bold text-slate-700 mb-2">Como podemos te ajudar?</label>
+                <div className="relative z-10">
+                  <label htmlFor="message" className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Como podemos te ajudar?</label>
                   <textarea 
                     id="message" 
                     required 
-                    rows={4}
+                    rows={5}
                     value={formData.message}
                     onChange={e => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all font-medium text-slate-800 resize-none px-4 py-3"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all font-medium text-slate-800 resize-none px-5 py-4"
                     placeholder="Descreva brevemente os desafios de SEO da sua empresa..."
                   ></textarea>
                 </div>
 
                 {status === 'error' && (
-                  <p className="text-sm font-medium text-rose-500 bg-rose-50 rounded-xl border border-rose-100 p-3">Ocorreu um erro ao enviar sua mensagem. Tente novamente mais tarde.</p>
+                  <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-sm font-bold text-rose-500 bg-rose-50 rounded-xl border border-rose-100 px-4 py-3 relative z-10">Ocorreu um erro ao enviar sua mensagem. Tente novamente mais tarde.</motion.p>
                 )}
 
                 <button 
                   type="submit" 
                   disabled={status === 'loading'}
-                  className="w-full bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition-all shadow-lg flex items-center justify-center group disabled:opacity-70 disabled:cursor-not-allowed px-8 py-4 gap-2"
+                  className="w-full bg-slate-900 text-white font-bold rounded-2xl hover:bg-brand-600 transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center group disabled:opacity-70 disabled:cursor-not-allowed px-8 py-5 gap-3 relative z-10"
                 >
                   {status === 'loading' ? (
                     <><Loader2 size={20} className="animate-spin" /> Processando...</>
                   ) : (
-                    <>Enviar Mensagem <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /></>
+                    <>
+                      <span>Enviar Mensagem</span>
+                      <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    </>
                   )}
                 </button>
               </form>
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

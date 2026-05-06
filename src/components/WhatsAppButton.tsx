@@ -16,7 +16,7 @@ export const WhatsAppButton = () => {
     };
   }, []);
 
-  const phoneNumber = "5511992229927"; // Número padronizado
+  const phoneNumber = "5531999229927"; // Número padronizado
   const message = encodeURIComponent("Olá, vi o site da Acelera SEO e gostaria de uma consultoria estratégica!");
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 

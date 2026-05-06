@@ -116,7 +116,7 @@ export default function BlogPost() {
       {blogSchema && <JsonLd data={blogSchema} />}
 
       {/* Hero Header Section */}
-      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-12 md:pt-20 pb-20 md:pb-32">
         <div className="tech-grid" />
         <div className="hero-glow" />
         

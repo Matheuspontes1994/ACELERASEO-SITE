@@ -49,7 +49,7 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav className={`fixed top-0 w-full z-[100] transition-all duration-500 ${
+      <nav className={`fixed top-0 w-full z-[1000] transition-all duration-500 ${
         (isScrolled || mobileMenuOpen) ? 'py-3 bg-white/80 backdrop-blur-xl border-b border-slate-100 shadow-sm' : 'py-3 md:py-6 bg-transparent'
       }`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6">
@@ -113,7 +113,7 @@ export const Navbar = () => {
                 <Users size={18} />
               </RouterLink>
               <a 
-                href="https://wa.me/5511992229927?text=Olá, vi o site e gostaria de uma consultoria!" 
+                href="https://wa.me/5531999229927?text=Olá, vi o site e gostaria de uma consultoria!" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="py-2.5 bg-slate-900 text-white font-bold text-sm rounded-xl hover:bg-brand-600 hover:shadow-lg hover:shadow-brand-500/20 transition-all transform hover:-translate-y-0.5 px-6"
@@ -203,7 +203,7 @@ export const Navbar = () => {
                   <Users size={20} /> Acesso ao Sistema
                 </RouterLink>
                 <a 
-                  href="https://wa.me/5511992229927" 
+                  href="https://wa.me/5531999229927" 
                   className="w-full bg-slate-900 text-white rounded-2xl font-bold py-5 text-center text-lg"
                   onClick={() => setMobileMenuOpen(false)}
                 >

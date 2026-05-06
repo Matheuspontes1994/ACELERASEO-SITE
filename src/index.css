@@ -29,6 +29,29 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-display tracking-tight font-extrabold;
   }
+
+  /* Custom Professional Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+    transition: background 0.3s ease;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+  }
+
+  /* Support for Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 transparent;
+  }
 }
 
 .markdown-body {

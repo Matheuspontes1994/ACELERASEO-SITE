@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ArrowRight, BookOpen } from 'lucide-react';
+import { ArrowRight, BookOpen, Search } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Tooltip } from '../components/Tooltip';
@@ -81,32 +81,67 @@ export default function Blog() {
       </Helmet>
 
       {/* Hero Section */}
-      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
-        <div className="tech-grid" />
-        <div className="hero-glow" />
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-10 md:pt-14 pb-16">
+        <div className="tech-grid opacity-30" />
+        <div className="hero-glow opacity-40" />
         
         <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center text-center">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-4xl"
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="max-w-3xl"
           >
-            <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6 mx-auto">
-              <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Inteligência & Glossário SEO
+            <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-[0.3em] gap-2 px-6 py-2.5 mb-10 mx-auto">
+              <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Intelligence Hub
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8 text-balance">
-              Conteúdo de <span className="text-brand-600">Alta Autoridade</span> Técnica.
+              Blog & <span className="text-brand-600 italic">Estratégias</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-2xl mx-auto text-balance">
-              Tudo o que você precisa saber sobre o algoritmo do Google, desde o básico até estratégias técnicas avançadas de rastreamento e indexação.
+            <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed max-w-2xl mx-auto text-balance">
+              Inteligência aplicada e conteúdo técnico para quem busca dominar a <span className="text-slate-900 font-medium">performance orgânica</span> de alta complexidade.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <main className="max-w-7xl mx-auto relative z-10 px-6 py-20 lg:py-24">
+      {/* Integrated Filter & Search Section */}
+      <div className="max-w-7xl mx-auto px-6 -mt-8 relative z-20">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 p-3 md:p-4 flex flex-col lg:flex-row items-center gap-4"
+        >
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 flex-grow">
+            {['Tudo', 'SEO Técnico', 'Link Building', 'E-E-A-T', 'Atualizações'].map((cat, idx) => (
+              <button 
+                key={idx}
+                className={`px-4 py-2 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-300 ${
+                  idx === 0 
+                  ? 'bg-slate-900 text-white shadow-md' 
+                  : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-brand-600 border border-transparent'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+          
+          <div className="w-full lg:w-72 relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-500 transition-colors" size={18} />
+            <input 
+              type="text" 
+              placeholder="Pesquisar inteligência..." 
+              className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 pl-12 pr-4 text-sm font-medium focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all"
+            />
+          </div>
+        </motion.div>
+      </div>
+
+      <main className="max-w-7xl mx-auto relative z-10 px-6 py-16">
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-20">
             {allPosts.map((post, index) => (
@@ -152,7 +187,7 @@ export default function Blog() {
                  Deixe que nossos especialistas técnicos cuidem de tudo: do seu <Tooltip term="sitemap.xml" definition="Arquivo que ajuda os buscadores a encontrar e catalogar o conteúdo do seu site." /> até a construção de uma rede privada de <Tooltip term="Backlinks" definition="Uma rede de sites com alta autoridade indicando o seu site como referência no assunto." /> de alta precisão.
                </p>
                <div className="flex flex-col sm:flex-row justify-center gap-4">
-                 <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+preciso+de+ajuda+com+o+SEO+da+minha+empresa!" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-500 transition-all flex items-center justify-center shadow-lg shadow-brand-500/20 text-center px-6 sm:px-8 py-4 gap-2">
+                 <a href="https://wa.me/5531999229927?text=Ol%C3%A1%2C+preciso+de+ajuda+com+o+SEO+da+minha+empresa!" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-500 transition-all flex items-center justify-center shadow-lg shadow-brand-500/20 text-center px-6 sm:px-8 py-4 gap-2">
                    Falar com Especialista
                  </a>
                  <Link to="/auditoria" className="w-full sm:w-auto bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-all border border-white/10 flex items-center justify-center backdrop-blur-sm text-center px-6 sm:px-8 py-4 gap-2">

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Helmet } from 'react-helmet-async';
-import { Target, Zap, Shield, Users, ArrowRight, Building, Award } from 'lucide-react';
+import { Target, Zap, Shield, Users, ArrowRight, Building, Award, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { JsonLd, generateBreadcrumbSchema } from '../components/JsonLd';
 
@@ -18,7 +18,7 @@ export default function About() {
     "description": "Agência boutique de SEO técnico e estratégico focada em performance orgânica e crescimento exponencial de tráfego.",
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": "+55-11-99222-9927",
+      "telephone": "+55-31-99922-9927",
       "contactType": "customer service",
       "areaServed": "BR",
       "availableLanguage": "Portuguese"
@@ -45,28 +45,71 @@ export default function About() {
       ])} />
 
       {/* Hero Section */}
-      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-12 md:pt-20 pb-20 md:pb-32">
         <div className="tech-grid" />
         <div className="hero-glow" />
         
-        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center text-center">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-4xl"
-          >
-            <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6 mx-auto">
-              <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Engenharia & Autoridade SEO
-            </div>
-            
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8 text-balance">
-              Decodificamos a Web para <span className="text-brand-600">Potencializar</span> seu Crescimento.
-            </h1>
-            
-            <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-2xl mx-auto text-balance">
-              A Acelera SEO nasceu do compromisso com o SEO técnico e estratégico. Somos uma agência boutique focada em performance orgânica e lucro real.
-            </p>
-          </motion.div>
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left"
+            >
+              <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6">
+                <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Nossa Identidade
+              </div>
+              
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8 text-balance">
+                Decodificamos a Web para <span className="text-brand-600 italic">Potencializar</span> Negócios.
+              </h1>
+              
+              <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-xl text-balance">
+                A Acelera SEO nasceu do compromisso com o <span className="text-slate-900 font-medium font-display italic">SEO técnico raiz</span>. Somos uma agência boutique focada em performance e crescimento orgânico real.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <Link to="/contato" className="bg-brand-600 text-white font-bold text-base rounded-xl hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-500/30 transition-all flex items-center justify-center group px-8 py-4 gap-2">
+                  Fale com um Especialista <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link to="/servicos" className="bg-white border border-slate-200 text-slate-700 font-semibold text-base rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center shadow-sm px-8 py-4 gap-2">
+                  Ver Soluções Técnicas
+                </Link>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+              className="lg:col-span-5 relative mt-10 lg:mt-0"
+            >
+              <div className="bg-white/60 backdrop-blur-2xl border border-white/40 shadow-[0_32px_64px_-16px_rgba(41,96,150,0.12)] rounded-[3rem] relative z-10 w-full overflow-hidden p-4 sm:p-6 ring-1 ring-white/50">
+                <div className="aspect-[4/3] rounded-[2.2rem] overflow-hidden group relative">
+                  <img 
+                      src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2000&auto=format&fit=crop" 
+                      alt="Sobre a Acelera SEO" 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-60" />
+                  
+                  <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+                    <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-white/50">
+                      <p className="text-[10px] font-bold text-brand-600 uppercase tracking-wider mb-1">Performance Garantida</p>
+                      <p className="text-sm font-extrabold text-slate-900">Especialistas Sêniores</p>
+                    </div>
+                    <div className="w-12 h-12 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-xl">
+                      <Award size={24} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-brand-400/5 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="absolute -top-10 -right-10 w-48 h-48 bg-brand-200/5 rounded-full blur-3xl pointer-events-none"></div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -183,7 +226,7 @@ export default function About() {
              Pare de vender o seu posicionamento natural para empresas que possuem um site muito inferior ao seu.
            </p>
            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+gostaria+de+falar+com+os+especialistas+da+Acelera+SEO!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center justify-center group px-12 py-6 gap-4">
+              <a href="https://wa.me/5531999229927?text=Ol%C3%A1%2C+gostaria+de+falar+com+os+especialistas+da+Acelera+SEO!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center justify-center group px-12 py-6 gap-4">
                 Explorar Solução Dedicada
               </a>
               <Link to="/servicos" className="bg-white border border-slate-200 text-slate-700 font-bold text-xl rounded-2xl hover:bg-slate-50 transition-all flex items-center justify-center px-12 py-6 gap-2">

@@ -61,7 +61,7 @@ export default function Services() {
       </Helmet>
 
       {/* Hero Section */}
-      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-12 md:pt-20 pb-20 md:pb-32">
         <div className="tech-grid" />
         <div className="hero-glow" />
         
@@ -146,7 +146,7 @@ export default function Services() {
               <p className="text-slate-600 font-light text-lg leading-relaxed mb-10 text-justify md:text-left">
                 {service.description}
               </p>
-              <a href={`https://wa.me/5511992229927?text=Quero+saber+detalhes+sobre+${service.title}`} target="_blank" rel="noopener noreferrer" className="mt-auto inline-flex items-center bg-white border border-slate-200 text-slate-800 font-bold rounded-xl hover:bg-slate-100 transition-colors gap-3 px-8 py-4">
+              <a href={`https://wa.me/5531999229927?text=Quero+saber+detalhes+sobre+${service.title}`} target="_blank" rel="noopener noreferrer" className="mt-auto inline-flex items-center bg-white border border-slate-200 text-slate-800 font-bold rounded-xl hover:bg-slate-100 transition-colors gap-3 px-8 py-4">
                 Solicitar Proposta Comercial <ArrowRight size={18} />
               </a>
             </div>
@@ -176,7 +176,7 @@ export default function Services() {
            <p className="text-xl text-slate-500 font-light leading-relaxed mb-8 lg:mb-12 text-justify md:text-center">
              Enquanto você adia a priorização do seu projeto de SEO, seus concorrentes assumem a demanda e coletam a sua receita. Inicie com quem aplica performance validada na última década. Descubra mais <Link to="/sobre" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">sobre a nossa metodologia</Link>.
            </p>
-           <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+preciso+iniciar+meu+projeto+de+SEO!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center group px-12 py-6 gap-4">
+           <a href="https://wa.me/5531999229927?text=Ol%C3%A1%2C+preciso+iniciar+meu+projeto+de+SEO!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center group px-12 py-6 gap-4">
              Reservar Espaço para Atendimento
            </a>
         </div>

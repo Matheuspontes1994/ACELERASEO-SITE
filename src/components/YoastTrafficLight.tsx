@@ -19,11 +19,12 @@ interface AnalysisResult {
   score: number;
 }
 
-export default function YoastTrafficLight({ title, description, content, slug, focusKeyword, clientName }: SEOProps) {
+export default function YoastTrafficLight({ title = '', description = '', content = '', slug = '', focusKeyword = '', clientName }: SEOProps) {
   const [activeTab, setActiveTab] = useState<'seo' | 'readability'>('seo');
   
   const keyword = focusKeyword ? focusKeyword.trim().toLowerCase() : '';
-  const textContent = content.replace(/<[^>]+>/g, ' ').toLowerCase();
+  const safeContent = content || '';
+  const textContent = safeContent.replace(/<[^>]+>/g, ' ').toLowerCase();
   const wordCount = textContent.split(/\s+/).filter(w => w.length > 0).length;
 
   const seoResults: AnalysisResult[] = [];
@@ -38,7 +39,7 @@ export default function YoastTrafficLight({ title, description, content, slug, f
     // Frases consecutivas
     readabilityResults.push({ id: 'read-consecutive', status: 'good', text: 'Frases consecutivas: Não há inícios de frases repetitivos. Ótimo!', score: 9 });
     // Distribuição de subtítulos
-    if (wordCount > 300 && !/<h[2-6]>/i.test(content) && !/##/.test(content)) {
+    if (wordCount > 300 && !/<h[2-6]>/i.test(safeContent) && !/##/.test(safeContent)) {
        readabilityResults.push({ id: 'read-subheading', status: 'ok', text: 'Distribuição de subtítulos: Faltam subtítulos no texto. Adicione alguns!', score: 5 });
     } else {
        readabilityResults.push({ id: 'read-subheading', status: 'good', text: 'Distribuição de subtítulos: Você não está usando nenhum subtítulo, mas seu texto é pequeno o bastante para provavelmente não precisar deles.', score: 9 });
@@ -57,7 +58,7 @@ export default function YoastTrafficLight({ title, description, content, slug, f
     seoResults.push({ id: 'kw-prev', status: 'good', text: 'Frase-chave usada anteriormente: Nenhuma frase-chave de foco foi definida para esta página. Adicione uma frase-chave de foco que você não tenha usado antes em outro conteúdo.', score: 9 });
   } else {
     // Links de saída
-    const hasOutboundLinks = /href="(http(s)?:\/\/(?!yourdomain\.com)[^"]+)"/.test(content) || /\[.*\]\(http(s)?:\/\/(?!yourdomain\.com)[^\)]+\)/.test(content);
+    const hasOutboundLinks = /href="(http(s)?:\/\/(?!yourdomain\.com)[^"]+)"/.test(safeContent) || /\[.*\]\(http(s)?:\/\/(?!yourdomain\.com)[^\)]+\)/.test(safeContent);
     if (hasOutboundLinks) {
        seoResults.push({ id: 'seo-outbound', status: 'good', text: 'Links de saída: Ótimo trabalho!', score: 9 });
     } else {
@@ -66,7 +67,7 @@ export default function YoastTrafficLight({ title, description, content, slug, f
 
     // Links internos
     const isAgency = clientName === 'Agência';
-    const hasInternalLinks = /href="\/(?!.*http)[^"]*"/.test(content) || /\[.*\]\(\/[^\)]*\)/.test(content) || (clientName && clientName !== 'Agência' && /href="http(s)?:\/\/(www\.)?(?!yourdomain\.com)[^"]+"/.test(content));
+    const hasInternalLinks = /href="\/(?!.*http)[^"]*"/.test(safeContent) || /\[.*\]\(\/[^\)]*\)/.test(safeContent) || (clientName && clientName !== 'Agência' && /href="http(s)?:\/\/(www\.)?(?!yourdomain\.com)[^"]+"/.test(safeContent));
     
     if (hasInternalLinks) {
        seoResults.push({ id: 'seo-internal', status: 'good', text: 'Links internos: Você tem links internos suficientes.', score: 9 });
@@ -79,7 +80,7 @@ export default function YoastTrafficLight({ title, description, content, slug, f
     }
 
     // Frase-chave em atributos alt de imagem
-    const hasImages = /<img[^>]+>/i.test(content) || /!\[.*?\]\(.*?\)/.test(content);
+    const hasImages = /<img[^>]+>/i.test(safeContent) || /!\[.*?\]\(.*?\)/.test(safeContent);
     if (!hasImages) {
       if (isAgency) {
           seoResults.push({ id: 'seo-img-alt', status: 'bad', text: 'Atributo alt da imagem: Nenhuma imagem encontrada nesta página. Adicione alguma!', score: 0 });
@@ -90,7 +91,7 @@ export default function YoastTrafficLight({ title, description, content, slug, f
       if (!isAgency) {
         seoResults.push({ id: 'seo-img-alt', status: 'ok', text: 'Lembrete: Atributo alt da imagem. Não esqueça de preencher os textos alt e títulos quando for publicar no site do cliente.', score: 5 });
       } else {
-        const imgWithKw = new RegExp(`alt="[^"]*${keyword}[^"]*"`, 'i').test(content) || new RegExp(`!\\[.*${keyword}.*\\]`, 'i').test(content);
+        const imgWithKw = new RegExp(`alt="[^"]*${keyword}[^"]*"`, 'i').test(safeContent) || new RegExp(`!\\[.*${keyword}.*\\]`, 'i').test(safeContent);
         if (imgWithKw) {
            seoResults.push({ id: 'seo-img-alt', status: 'good', text: 'Frase-chave em atributos alt de imagem: Bom trabalho!', score: 9 });
         } else {
@@ -122,7 +123,7 @@ export default function YoastTrafficLight({ title, description, content, slug, f
     }
 
     // Frase-chave no título de SEO
-    const titleLower = title.toLowerCase();
+    const titleLower = (title || '').toLowerCase();
     if (titleLower.startsWith(keyword)) {
        seoResults.push({ id: 'seo-title-kw', status: 'good', text: 'Frase-chave no título de SEO: Muito bem!', score: 9 });
     } else if (titleLower.includes(keyword)) {
@@ -135,7 +136,7 @@ export default function YoastTrafficLight({ title, description, content, slug, f
     seoResults.push({ id: 'seo-kw-len', status: 'good', text: 'Tamanho da frase-chave: Bom trabalho!', score: 9 });
 
     // Frase-chave na meta descrição
-    const descLower = description.toLowerCase();
+    const descLower = (description || '').toLowerCase();
     if (descLower.includes(keyword)) {
       seoResults.push({ id: 'seo-meta-kw', status: 'good', text: 'Frase-chave na meta descrição: Muito bem!', score: 9 });
     } else {
@@ -147,7 +148,7 @@ export default function YoastTrafficLight({ title, description, content, slug, f
 
     // Frase-chave no slug
     // Normalizar a URL removendo hífens caso estejam na palavra chave e substituindo espaços por hífens para testar
-    const slugLower = slug.toLowerCase();
+    const slugLower = (slug || '').toLowerCase();
     const keywordDashed = keyword.replace(/\s+/g, '-');
     const keywordLower = keyword.toLowerCase();
 
@@ -158,20 +159,20 @@ export default function YoastTrafficLight({ title, description, content, slug, f
     }
 
     // Palavra-chave no subtítulo
-    const hasSubheading = /<h[2-6][^>]*>/i.test(content) || /##/.test(content);
+    const hasSubheading = /<h[2-6][^>]*>/i.test(safeContent) || /##/.test(safeContent);
     if (!hasSubheading) {
       seoResults.push({ id: 'seo-subheading-kw', status: 'bad', text: 'Palavra-chave no subtítulo: Por favor, adicione uma palavra-chave e algum texto para receber feedback relevante.', score: 0 });
     } else {
       const hRegex = /<h[2-6][^>]*>([^<]+)<\/h[2-6]>/gi;
       let matched = false;
       let match;
-      while ((match = hRegex.exec(content)) !== null) {
+      while ((match = hRegex.exec(safeContent)) !== null) {
         if (match[1].toLowerCase().includes(keywordLower)) matched = true;
       }
       if (!matched) {
         // Also check if they used markdown ## headings
         const mdRegex = /##+ ([^\n]+)/gi;
-        while ((match = mdRegex.exec(content)) !== null) {
+        while ((match = mdRegex.exec(safeContent)) !== null) {
           if (match[1].toLowerCase().includes(keywordLower)) matched = true;
         }
       }
@@ -187,16 +188,17 @@ export default function YoastTrafficLight({ title, description, content, slug, f
   }
 
   // Tamanho da metadescrição
-  if (description.length === 0) {
+  const safeDescription = description || '';
+  if (safeDescription.length === 0) {
     seoResults.push({ id: 'seo-meta-len', status: 'bad', text: 'Tamanho da metadescrição: nenhuma metadescrição foi especificada. Mecanismos de pesquisa vão mostrar uma cópia da página no lugar. Não esqueça de escrever uma!', score: 0 });
-  } else if (description.length >= 120 && description.length <= 156) {
+  } else if (safeDescription.length >= 120 && safeDescription.length <= 156) {
     seoResults.push({ id: 'seo-meta-len', status: 'good', text: 'Tamanho da metadescrição: Muito bem!', score: 9 });
   } else {
     seoResults.push({ id: 'seo-meta-len', status: 'ok', text: 'Tamanho da metadescrição: A descrição é muito longa ou muito curta.', score: 5 });
   }
 
   // Título único
-  const h1Count = (content.match(/<h1[^>]*>.*?<\/h1>/gi) || []).length + (content.match(/^# .*/gm) || []).length;
+  const h1Count = (safeContent.match(/<h1[^>]*>.*?<\/h1>/gi) || []).length + (safeContent.match(/^# .*/gm) || []).length;
   if (h1Count > 1) {
     seoResults.push({ id: 'seo-title-unique', status: 'bad', text: 'Título único: Você tem vários títulos H1. Use apenas um título H1.', score: 0 });
   } else {
@@ -204,9 +206,10 @@ export default function YoastTrafficLight({ title, description, content, slug, f
   }
 
   // SEO largura do título
-  if (title.length > 0 && title.length < 60) {
+  const safeTitle = title || '';
+  if (safeTitle.length > 0 && safeTitle.length < 60) {
     seoResults.push({ id: 'seo-title-width', status: 'good', text: 'SEO largura do título: bom trabalho!', score: 9 });
-  } else if (title.length >= 60) {
+  } else if (safeTitle.length >= 60) {
     seoResults.push({ id: 'seo-title-width', status: 'ok', text: 'SEO largura do título: Título muito longo.', score: 5 });
   } else {
     seoResults.push({ id: 'seo-title-width', status: 'bad', text: 'SEO largura do título: Por favor, adicione um título.', score: 0 });

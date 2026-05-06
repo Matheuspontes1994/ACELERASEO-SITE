@@ -108,79 +108,83 @@ export default function SettingsGlobal() {
   if (loading) return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-600" /></div>;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-6 md:p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900 font-display">Identidade Visual</h2>
-            <p className="text-sm text-slate-500 mt-1">Configure o logotipo principal do sistema e do site</p>
-          </div>
+    <motion.div initial={{ opacity: 0, scale: 0.99 }} animate={{ opacity: 1, scale: 1 }} className="space-y-10">
+      <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden p-8 lg:p-12">
+        <div className="mb-10 text-center md:text-left">
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Identidade Visual</h2>
+          <p className="text-slate-500 font-medium tracking-tight">Gerenciamento de marca para o ecossistema digital da agência.</p>
         </div>
         
-        <div className="p-6 md:p-8">
-          <form onSubmit={handleSave} className="space-y-8 max-w-2xl">
-            <div className="space-y-4">
-              <label className="block text-sm font-bold text-slate-900">Logo Atual</label>
-              <div className="flex gap-6 items-start">
-                <div className="w-48 h-32 bg-slate-50 rounded-2xl border border-slate-200 border-dashed flex items-center justify-center p-4 relative overflow-hidden group">
-                  {logoUrl ? (
-                    <img src={logoUrl} alt="Logo" className="w-full h-full object-contain" />
-                  ) : (
-                    <div className="text-center text-slate-400">
-                      <ImageIcon size={32} className="mx-auto mb-2 opacity-50" />
-                      <span className="text-xs font-medium">Sem Logo</span>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex-1 space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Upload Rápido (Auto Redimensionamento)</label>
-                    <label className="relative flex cursor-pointer items-center justify-center gap-2 w-full py-3 px-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 transition-colors">
-                      <UploadCloud size={18} />
-                      Escolher Imagem
-                      <input type="file" accept="image/png, image/jpeg, image/svg+xml, image/webp" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={handleFileUpload} />
-                    </label>
+        <form onSubmit={handleSave} className="space-y-12">
+          <div className="grid lg:grid-cols-2 gap-12">
+            <div className="space-y-6">
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Snapshot da Marca</label>
+              <div className="aspect-video bg-slate-50 rounded-[2rem] border border-slate-200 border-dashed flex items-center justify-center p-8 relative overflow-hidden group">
+                {logoUrl ? (
+                  <img src={logoUrl} alt="Logo" className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+                ) : (
+                  <div className="text-center opacity-30">
+                    <ImageIcon size={48} className="mx-auto mb-4" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Aguardando Logotipo</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/5 transition-colors pointer-events-none"></div>
+              </div>
+            </div>
+            
+            <div className="flex flex-col justify-center space-y-8">
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Atualizar Identidade</label>
+                <div className="flex flex-col gap-4">
+                  <label className="relative flex cursor-pointer items-center justify-center gap-3 w-full py-5 px-6 bg-slate-900 hover:bg-brand-600 rounded-2xl text-[10px] font-black text-white uppercase tracking-widest transition-all shadow-lg hover:shadow-brand-500/30">
+                    <UploadCloud size={16} />
+                    Selecionar Arquivo
+                    <input type="file" accept="image/png, image/jpeg, image/svg+xml, image/webp" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={handleFileUpload} />
+                  </label>
+
+                  <div className="flex items-center gap-4 px-4">
+                    <div className="flex-1 h-px bg-slate-100"></div>
+                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">System Link</span>
+                    <div className="flex-1 h-px bg-slate-100"></div>
                   </div>
                   
-                  <div className="flex items-center gap-4">
-                    <hr className="flex-1 border-slate-200" />
-                    <span className="text-xs font-medium text-slate-400 uppercase">OU</span>
-                    <hr className="flex-1 border-slate-200" />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">URL Externa da Imagem</label>
-                    <div className="relative">
-                      <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                      <input 
-                        type="url" 
-                        value={logoUrl}
-                        onChange={e => setLogoUrl(e.target.value)}
-                        placeholder="https://..."
-                        className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 hover:border-slate-300 focus:border-brand-500 rounded-xl text-sm transition-colors outline-none"
-                      />
-                    </div>
+                  <div className="relative">
+                    <LinkIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                    <input 
+                      type="url" 
+                      value={logoUrl}
+                      onChange={e => setLogoUrl(e.target.value)}
+                      placeholder="HTTPS://ENDPOINT.CLIENT.LOGO"
+                      className="w-full pl-12 pr-6 py-5 bg-slate-50 border border-slate-200 text-[10px] font-black uppercase tracking-widest rounded-2xl focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all"
+                    />
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="flex justify-end pt-6 border-t border-slate-100">
-              <button 
-                type="submit" 
-                disabled={saving || !logoUrl}
-                className="px-8 py-3 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {saving ? <Loader2 size={18} className="animate-spin" /> : 
-                 success ? <CheckCircle2 size={18} /> : 'Salvar Alterações'}
-              </button>
+          <div className="flex flex-col sm:flex-row items-center justify-between pt-10 border-t border-slate-100 gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sincronização em Tempo Real Ativa</p>
             </div>
-            {success && (
-               <p className="text-sm font-medium text-emerald-600 !mt-2 text-right">Alterações salvas! Atualize a página para ver a nova logo.</p>
-            )}
-          </form>
-        </div>
+            
+            <button 
+              type="submit" 
+              disabled={saving || !logoUrl}
+              className="w-full sm:w-auto px-12 py-5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-brand-600 transition-all shadow-xl disabled:opacity-50 flex items-center justify-center gap-3"
+            >
+              {saving ? <Loader2 size={16} className="animate-spin" /> : 
+               success ? <CheckCircle2 size={16} className="text-emerald-400" /> : 'Confirmar Mudanças'}
+            </button>
+          </div>
+          
+          {success && (
+             <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] text-center sm:text-right">
+               Arquivos propagados com sucesso para o banco de dados.
+             </motion.p>
+          )}
+        </form>
       </div>
     </motion.div>
   );

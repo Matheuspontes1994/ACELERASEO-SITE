@@ -26,7 +26,8 @@ import {
   Loader2,
   Circle,
   AlertCircle,
-  Zap
+  Zap,
+  LogOut
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
@@ -100,6 +101,8 @@ import { HubClients } from '../components/HubClients';
 import { PostFormModal } from '../components/PostFormModal';
 import { BacklinkFormModal } from '../components/BacklinkFormModal';
 import SettingsGlobal from '../components/SettingsGlobal';
+
+import { HorizontalScroll } from '../components/HorizontalScroll';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -919,35 +922,54 @@ export default function Dashboard() {
     : '14.2k';
 
   return (
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pb-12">
+    <div className="min-h-screen bg-slate-50 text-slate-700 font-sans selection:bg-brand-500/30 selection:text-white">
       <Helmet>
-        <title>Painel de Performance | Acelera SEO</title>
+        <title>Painel da Agência | Acelera SEO</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      {/* Modern Agency Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 mb-8">
+      {/* Decorative Gradient Overlay */}
+      <div className="fixed top-0 left-0 w-full h-[500px] bg-gradient-to-b from-brand-100/30 to-transparent pointer-events-none z-0"></div>
+
+      {/* Modern Sticky Header */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 mb-8 sm:mb-12">
         <div className="max-w-7xl mx-auto h-20 flex items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center group gap-3">
-              <div className="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg shadow-slate-900/10 group-hover:scale-105 transition-transform">
                 <TrendingUp className="text-white" size={24} />
               </div>
               <div>
                 <span className="text-xl font-black tracking-tighter text-slate-900 block leading-tight">ACELERA<span className="text-brand-600">SEO</span></span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] block">Agency Portal</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] block">Agency Command</span>
               </div>
             </Link>
+
+            <div className="hidden md:flex ml-8 bg-slate-100 p-1 rounded-xl">
+               <button 
+                 onClick={() => {
+                   setPortalMode('agencia');
+                   setActiveTab('Visão Geral');
+                 }} 
+                 className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${portalMode === 'agencia' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+               >
+                 Visão Agência
+               </button>
+               <button 
+                 onClick={() => navigate('/portal-cliente')} 
+                 className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-all"
+               >
+                 Visão Cliente
+               </button>
+            </div>
           </div>
 
-          <div className="flex items-center h-full gap-2 sm:gap-4">
-            <button 
-              onClick={() => navigate('/portal-cliente')}
-              className="flex items-center py-2.5 text-[10px] font-black uppercase tracking-widest text-brand-700 bg-brand-50 rounded-2xl hover:bg-brand-100 transition-all border border-brand-200/50 hidden md:flex gap-2 px-4"
-            >
-              <Users size={14} /> Portal do Cliente
-            </button>
-            <div className="w-px h-6 bg-slate-200 hidden md:block mx-2"></div>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <div className="hidden lg:flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 gap-3">
+               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sistemas Ativos</span>
+            </div>
+            <div className="w-px h-6 bg-slate-200 hidden md:block mx-1"></div>
             <button 
               onClick={async () => {
                 const { signOut } = await import('firebase/auth');
@@ -955,53 +977,71 @@ export default function Dashboard() {
                 await signOut(auth);
                 navigate('/');
               }}
-              className="flex items-center py-2.5 text-[10px] font-black uppercase tracking-widest text-rose-600 hover:bg-rose-50 rounded-2xl transition-all gap-2 px-4"
+              className="flex items-center text-[10px] font-black uppercase tracking-widest text-rose-600 hover:bg-rose-50 rounded-xl transition-all gap-2 px-4 py-2"
             >
-              <ArrowRight size={14} /> Sair
+              <LogOut size={14} /> Sair
             </button>
           </div>
         </div>
       </header>
       
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6">
-        {/* Page Title Section */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+      <div className="max-w-7xl mx-auto relative z-10 px-4 sm:px-6 lg:px-8 pb-10">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12"
+        >
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="h-1.5 w-8 bg-brand-600 rounded-full"></div>
-              <p className="text-[10px] font-bold text-brand-600 uppercase tracking-[0.3em]">Gestão Operacional</p>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-1.5 w-10 bg-slate-900 rounded-full"></div>
+              <p className="text-[10px] font-black text-brand-600 uppercase tracking-[0.4em]">Command Center</p>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-black text-slate-900 font-display tracking-tight leading-none mb-4 text-center md:text-center">
+            
+            <h1 className="text-4xl sm:text-6xl font-black text-slate-900 font-display tracking-tight leading-[0.9] mb-4">
               Dashboard <span className="text-brand-600">Agência</span>
             </h1>
-            <p className="text-slate-500 font-medium max-w-xl text-lg leading-relaxed text-justify md:text-left">
-              Controle total sobre entregas, SLAs e crescimento orgânico dos seus clientes.
+            
+            <p className="text-lg sm:text-xl text-slate-500 font-medium max-w-2xl leading-relaxed">
+              Gerencie pautas, backlinks, rankings e performance técnica de todo o ecossistema Acelera SEO.
             </p>
           </div>
-
-          <div className="flex flex-wrap items-center bg-white rounded-3xl border border-slate-200 shadow-sm gap-3 p-2">
-            <button 
-              onClick={() => setShowGscPrompt(!showGscPrompt)}
-              className={`flex items-center gap-2 px-5 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${showGscPrompt ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' : 'text-slate-700 hover:bg-slate-50'}`}>
-              <Globe2 size={16} /> <span className="hidden sm:inline">Google Search Console</span><span className="sm:hidden">GSC</span>
-            </button>
-            <button className="flex items-center bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 active:scale-95 gap-2 px-5 py-3">
-              <Download size={16} /> Relatórios
-            </button>
-          </div>
           
-          {showGscPrompt && (
-            <motion.div 
-               initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} 
-               className="fixed inset-0 sm:absolute sm:inset-auto sm:top-full sm:right-0 bg-white rounded-none sm:rounded-3xl shadow-2xl border-none sm:border border-slate-200 w-full sm:w-[400px] z-[60] flex flex-col justify-center sm:block mt-4 p-8">
-               <div className="flex items-center justify-between mb-6">
-                 <div>
-                    <h3 className="text-xl font-black text-slate-900 font-display text-center md:text-left">Conectar Site</h3>
-                    <p className="text-sm font-medium text-slate-500 mt-1">Google Search Console API</p>
-                 </div>
-                 <button onClick={() => setShowGscPrompt(false)} className="bg-slate-100 text-slate-500 hover:text-slate-900 rounded-xl transition-colors p-2"><AlertCircle size={20} /></button>
+          <div className="flex flex-wrap items-center bg-white/50 p-1.5 rounded-[2.5rem] border border-slate-200 shadow-sm backdrop-blur-sm gap-3">
+             <div className="flex items-center bg-white rounded-3xl border border-slate-100 shadow-sm gap-4 px-6 py-3">
+               <div className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center">
+                 <Activity size={24} />
                </div>
-               <p className="text-sm text-slate-500 leading-relaxed mb-6 text-justify md:text-left">Insira a URL exata ou o prefixo do domínio cadastrado no Search Console. Certifique-se de que a conta de serviço possui permissões de visualização.</p>
+               <div>
+                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Status Operacional:</p>
+                 <div className="flex items-center gap-2">
+                   <p className="text-sm font-black text-slate-900 tracking-tight">Agência Online</p>
+                   <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></div>
+                 </div>
+               </div>
+             </div>
+             
+             <button 
+                onClick={() => setShowGscPrompt(!showGscPrompt)}
+                className="flex items-center text-[10px] font-black uppercase tracking-widest text-slate-700 bg-white border border-slate-200 rounded-3xl hover:bg-slate-50 transition-all shadow-sm active:scale-95 gap-2 px-6 py-4"
+             >
+               <Globe2 size={16} /> Search Console
+             </button>
+          </div>
+        </motion.div>
+
+        {showGscPrompt && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <motion.div 
+               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} 
+               className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-200 w-full max-w-lg p-8 relative">
+               <button onClick={() => setShowGscPrompt(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 transition-colors">
+                 <AlertCircle size={24} />
+               </button>
+               <div className="mb-8">
+                  <h3 className="text-2xl font-black text-slate-900 font-display">Conectar Site</h3>
+                  <p className="text-sm font-medium text-slate-500 mt-1">Google Search Console API</p>
+               </div>
+               <p className="text-sm text-slate-500 leading-relaxed mb-6">Insira a URL exata ou o prefixo do domínio cadastrado no Search Console. Certifique-se de que a conta de serviço possui permissões de visualização.</p>
                <form onSubmit={fetchGscData} className="space-y-4">
                  <div className="relative">
                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -1013,82 +1053,141 @@ export default function Dashboard() {
                      className="w-full pl-12 pr-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all py-4"
                    />
                  </div>
-                 {gscError && <motion.div initial={{ opacity:0, x:-10 }} animate={{ opacity:1, x:0 }} className="text-xs font-bold text-rose-500 bg-rose-50 rounded-2xl border border-rose-100 flex p-4 gap-2"><AlertTriangle size={14} className="shrink-0" /> {gscError}</motion.div>}
+                 {gscError && <div className="text-xs font-bold text-rose-500 bg-rose-50 rounded-2xl border border-rose-100 flex p-4 gap-2"><AlertTriangle size={14} className="shrink-0" /> {gscError}</div>}
                  <button 
                   disabled={loadingGSC}
                   type="submit" 
                   className="w-full bg-slate-900 text-white font-black uppercase tracking-widest rounded-2xl text-xs hover:bg-brand-600 flex justify-center items-center transition-all disabled:opacity-50 active:scale-[0.98] shadow-lg shadow-slate-900/10 py-4 gap-3">
                     {loadingGSC ? <><Loader2 size={18} className="animate-spin" /> Processando...</> : 'Importar Dados'}
                  </button>
-                 <button type="button" onClick={() => setShowGscPrompt(false)} className="w-full text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors sm:hidden py-4">Fechar</button>
                </form>
             </motion.div>
-          )}
-        </div>
-        
-        {/* Main Navigation & View Selector */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 w-full max-w-full">
-          <div className="flex bg-slate-200/50 rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative p-1 shrink-0 max-w-full">
-            <motion.div 
-               className="absolute inset-y-1 transition-all duration-300 bg-white rounded-xl shadow-md" 
-               initial={false}
-               animate={{ 
-                 left: portalMode === 'agencia' ? '4px' : 'calc(50% + 1px)',
-                 width: 'calc(50% - 5px)'
-               }}
-            />
-            <button 
-              onClick={() => {
-                 setPortalMode('agencia');
-                 setActiveTab('Visão Geral');
-              }}
-              className={`relative px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 z-10 w-36 ${portalMode === 'agencia' ? 'text-brand-600' : 'text-slate-500 hover:text-slate-700'}`}
-            >
-              <span className="flex items-center justify-center gap-2">
-                <TrendingUp size={14} /> Agência
-              </span>
-            </button>
-            <button 
-              onClick={() => {
-                 setPortalMode('clientes');
-                 setActiveTab('Hub de Clientes');
-              }}
-              className={`relative px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 z-10 w-36 ${portalMode === 'clientes' ? 'text-brand-600' : 'text-slate-500 hover:text-slate-700'}`}
-            >
-              <span className="flex items-center justify-center gap-2">
-                <Users size={14} /> Clientes
-              </span>
-            </button>
           </div>
+        )}
 
-          <div className="flex overflow-x-auto no-scrollbar bg-slate-200/40 rounded-2xl border border-slate-200/50 gap-1 p-1 w-full max-w-full md:w-auto">
-            {(portalMode === 'agencia' 
-               ? ['Visão Geral', 'Conteúdo Interno (Acelera)', 'Clientes & CRM', 'Configurações']
-               : ['Hub de Clientes', 'Aprovações Pendentes', 'Monitoramento de Rankings']
-            ).map(tab => (
+        {/* Improved Tab Navigation */}
+        <HorizontalScroll className="mb-10">
+          <div className="flex bg-slate-200/30 rounded-2xl border border-slate-200 gap-1 p-1 w-fit">
+            {['Visão Geral', 'Conteúdo Interno (Acelera)', 'Hub de Clientes', 'Planejamento', 'Artigos e Conteúdos', 'Backlinks', 'Monitoramento de Rankings', 'Aprovações Pendentes', 'Clientes & CRM', 'Configurações'].map(tab => (
               <button 
                 key={tab}
                 onClick={() => {
                   setActiveTab(tab);
                   setFilterClient('');
                 }}
-                className={`relative px-4 py-2 text-xs font-bold whitespace-nowrap transition-all rounded-xl ${activeTab === tab ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                className={`relative px-6 py-2.5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all rounded-xl ${activeTab === tab ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-400 hover:text-slate-600'}`}
               >
                 {tab}
               </button>
             ))}
           </div>
-        </div>
+        </HorizontalScroll>
 
         {/* Dashboard Grid / conditional content */}
+        {activeTab === 'Visão Geral' && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+               {[
+                 { label: 'Clientes Ativos', val: clients.length, icon: Users, color: 'text-brand-600', bg: 'bg-brand-50' },
+                 { label: 'Backlinks Totais', val: backlinks.length, icon: LinkIcon, color: 'text-blue-600', bg: 'bg-blue-50' },
+                 { label: 'Artigos Publicados', val: blogPosts.length, icon: FileText, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+                 { label: 'Palavras Rankeadas', val: '—', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' }
+               ].map((stat, i) => (
+                 <div key={i} className="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                        <stat.icon size={28} />
+                      </div>
+                      <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Global Stat</div>
+                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{stat.label}</p>
+                    <p className="text-4xl font-black text-slate-900 tracking-tight">{stat.val}</p>
+                 </div>
+               ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+               <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+                    <div>
+                      <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none mb-2">Tráfego Agregado</h3>
+                      <p className="text-slate-500 font-medium">Consolidado das propriedades monitoradas</p>
+                    </div>
+                    <div className="bg-slate-50 rounded-2xl px-6 py-3 border border-slate-100 flex items-center gap-4">
+                       <div>
+                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Clicks Totais</p>
+                         <p className="text-xl font-black text-slate-900 tracking-tighter">{totalClicksInfo}</p>
+                       </div>
+                       <div className="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center ring-4 ring-emerald-500/10">
+                         <TrendingUp size={20} />
+                       </div>
+                    </div>
+                  </div>
+                  
+                  <div className="h-[400px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={chartData}>
+                        <defs>
+                          <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#22c55e" stopOpacity={0.2}/>
+                            <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 700}} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 700}} />
+                        <RechartsTooltip 
+                           contentStyle={{ borderRadius: '1.5rem', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '1rem' }}
+                           itemStyle={{ fontWeight: 800, fontSize: '12px' }}
+                        />
+                        <Area type="monotone" dataKey="clicks" stroke="#22c55e" strokeWidth={4} fillOpacity={1} fill="url(#colorClicks)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+               </div>
+
+               <div className="bg-slate-900 rounded-[2.5rem] p-8 lg:p-10 text-white shadow-2xl shadow-slate-900/20 relative overflow-hidden flex flex-col justify-between">
+                  {/* Decorative Elements */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
+                  
+                  <div className="relative z-10">
+                    <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-10 border border-white/10 backdrop-blur-sm">
+                      <Zap className="text-brand-400" size={28} />
+                    </div>
+                    <h3 className="text-4xl font-black tracking-tight leading-[1.1] mb-6">Próximos <br/> <span className="text-brand-400">Marcos</span></h3>
+                    <p className="text-slate-400 font-medium text-lg leading-relaxed mb-8">
+                      Estamos prestes a atingir a meta de indexação técnica para 85% dos novos clientes.
+                    </p>
+                  </div>
+                  
+                  <div className="relative z-10 bg-white/5 rounded-3xl border border-white/10 p-6 backdrop-blur-sm">
+                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Meta Mensal</p>
+                     <div className="flex justify-between items-end mb-3">
+                        <span className="text-3xl font-black">74%</span>
+                        <span className="text-sm font-bold text-slate-400">22/30 Clientes</span>
+                     </div>
+                     <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: '74%' }}
+                          transition={{ duration: 1.5, ease: "easeOut" }}
+                          className="h-full bg-brand-500 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.5)]"
+                        />
+                     </div>
+                  </div>
+               </div>
+            </div>
+          </motion.div>
+        )}
+
         {activeTab === 'Clientes & CRM' ? (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <div className="flex border-b border-slate-200 pb-px gap-2 mb-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+            <div className="flex bg-slate-200/50 p-1 rounded-2xl border border-slate-200 gap-1 mb-8 w-fit">
               {['Clientes Ativos', 'Leads Auditoria', 'Mensagens Contato'].map(sub => (
                 <button 
                   key={sub}
                   onClick={() => setSubTabCrm(sub)}
-                  className={`px-4 py-2 text-sm font-bold border-b-2 transition-colors ${subTabCrm === sub ? 'border-brand-600 text-brand-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
+                  className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${subTabCrm === sub ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                   {sub}
                 </button>
@@ -1096,110 +1195,97 @@ export default function Dashboard() {
             </div>
 
             {subTabCrm === 'Clientes Ativos' && (
-            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
-               <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
+            <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10">
+               <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-10">
                  <div>
-                   <h2 className="text-xl font-bold font-display text-slate-900 text-center md:text-left">Gestão de Clientes Ativos</h2>
-                   <p className="text-sm font-medium text-slate-500">Contratos, volume de entregas e horas de desenvolvimento.</p>
+                   <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Gestão de Clientes</h2>
+                   <p className="text-slate-500 font-medium">Contratos, volume de entregas e horas de desenvolvimento.</p>
                  </div>
                  <button onClick={() => {
                    setClientForm({ id: '', name: '', clientEmail: '', billingDay: '10', contractStart: '', monthlyPosts: '0', monthlyBacklinks: '0', initialDevHours: '0', monthlyDevHours: '0', active: true, approvalDeadlineDays: '5', websiteUrl: '', lastPaymentMonth: '', extraMonth: '', extraPosts: '0', extraBacklinks: '0', extraDevHours: '0' });
                    setShowClientForm(true);
-                 }} className="bg-brand-600 text-white font-bold rounded-lg text-sm hover:bg-brand-700 transition px-4 py-2">
-                   Novo Cliente
+                 }} className="bg-slate-900 text-white font-black uppercase tracking-widest rounded-2xl text-[10px] hover:bg-brand-600 transition-all shadow-lg shadow-slate-900/10 active:scale-95 px-8 py-4">
+                   + Novo Cliente
                  </button>
                </div>
 
                {showClientForm && (
-                 <form onSubmit={handleSaveClient} className="bg-slate-50 border border-slate-200 rounded-2xl space-y-4 mb-8 p-6">
-                    <h3 className="text-lg font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4 text-center md:text-left">{clientForm.id ? 'Editar Cliente' : 'Novo Cliente'}</h3>
+                 <motion.form 
+                    initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
+                    onSubmit={handleSaveClient} className="bg-slate-50 border border-slate-200 rounded-[2rem] space-y-6 mb-12 p-8 lg:p-10">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-6 mb-6">
+                      <h3 className="text-xl font-black text-slate-900 tracking-tight">{clientForm.id ? 'Editar Cadastro' : 'Novo Cadastro Regional'}</h3>
+                      <div className="bg-white px-4 py-1 rounded-full border border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-widest">Client Creation Wizard</div>
+                    </div>
                     
-                    <div className="grid md:grid-cols-4 gap-4">
-                      <div className="col-span-1">
-                        <label className="block text-xs font-bold text-slate-500 mb-1">Nome do Cliente</label>
-                        <input type="text" required value={clientForm.name} onChange={e => setClientForm({...clientForm, name: e.target.value})} className="w-full border rounded-lg px-3 py-2" placeholder="Nome da empresa" />
+                    <div className="grid md:grid-cols-4 gap-6">
+                      <div className="col-span-1 md:col-span-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Nome da Empresa</label>
+                        <input type="text" required value={clientForm.name} onChange={e => setClientForm({...clientForm, name: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all" placeholder="Nome Fantasia" />
                       </div>
-                      <div className="col-span-1">
-                        <label className="block text-xs font-bold text-slate-500 mb-1">E-mail de Login do Cliente</label>
-                        <input type="email" required value={clientForm.clientEmail} onChange={e => setClientForm({...clientForm, clientEmail: e.target.value})} className="w-full border rounded-lg px-3 py-2" placeholder="cliente@empresa.com" />
+                      <div className="col-span-1 md:col-span-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Portal Access Email</label>
+                        <input type="email" required value={clientForm.clientEmail} onChange={e => setClientForm({...clientForm, clientEmail: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all" placeholder="financeiro@empresa.com" />
                       </div>
-                      <div className="col-span-2">
-                        <label className="block text-xs font-bold text-slate-500 mb-1">URL do Site</label>
-                        <input type="url" value={clientForm.websiteUrl} onChange={e => setClientForm({...clientForm, websiteUrl: e.target.value})} className="w-full border rounded-lg px-3 py-2" placeholder="https://www.site.com.br" />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">Início do Contrato</label>
-                        <input type="date" required value={clientForm.contractStart} onChange={e => setClientForm({...clientForm, contractStart: e.target.value})} className="w-full border rounded-lg px-3 py-2" />
+                      <div className="col-span-1 md:col-span-4">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Monitoramento (URL Principal)</label>
+                        <input type="url" value={clientForm.websiteUrl} onChange={e => setClientForm({...clientForm, websiteUrl: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all" placeholder="https://www.dominio.com.br" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">Dia de Cobrança (Ciclo)</label>
-                        <input type="number" min="1" max="31" required value={clientForm.billingDay} onChange={e => setClientForm({...clientForm, billingDay: e.target.value})} className="w-full border rounded-lg px-3 py-2" />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">Posts Blog / Mês</label>
-                        <input type="number" min="0" required value={clientForm.monthlyPosts} onChange={e => setClientForm({...clientForm, monthlyPosts: e.target.value})} className="w-full border rounded-lg px-3 py-2" />
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Data Inicial</label>
+                        <input type="date" required value={clientForm.contractStart} onChange={e => setClientForm({...clientForm, contractStart: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">Backlinks / Mês</label>
-                        <input type="number" min="0" required value={clientForm.monthlyBacklinks} onChange={e => setClientForm({...clientForm, monthlyBacklinks: e.target.value})} className="w-full border rounded-lg px-3 py-2" />
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Ciclo de Cobrança</label>
+                        <input type="number" min="1" max="31" required value={clientForm.billingDay} onChange={e => setClientForm({...clientForm, billingDay: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">Horas Dev Setup (Único)</label>
-                        <input type="number" min="0" required value={clientForm.initialDevHours} onChange={e => setClientForm({...clientForm, initialDevHours: e.target.value})} className="w-full border rounded-lg px-3 py-2" />
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Artigos / Mês</label>
+                        <input type="number" min="0" required value={clientForm.monthlyPosts} onChange={e => setClientForm({...clientForm, monthlyPosts: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">Horas Dev / Mês</label>
-                        <input type="number" min="0" required value={clientForm.monthlyDevHours} onChange={e => setClientForm({...clientForm, monthlyDevHours: e.target.value})} className="w-full border rounded-lg px-3 py-2" />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">Prazo de Aprovação (Dias Úteis)</label>
-                        <input type="number" min="1" required value={clientForm.approvalDeadlineDays || '5'} onChange={e => setClientForm({...clientForm, approvalDeadlineDays: e.target.value})} className="w-full border rounded-lg px-3 py-2" />
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Backlinks / Mês</label>
+                        <input type="number" min="0" required value={clientForm.monthlyBacklinks} onChange={e => setClientForm({...clientForm, monthlyBacklinks: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all" />
                       </div>
                     </div>
 
-                    <div className="border-t border-slate-200 pt-4 mt-4">
-                      <h4 className="text-sm font-bold text-slate-700 mb-4">Venda Avulsa / Produtos Adicionais Neste Mês</h4>
+                    <div className="bg-white/50 border border-slate-200 rounded-2xl p-6">
+                      <h4 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-6 flex items-center gap-2">
+                        <Zap size={16} className="text-brand-500" /> Extras e Vendas Avulsas
+                      </h4>
                       <div className="grid md:grid-cols-4 gap-4">
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 mb-1">Mês de Aplicação (Ex: 2026-04)</label>
-                          <input type="month" value={clientForm.extraMonth || ''} onChange={e => setClientForm({...clientForm, extraMonth: e.target.value})} className="w-full border rounded-lg text-sm px-3 py-2" />
+                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Mês Aplicável</label>
+                          <input type="month" value={clientForm.extraMonth || ''} onChange={e => setClientForm({...clientForm, extraMonth: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold" />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 mb-1">Posts Avulsos</label>
-                          <input type="number" min="0" value={clientForm.extraPosts || '0'} onChange={e => setClientForm({...clientForm, extraPosts: e.target.value})} className="w-full border rounded-lg px-3 py-2" />
+                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Posts Adicionais</label>
+                          <input type="number" min="0" value={clientForm.extraPosts || '0'} onChange={e => setClientForm({...clientForm, extraPosts: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold" />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 mb-1">Backlinks Avulsos</label>
-                          <input type="number" min="0" value={clientForm.extraBacklinks || '0'} onChange={e => setClientForm({...clientForm, extraBacklinks: e.target.value})} className="w-full border rounded-lg px-3 py-2" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 mb-1">Horas Dev. Avulsas</label>
-                          <input type="number" min="0" value={clientForm.extraDevHours || '0'} onChange={e => setClientForm({...clientForm, extraDevHours: e.target.value})} className="w-full border rounded-lg px-3 py-2" />
+                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Backlinks Adicionais</label>
+                          <input type="number" min="0" value={clientForm.extraBacklinks || '0'} onChange={e => setClientForm({...clientForm, extraBacklinks: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold" />
                         </div>
                       </div>
-                      <p className="text-xs text-slate-500 mt-2">Dica: Os valores avulsos definidos acima serão somados temporariamente para este mês específico no painel do cliente. Exemplo: se o plano dele é 4 posts e avulso tem 2, verá 6 posts no mês selecionado.</p>
                     </div>
 
-                    <div className="flex justify-end border-t border-slate-200 gap-2 mt-4 pt-4">
-                      <button type="button" onClick={() => setShowClientForm(false)} className="text-sm font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition px-4 py-2">Cancelar</button>
-                      <button type="submit" className="text-sm font-bold bg-brand-600 text-white hover:bg-brand-700 rounded-lg transition px-4 py-2">
-                        {clientForm.id ? 'Atualizar Cliente' : 'Cadastrar Cliente'}
+                    <div className="flex justify-end gap-3 pt-6">
+                      <button type="button" onClick={() => setShowClientForm(false)} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors px-6 py-4">Descartar</button>
+                      <button type="submit" className="bg-slate-900 text-white font-black uppercase tracking-widest rounded-2xl text-[10px] hover:bg-brand-600 transition-all shadow-lg px-10 py-4">
+                        {clientForm.id ? 'Salvar Alterações' : 'Concluir Cadastro'}
                       </button>
                     </div>
-                 </form>
+                 </motion.form>
                )}
 
-               <div className="overflow-x-auto">
-                 <table className="w-full text-left border-collapse min-w-[800px]">
+               <HorizontalScroll>
+                 <table className="w-full text-left border-collapse min-w-[900px]">
                    <thead>
-                     <tr className="border-b border-slate-200">
-                       <th className="text-xs font-bold text-slate-500 uppercase p-4">Cliente</th>
-                       <th className="text-xs font-bold text-slate-500 uppercase p-4">Ciclo (Dia)</th>
-                       <th className="text-xs font-bold text-slate-500 uppercase p-4">Entregáveis (Mês)</th>
-                       <th className="text-xs font-bold text-slate-500 uppercase p-4">Desenv. Inicial</th>
-                       <th className="text-xs font-bold text-slate-500 uppercase p-4">Desenv. Mensal</th>
-                       <th className="text-xs font-bold text-slate-500 uppercase p-4">Ações</th>
+                     <tr className="border-b border-slate-100">
+                       <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4">Parceiro / Cliente</th>
+                       <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4">Faturamento</th>
+                       <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4">SLA Mensal</th>
+                       <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4 text-right">Controle</th>
                      </tr>
                    </thead>
                    <tbody className="divide-y divide-slate-100">
@@ -1254,7 +1340,7 @@ export default function Dashboard() {
                      ))}
                    </tbody>
                  </table>
-               </div>
+               </HorizontalScroll>
             </div>
             )}
 
@@ -1292,7 +1378,7 @@ export default function Dashboard() {
                    </button>
                  </div>
                </div>
-               <div className="overflow-x-auto">
+               <HorizontalScroll>
                  {loadingLeads ? (
                    <p className="text-center text-slate-500 py-8">Carregando leads...</p>
                  ) : (
@@ -1330,7 +1416,8 @@ export default function Dashboard() {
                      </tbody>
                    </table>
                  )}
-                 {auditHasMore && !loadingLeads && filteredAuditLeads.length > 0 && (
+               </HorizontalScroll>
+               {auditHasMore && !loadingLeads && filteredAuditLeads.length > 0 && (
                    <div className="flex justify-center mt-6">
                      <button
                        onClick={() => loadAuditLeads(true)}
@@ -1343,7 +1430,6 @@ export default function Dashboard() {
                    </div>
                  )}
                </div>
-            </div>
             )}
 
             {subTabCrm === 'Mensagens Contato' && (
@@ -1380,7 +1466,7 @@ export default function Dashboard() {
                    </button>
                  </div>
                </div>
-               <div className="overflow-x-auto">
+               <HorizontalScroll>
                    <table className="w-full text-left border-collapse min-w-[600px]">
                      <thead>
                        <tr className="border-b border-slate-200 text-xs uppercase tracking-wider text-slate-400 font-bold">
@@ -1417,7 +1503,8 @@ export default function Dashboard() {
                        )}
                      </tbody>
                    </table>
-                   {contactHasMore && !contactLoadingMore && filteredContactLeads.length > 0 && (
+               </HorizontalScroll>
+               {contactHasMore && !contactLoadingMore && filteredContactLeads.length > 0 && (
                      <div className="flex justify-center mt-6 pb-4">
                        <button
                          onClick={() => loadContactLeads(true)}
@@ -1436,7 +1523,6 @@ export default function Dashboard() {
                        </div>
                    )}
                </div>
-            </div>
             )}
           </motion.div>
         ) : activeTab === 'Conteúdo Interno (Acelera)' ? (
@@ -1491,161 +1577,197 @@ export default function Dashboard() {
              handleSaveBacklink={handleSaveBacklink}
           />
         ) : activeTab === 'Aprovações Pendentes' ? (
-          <div className="space-y-6 text-justify md:text-left">
-             <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
-                <h2 className="text-xl font-extrabold font-display text-slate-900 mb-2 text-center md:text-left">Aprovações Pendentes (De Clientes)</h2>
-                <p className="text-sm font-medium text-slate-500 mb-6">Trilhas de conteúdo que já foram escritas e estão aguardando aprovação ou já foram aprovadas com/sem ressalvas e precisam de publicação.</p>
-                
-                <h3 className="font-bold text-slate-800 border-b border-slate-200 text-xs uppercase tracking-wider pb-2 mb-4 text-center md:text-left">Artigos Pendentes de Ação</h3>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                  {blogPosts
-                    .filter((p:any) => p.clientName && p.clientName !== 'Agência' && ['Aguardando Aprovação', 'Aprovado', 'Aprovado com Ressalvas'].includes(p.status))
-                    .map((post:any, idx: number) => (
-                    <div key={`pending-post-${post.id || idx}`} className="border border-amber-200 rounded-2xl flex flex-col hover:shadow-md transition bg-amber-50/30 p-4">
-                      <div className="flex justify-between items-start mb-2">
-                         <span className="text-[10px] uppercase font-bold py-0.5 rounded bg-brand-100 text-brand-700 tracking-wider font-display px-2">{post.status}</span>
-                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{post.clientName}</span>
-                      </div>
-                      <h4 className="font-bold text-slate-900 leading-tight mb-1">{post.title}</h4>
-                      <div className="mt-auto flex flex-wrap justify-between items-center border-t border-slate-200 pt-4 gap-2">
-                         <button onClick={() => { setPostForm(post); setShowPostForm(true); }} className="text-xs font-bold text-brand-600 hover:underline uppercase tracking-wider">Revisar/Publicar</button>
-                      </div>
-                    </div>
-                  ))}
-                  {blogPosts.filter((p:any) => p.clientName && p.clientName !== 'Agência' && ['Aguardando Aprovação', 'Aprovado', 'Aprovado com Ressalvas'].includes(p.status)).length === 0 && (
-                    <p className="text-slate-500 text-sm">Nenhum artigo com esse status.</p>
-                  )}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+             <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10">
+                <div className="mb-10 text-center md:text-left">
+                  <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Aprovações Críticas</h2>
+                  <p className="text-slate-500 font-medium">Controles de qualidade para conteúdos aguardando validação final dos parceiros.</p>
                 </div>
-
-                <h3 className="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4 text-center md:text-left">Backlinks Pendentes de Ação (Aprovação / Publicação)</h3>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {backlinks
-                    .filter((b:any) => b.clientName && b.clientName !== 'Agência' && ['Aguardando Aprovação', 'Aprovado'].includes(b.status))
-                    .map((backlink:any, idx: number) => (
-                    <div key={`pending-backlink-${backlink.id || idx}`} className="border border-amber-200 rounded-2xl flex flex-col hover:shadow-md transition bg-amber-50/30 p-4">
-                      <div className="flex justify-between items-start mb-2">
-                         <span className="text-[10px] uppercase font-bold py-0.5 rounded bg-brand-100 text-brand-700 px-2">{backlink.status}</span>
-                         <span className="text-[10px] font-bold text-slate-500">{backlink.clientName}</span>
-                      </div>
-                      <h4 className="font-bold text-slate-900 mb-1">{backlink.title}</h4>
-                      <p className="text-xs text-slate-500 line-clamp-2 mb-4">Target: {backlink.targetUrl}</p>
-                      <div className="mt-auto flex flex-wrap justify-between items-center border-t border-slate-200 pt-4 gap-2">
-                         <button onClick={() => { setBacklinkForm(backlink); setShowBacklinkForm(true); }} className="text-xs font-bold text-brand-600 hover:underline">Revisar/Publicar</button>
-                      </div>
+                
+                <div className="space-y-12">
+                  <section>
+                    <div className="flex items-center gap-2 mb-6">
+                      <div className="w-1.5 h-6 bg-brand-500 rounded-full"></div>
+                      <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Trilhas de Conteúdo Pendentes</h3>
                     </div>
-                  ))}
-                  {backlinks.filter((b:any) => b.clientName && b.clientName !== 'Agência' && ['Aguardando Aprovação', 'Aprovado'].includes(b.status)).length === 0 && (
-                    <p className="text-slate-500 text-sm">Nenhum backlink pendente de aprovação.</p>
-                  )}
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {blogPosts
+                        .filter((p:any) => p.clientName && p.clientName !== 'Agência' && ['Aguardando Aprovação', 'Aprovado', 'Aprovado com Ressalvas'].includes(p.status))
+                        .map((post:any, idx: number) => (
+                        <div key={`pending-post-${post.id || idx}`} className="group bg-slate-50 border border-slate-200 rounded-[2rem] p-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all flex flex-col">
+                          <div className="flex justify-between items-start mb-4">
+                             <div className="bg-white px-3 py-1 rounded-full border border-slate-200 text-[10px] font-black text-brand-600 uppercase tracking-widest">{post.status}</div>
+                             <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{post.clientName}</span>
+                          </div>
+                          <h4 className="text-base font-black text-slate-900 leading-tight mb-6 line-clamp-2">{post.title}</h4>
+                          <button 
+                            onClick={() => { setPostForm(post); setShowPostForm(true); }} 
+                            className="mt-auto w-full bg-white border border-slate-200 text-slate-600 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 transition-all shadow-sm"
+                          >
+                            Revisar e Publicar
+                          </button>
+                        </div>
+                      ))}
+                      {blogPosts.filter((p:any) => p.clientName && p.clientName !== 'Agência' && ['Aguardando Aprovação', 'Aprovado', 'Aprovado com Ressalvas'].includes(p.status)).length === 0 && (
+                        <div className="col-span-full py-12 text-center bg-slate-50 rounded-[2rem] border border-slate-100 border-dashed">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nenhum artigo aguardando ação</p>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+
+                  <section>
+                    <div className="flex items-center gap-2 mb-6">
+                      <div className="w-1.5 h-6 bg-blue-500 rounded-full"></div>
+                      <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Estratégia de Backlinks em Fila</h3>
+                    </div>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {backlinks
+                        .filter((b:any) => b.clientName && b.clientName !== 'Agência' && ['Aguardando Aprovação', 'Aprovado'].includes(b.status))
+                        .map((backlink:any, idx: number) => (
+                        <div key={`pending-backlink-${backlink.id || idx}`} className="group bg-slate-50 border border-slate-200 rounded-[2rem] p-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all flex flex-col">
+                          <div className="flex justify-between items-start mb-4">
+                             <div className="bg-white px-3 py-1 rounded-full border border-slate-200 text-[10px] font-black text-blue-600 uppercase tracking-widest">{backlink.status}</div>
+                             <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{backlink.clientName}</span>
+                          </div>
+                          <h4 className="text-base font-black text-slate-900 leading-tight mb-2 line-clamp-1">{backlink.title}</h4>
+                          <p className="text-[10px] font-bold text-slate-400 truncate mb-6">URL: {backlink.targetUrl}</p>
+                          <button 
+                            onClick={() => { setBacklinkForm(backlink); setShowBacklinkForm(true); }} 
+                            className="mt-auto w-full bg-white border border-slate-200 text-slate-600 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 transition-all shadow-sm"
+                          >
+                            Validar Estratégia
+                          </button>
+                        </div>
+                      ))}
+                      {backlinks.filter((b:any) => b.clientName && b.clientName !== 'Agência' && ['Aguardando Aprovação', 'Aprovado'].includes(b.status)).length === 0 && (
+                        <div className="col-span-full py-12 text-center bg-slate-50 rounded-[2rem] border border-slate-100 border-dashed">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nenhum backlink pendente</p>
+                        </div>
+                      )}
+                    </div>
+                  </section>
                 </div>
              </div>
-          </div>
+          </motion.div>
         ) : activeTab === 'Monitoramento de Rankings' ? (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
-               <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+            <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10">
+               <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-10">
                  <div>
-                   <h2 className="text-xl font-bold font-display text-slate-900 text-center md:text-left">Rankings e Posicionamento</h2>
-                   <p className="text-sm font-medium text-slate-500">Acompanhe as principais palavras-chave do projeto.</p>
+                   <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Monitoramento</h2>
+                   <p className="text-slate-500 font-medium">Controle de posicionamento orgânico e saúde técnica.</p>
                  </div>
-                 <div className="flex gap-3">
-                   <button 
-                      onClick={triggerTechnicalAudit} 
-                      disabled={isAuditing}
-                      className="bg-slate-100 text-slate-700 font-bold rounded-lg text-sm hover:bg-slate-200 transition flex items-center px-4 py-2 gap-2"
-                    >
-                      {isAuditing ? <Loader2 className="animate-spin" size={14} /> : <Zap size={14} />}
-                      {isAuditing ? 'Auditoria em curso...' : 'Executar Auditoria Técnica'}
-                   </button>
+                 <div className="flex flex-wrap items-center gap-3">
                    <div className="relative">
-                     <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                     <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                      <input 
                        type="text" 
                        placeholder="Buscar keyword..." 
                        value={seoSearch}
                        onChange={e => setSeoSearch(e.target.value)}
-                       className="pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-lg text-sm w-full md:w-64 focus:outline-brand-500 py-2"
+                       className="pl-10 pr-6 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest w-full md:w-64 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all py-3"
                      />
                    </div>
-                   <button onClick={() => setShowSeoForm(true)} className="bg-brand-600 text-white font-bold rounded-lg text-sm hover:bg-brand-700 transition px-4 py-2">
-                     Adicionar Keyword
+                   <button 
+                      onClick={triggerTechnicalAudit} 
+                      disabled={isAuditing}
+                      className="bg-white border border-slate-200 text-slate-700 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-50 transition-all flex items-center px-6 py-3 gap-2"
+                    >
+                      {isAuditing ? <Loader2 className="animate-spin" size={14} /> : <Zap size={14} className="text-brand-500" />}
+                      {isAuditing ? 'Auditoria em curso...' : 'Audit Técnica'}
+                   </button>
+                   <button onClick={() => setShowSeoForm(true)} className="bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-brand-600 transition-all px-8 py-3 shadow-lg">
+                     Nova Keyword
                    </button>
                  </div>
                </div>
 
                {showSeoForm && (
-                 <form onSubmit={handleSaveSeo} className="bg-slate-50 rounded-xl border border-slate-200 space-y-4 p-6 mb-8">
-                    <h3 className="font-bold text-slate-800 mb-2 text-center md:text-left">{seoForm.id ? 'Editar Monitoramento' : 'Nova Keyword para Monitorar'}</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
+                 <motion.form 
+                    initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
+                    onSubmit={handleSaveSeo} className="bg-slate-50 rounded-[2rem] border border-slate-200 space-y-6 p-8 lg:p-10 mb-12">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-6">
+                      <h3 className="text-xl font-black text-slate-900 tracking-tight">{seoForm.id ? 'Editar Monitoramento' : 'Configurar Nova Track'}</h3>
+                      <div className="bg-white px-3 py-1 rounded-full border border-slate-200 text-[10px] font-black text-slate-300 uppercase tracking-widest">SEO Control Center</div>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">Palavra-chave</label>
-                        <input required type="text" value={seoForm.title} onChange={e => setSeoForm({...seoForm, title: e.target.value})} className="w-full border rounded-lg px-3 py-2" placeholder="Ex: agencia de seo" />
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Palavra-chave Foco</label>
+                        <input required type="text" value={seoForm.title} onChange={e => setSeoForm({...seoForm, title: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all" placeholder="Ex: agencia de seo" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">URL de Destino</label>
-                        <input required type="text" value={seoForm.url} onChange={e => setSeoForm({...seoForm, url: e.target.value})} className="w-full border rounded-lg px-3 py-2" placeholder="https://..." />
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">URL Alvo (Pilar / Landing)</label>
+                        <input required type="text" value={seoForm.url} onChange={e => setSeoForm({...seoForm, url: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all" placeholder="https://..." />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-500 mb-1">Posição Atual & Notas</label>
-                      <input type="text" value={seoForm.customNotes} onChange={e => setSeoForm({...seoForm, customNotes: e.target.value})} className="w-full border rounded-lg px-3 py-2" placeholder="Ex: Top 3 - Meta subir para Top 1" />
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Observações Gsc / Semrush</label>
+                      <input type="text" value={seoForm.customNotes} onChange={e => setSeoForm({...seoForm, customNotes: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold" placeholder="Ex: Top 3 - Meta subir para Top 1" />
                     </div>
-                    <div className="flex justify-end gap-2">
-                      <button type="button" onClick={() => {setShowSeoForm(false); setSeoForm({ id: '', url: '', title: '', description: '', customNotes: '' });}} className="text-sm font-bold text-slate-500 hover:bg-slate-200 rounded-lg px-4 py-2">Cancelar</button>
-                      <button type="submit" className="text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg px-4 py-2">Salvar</button>
+                    <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
+                      <button type="button" onClick={() => {setShowSeoForm(false); setSeoForm({ id: '', url: '', title: '', description: '', customNotes: '' });}} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors px-6 py-4">Descartar</button>
+                      <button type="submit" className="bg-slate-900 text-white font-black uppercase tracking-widest rounded-2xl text-[10px] hover:bg-brand-600 transition-all shadow-lg px-10 py-4">Salvar Configuração</button>
                     </div>
-                 </form>
+                 </motion.form>
                )}
 
-               <div className="overflow-x-auto">
+               <div className="overflow-x-auto no-scrollbar">
                  {loadingSeo ? (
-                   <div className="flex flex-col items-center space-y-3 py-12 text-justify md:text-left">
-                     <Loader2 className="animate-spin text-brand-600" />
-                     <p className="text-sm font-medium text-slate-500">Sincronizando rankings...</p>
+                   <div className="flex flex-col items-center justify-center py-20">
+                     <Loader2 className="w-10 h-10 text-brand-500 animate-spin mb-4" />
+                     <p className="text-center text-slate-400 font-bold uppercase tracking-widest text-xs">Sincronizando Rankings...</p>
                    </div>
                  ) : (
-                   <table className="w-full text-left border-collapse min-w-[600px]">
+                   <table className="w-full text-left border-collapse min-w-[700px]">
                      <thead>
-                       <tr className="border-b border-slate-200 text-xs uppercase tracking-wider text-slate-400 font-bold">
-                         <th className="pr-4 pb-3">Palavra-chave</th>
-                         <th className="pb-3 px-4">URL Foco</th>
-                         <th className="pb-3 px-4">Status / Saúde</th>
-                         <th className="pl-4 text-right pb-3">Ações</th>
+                       <tr className="border-b border-slate-100">
+                         <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4">Palavra-chave Monitorada</th>
+                         <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4">Performance & Saúde</th>
+                         <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4 text-right">Controle</th>
                        </tr>
                      </thead>
-                     <tbody>
+                     <tbody className="divide-y divide-slate-50">
                        {filteredSeoPages.map(page => (
-                         <tr key={page.id} className="border-b border-slate-100 hover:bg-slate-50 group">
-                           <td className="pr-4 font-bold text-slate-800 text-sm py-4">{page.title}</td>
-                           <td className="text-xs text-slate-500 truncate max-w-[200px] font-mono py-4 px-4">{page.url}</td>
-                           <td className="py-4 px-4">
-                             <div className="flex flex-col gap-1">
-                               <div className="inline-flex items-center px-2.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-tight w-fit gap-2 py-1">
-                                 <TrendingUp size={10} /> {page.customNotes || 'Top 10'}
+                         <tr key={page.id} className="group hover:bg-slate-50/80 transition-colors">
+                           <td className="py-6 px-4">
+                             <p className="text-sm font-black text-slate-900 mb-1">{page.title}</p>
+                             <div className="flex items-center gap-2">
+                               <p className="text-[10px] font-bold text-slate-400 truncate max-w-[300px]">{page.url}</p>
+                               <a href={page.url} target="_blank" rel="noreferrer" className="text-brand-500 hover:text-brand-600"><LinkIcon size={10} /></a>
+                             </div>
+                           </td>
+                           <td className="py-6 px-4">
+                             <div className="flex items-center gap-3">
+                               <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider border border-emerald-100 gap-2">
+                                 <TrendingUp size={12} /> {page.customNotes || 'Ranking Info'}
                                </div>
                                {page.lastAuditStatus && (
-                                 <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold uppercase ${page.health === 'healthy' ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'}`}>
+                                 <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase border tracking-widest ${page.health === 'healthy' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
                                    HTTP {page.lastAuditStatus} {page.health === 'critical' && '⚠️'}
                                  </div>
                                )}
                              </div>
                            </td>
-                           <td className="pl-4 text-right space-x-2 py-4">
-                             <button onClick={() => { setSeoForm(page); setShowSeoForm(true); }} className="text-brand-600 hover:text-brand-700 rounded-lg hover:bg-brand-50 transition opacity-0 group-hover:opacity-100 p-2">
-                               <Edit2 size={14} />
-                             </button>
-                             <button onClick={() => handleDeleteSeo(page.id)} className="text-rose-500 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition opacity-0 group-hover:opacity-100 p-2">
-                               <Trash2 size={14} />
-                             </button>
+                           <td className="py-6 px-4 text-right">
+                             <div className="flex justify-end gap-2">
+                               <button onClick={() => { setSeoForm(page); setShowSeoForm(true); }} className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm">
+                                 <Edit2 size={16} />
+                               </button>
+                               <button onClick={() => handleDeleteSeo(page.id)} className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm">
+                                 <Trash2 size={16} />
+                               </button>
+                             </div>
                            </td>
                          </tr>
                        ))}
                        {filteredSeoPages.length === 0 && (
-                         <tr><td colSpan={4} className="text-center py-12">
-                           <div className="flex flex-col items-center space-y-2 opacity-50 text-justify md:text-left">
-                             <Search size={32} className="text-slate-300" />
-                             <p className="text-sm font-bold text-slate-400 tracking-tight">Nenhuma keyword sendo monitorada no momento.</p>
-                           </div>
+                         <tr><td colSpan={3} className="text-center py-20">
+                            <div className="flex flex-col items-center opacity-30">
+                              <Search size={40} className="mb-4" />
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Nenhum monitoramento configurado</p>
+                            </div>
                          </td></tr>
                        )}
                      </tbody>
