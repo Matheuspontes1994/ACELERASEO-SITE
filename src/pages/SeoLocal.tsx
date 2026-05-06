@@ -4,9 +4,11 @@ import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { 
   MapPin, Target, CheckCircle2, ArrowRight, Building2, 
-  Search, LineChart, Globe, Star, Users, Zap, ShieldCheck, Mail
+  Search, LineChart, Globe, Star, Users, Zap, ShieldCheck, Mail, FileSearch, Settings2, Newspaper, Rocket
 } from 'lucide-react';
 import { JsonLd } from '../components/JsonLd';
+import { ServiceRoadmap } from '../components/ServiceRoadmap';
+import { ServiceFAQ } from '../components/ServiceFAQ';
 
 interface SeoLocalProps {
   city: string;
@@ -117,7 +119,7 @@ export default function SeoLocalPage({ city, state, slug }: SeoLocalProps) {
   };
   
   return (
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-16 lg:pt-24 pb-0">
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-0 pb-0">
       <Helmet>
         <title>{meta.title}</title>
         <meta name="description" content={meta.description} />
@@ -145,57 +147,79 @@ export default function SeoLocalPage({ city, state, slug }: SeoLocalProps) {
         }
       }} />
 
-
-
       {/* Hero Section */}
-      <section className="relative px-6 pt-0 pb-16 lg:pt-4 lg:pb-24 overflow-hidden">
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
         <div className="tech-grid" />
         <div className="hero-glow" />
         
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             <motion.div 
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-50 border border-brand-100 rounded-full mb-8">
-                <MapPin size={16} className="text-brand-600" />
-                <span className="text-xs font-bold text-brand-700 uppercase tracking-wider">Especialistas em {city} - {state}</span>
+              <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6">
+                <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Especialistas em {city} - {state}
               </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-slate-900 font-display tracking-tight leading-[1.05] mb-8">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8 text-balance">
                 {meta.heroTitle}
               </h1>
               
-              <p className="text-xl text-slate-600 font-light leading-relaxed mb-12 max-w-xl">
-                {meta.heroSubtitle} Colocamos seu negócio nas primeiras posições do Google e do Waze para quem está perto de você.
+              <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-xl text-balance">
+                Seja a primeira opção quando seus clientes buscarem pelos seus serviços no Google em sua região. Colocamos seu negócio no topo.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/contato" className="bg-slate-900 text-white font-bold text-lg rounded-2xl hover:bg-brand-600 transition-all shadow-2xl shadow-slate-900/10 flex items-center justify-center group px-10 py-5 gap-2">
-                  Analisar meu Ranking em {city} <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <Link to="/contato" className="bg-brand-600 text-white font-bold text-base rounded-xl hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-500/30 transition-all flex items-center justify-center group px-8 py-4 gap-2">
+                  Analisar meu Ranking <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
+                <a href="#modulos" className="bg-white border border-slate-200 text-slate-700 font-semibold text-base rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center shadow-sm px-8 py-4 gap-2">
+                  Ver Metodologia Local
+                </a>
               </div>
             </motion.div>
 
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="relative lg:block hidden"
+              transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+              className="lg:col-span-5 relative mt-10 lg:mt-0"
             >
-              <div className="relative group">
-                <div className="absolute -inset-4 bg-gradient-to-tr from-brand-600/20 to-brand-400/20 rounded-[2.5rem] blur-2xl group-hover:blur-3xl transition-all duration-500" />
-                <div className="relative aspect-square rounded-[2rem] overflow-hidden border border-white shadow-2xl">
-                  <img src={meta.image} alt={meta.heroTitle} className="w-full h-full object-cover" />
+              <div className="bg-white/60 backdrop-blur-2xl border border-white/40 shadow-[0_32px_64px_-16px_rgba(41,96,150,0.12)] rounded-[3rem] relative z-10 w-full overflow-hidden p-4 sm:p-6 ring-1 ring-white/50">
+                <div className="aspect-[4/3] rounded-[2.2rem] overflow-hidden group relative">
+                  <img 
+                      src={meta.image} 
+                      alt={meta.heroTitle} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-60" />
+                  
+                  {/* Floating labels inside card */}
+                  <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+                    <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-white/50">
+                      <p className="text-[10px] font-bold text-brand-600 uppercase tracking-wider mb-1">Localização Prioritária</p>
+                      <p className="text-sm font-extrabold text-slate-900">Domínio de Mercado: {city}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-xl">
+                      <MapPin size={24} />
+                    </div>
+                  </div>
                 </div>
               </div>
+              
+              {/* External decorative blurs */}
+              <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-brand-400/5 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="absolute -top-10 -right-10 w-48 h-48 bg-brand-200/5 rounded-full blur-3xl pointer-events-none"></div>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* Modules Section */}
-      <section className="py-24 bg-white relative overflow-hidden">
+      <section id="modulos" className="py-24 bg-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className="max-w-3xl mb-20 mx-auto text-center">
             <h2 className="text-3xl lg:text-5xl font-extrabold text-slate-900 font-display tracking-tight mb-6">
@@ -258,57 +282,44 @@ export default function SeoLocalPage({ city, state, slug }: SeoLocalProps) {
         </div>
       </section>
 
-      {/* Methodology Section */}
-      <section className="py-24 bg-slate-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(41,96,150,0.1),transparent)]" />
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-3xl lg:text-5xl font-extrabold text-white font-display tracking-tight mb-8">
-              Nossa Metodologia em 4 Passos
-            </h2>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
-            {[
-              { step: "01", title: "Auditoria Técnica", desc: "Varredura completa em erros técnicos e duplicidade de dados." },
-              { step: "02", title: "Setup Local", desc: "Otimização do GBP e integração de rastreio de geolocalização." },
-              { step: "03", title: "Content & Citations", desc: "Produção de conteúdo local e aquisição de citações regionais." },
-              { step: "04", title: "Growth & Reviews", desc: "Escalonamento orgânico e automação de feedbacks positivos." }
-            ].map((item, i) => (
-              <div key={i} className="relative p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
-                <span className="text-5xl font-black text-brand-600/30 font-display mb-8 block">{item.step}</span>
-                <h3 className="text-xl font-bold text-white mb-4">{item.title}</h3>
-                <p className="text-slate-400 font-light leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Roadmap Section */}
+      <ServiceRoadmap 
+        title="Nossa Metodologia em 4 Passos"
+        subtitle="Um processo estruturado para transformar sua visibilidade regional e dominar as buscas locais."
+        steps={[
+          {
+            title: "Auditoria Técnica Local",
+            description: "Varredura completa em erros técnicos, duplicidade de dados e análise de como o Google enxerga seu negócio hoje na região.",
+            icon: <FileSearch size={24} />
+          },
+          {
+            title: "Setup Local e GBP",
+            description: "Otimização profunda do Google Business Profile (Ficha do Google) e integração de rastreio de geolocalização preciso.",
+            icon: <Settings2 size={24} />
+          },
+          {
+            title: "Content & Citations",
+            description: "Produção de conteúdo local estratégico e aquisição de citações em diretórios regionais para fortalecer sua relevância geográfica.",
+            icon: <Newspaper size={24} />
+          },
+          {
+            title: "Growth & Reviews",
+            description: "Escalonamento orgânico através de estratégias para adquirir avaliações positivas reais e manter o topo das buscas.",
+            icon: <Rocket size={24} />
+          }
+        ]}
+      />
 
       {/* FAQ Section */}
-      <section className="py-24 bg-white overflow-hidden">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-5xl font-extrabold text-slate-900 font-display mb-6">Perguntas Frequentes</h2>
-            <p className="text-lg text-slate-600 font-light leading-relaxed">Tudo o que você precisa saber sobre SEO Local.</p>
-          </div>
-
-          <div className="space-y-6">
-            {faqs.map((faq, i) => (
-              <div key={i} className="p-8 rounded-2xl bg-slate-50 border border-slate-100">
-                <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-start gap-4">
-                  <span className="w-8 h-8 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center shrink-0 text-sm">?</span>
-                  {faq.q}
-                </h3>
-                <p className="text-slate-600 font-light leading-relaxed pl-12">{faq.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <ServiceFAQ 
+        faqs={faqs.map(faq => ({
+          question: faq.q,
+          answer: faq.a
+        }))}
+      />
 
       {/* Final CTA */}
-      <section className="py-0 bg-slate-50 relative">
+      <section className="py-24 bg-slate-50 relative">
         <div className="max-w-7xl mx-auto px-6">
           <div className="bg-slate-900 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-96 h-96 bg-brand-600/20 blur-[120px] -mr-48 -mt-48" />

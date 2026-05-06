@@ -2,12 +2,14 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
-import { Link as LinkIcon, Target, TrendingUp, ShieldCheck, Activity, Globe, Award, CheckCircle2 } from 'lucide-react';
+import { Link as LinkIcon, Target, TrendingUp, ShieldCheck, Activity, Globe, Award, CheckCircle2, Search, Mail, Newspaper, FileCheck, ArrowRight } from 'lucide-react';
 import { JsonLd } from '../components/JsonLd';
+import { ServiceRoadmap } from '../components/ServiceRoadmap';
+import { ServiceFAQ } from '../components/ServiceFAQ';
 
 export default function LinkBuildingPage() {
   return (
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-0 pb-0">
       <Helmet>
         <title>Agência de Link Building e Digital PR | Conquiste Backlinks de Alta Autoridade</title>
         <meta name="description" content="Escale a autoridade do seu domínio e conquiste o topo do Google com a principal agência de Link Building do mercado. Especialistas em Digital PR e Backlinks." />
@@ -39,35 +41,82 @@ export default function LinkBuildingPage() {
 
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto relative px-6 mb-8 md:mb-8 lg:mb-24">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl mx-auto text-center"
-        >
-          <span className="text-brand-600 font-bold uppercase tracking-widest text-[11px] sm:text-xs md:text-sm bg-brand-50 py-2.5 rounded-2xl md:rounded-full inline-flex items-center justify-center w-fit max-w-[90vw] md:max-w-full text-center flex-wrap whitespace-normal mx-auto border border-brand-100 px-5 mb-8 gap-2">
-            <LinkIcon size={16} /> Link Building de Alta Performance
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] text-balance font-extrabold text-slate-900 font-display tracking-tight mb-8 text-center md:text-center">
-            Autoridade Digital que Conquista a 1ª Página do Google
-          </h1>
-          <p className="text-lg md:text-2xl text-slate-600 text-pretty font-light leading-relaxed mb-12 text-justify md:text-center">
-            Não adianta ter o melhor conteúdo do mundo se o Google não enxerga o seu site como uma referência. Nossa <strong>agência de link building</strong> atua fornecendo credibilidade através da <strong>venda de backlinks</strong> estratégicos, elevando o seu Domain Rating (DR).
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link to="/contato" className="bg-brand-600 text-white font-bold text-lg rounded-xl hover:bg-brand-700 transition-all shadow-xl shadow-brand-500/20 flex items-center justify-center group px-10 py-5 gap-2">
-               Falar com um Especialista em Link Building
-            </Link>
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
+        <div className="tech-grid" />
+        <div className="hero-glow" />
+        
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left"
+            >
+              <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6">
+                <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Engenharia de Autoridade Off-Page
+              </div>
+              
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8">
+                Autoridade Digital que Conquista o <span className="text-brand-600">Topo</span>.
+              </h1>
+              
+              <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-xl text-balance">
+                Não adianta ter o melhor conteúdo do mundo se o Google não enxerga o seu site como uma referência. Nossa <strong>agência de link building</strong> fornece credibilidade real através de backlinks estratégicos.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <Link to="/contato" className="bg-brand-600 text-white font-bold text-base rounded-xl hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-500/30 transition-all flex items-center justify-center group px-8 py-4 gap-2">
+                  Falar com Consultor <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <a href="#processo" className="bg-white border border-slate-200 text-slate-700 font-semibold text-base rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center shadow-sm px-8 py-4 gap-2">
+                  Ver Nossos Planos
+                </a>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+              className="lg:col-span-5 relative mt-10 lg:mt-0"
+            >
+              <div className="bg-white/60 backdrop-blur-2xl border border-white/40 shadow-[0_32px_64px_-16px_rgba(41,96,150,0.12)] rounded-[3rem] relative z-10 w-full overflow-hidden p-4 sm:p-6 ring-1 ring-white/50">
+                <div className="aspect-[4/3] rounded-[2.2rem] overflow-hidden group relative">
+                  <img 
+                      src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2000&auto=format&fit=crop" 
+                      alt="Monitoramento de Autoridade e Domain Rating" 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-60" />
+                  
+                  {/* Floating labels inside card */}
+                  <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+                    <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-white/50">
+                      <p className="text-[10px] font-bold text-brand-600 uppercase tracking-wider mb-1">Crescimento de DR</p>
+                      <p className="text-sm font-extrabold text-slate-900">Autoridade Máxima +45 pts</p>
+                    </div>
+                    <div className="w-12 h-12 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-xl">
+                      <LinkIcon size={24} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* External decorative blurs */}
+              <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-brand-400/5 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="absolute -top-10 -right-10 w-48 h-48 bg-brand-200/5 rounded-full blur-3xl pointer-events-none"></div>
+            </motion.div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* Content Section 1: The Problem & The Concept */}
-      <section className="max-w-7xl mx-auto px-6 mb-28">
+      <section className="max-w-7xl mx-auto px-6 py-12 md:py-24">
         <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm grid md:grid-cols-2 items-center p-8 md:p-16 gap-8 md:gap-12 lg:gap-16">
           <div>
             <h2 className="text-3xl sm:text-4xl leading-[1.15] md:leading-[1.1] text-balance font-extrabold text-slate-900 font-display mb-8 text-center md:text-left">O que é Link Building e como impacta o seu SEO?</h2>
-            <div className="space-y-6 text-slate-600 leading-relaxed font-light text-base md:text-lg text-pretty text-justify md:text-left">
+            <div className="space-y-6 text-slate-600 leading-relaxed font-light text-base md:text-lg text-pretty text-left md:text-left">
                <p>
                  O processo de <strong>Link Building</strong> é o pilar mais crítico e desafiador do <strong>SEO Off-Page</strong>. Ele consiste em articular e conquistar links de outros sites respeitados da internet apontando diretamente para o seu domínio (os famosos <strong>backlinks</strong>).
                </p>
@@ -107,43 +156,55 @@ export default function LinkBuildingPage() {
         </div>
       </section>
 
-      {/* Feature Grids */}
-      <section className="bg-slate-900 py-32 mb-28">
-         <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center max-w-4xl mx-auto mb-10 md:mb-8 lg:mb-20">
-               <h2 className="text-3xl sm:text-4xl md:text-5xl leading-[1.15] md:leading-[1.1] text-balance font-extrabold text-white font-display tracking-tight mb-8 text-center md:text-center">
-                  Nossa Metodologia Essencial contra as &quot;Fábricas de Links&quot;
-               </h2>
-               <p className="text-slate-300 font-light text-xl leading-relaxed text-justify md:text-center">
-                  O algoritmo rigoroso do <strong>Google Penguin</strong> varre a internet diariamente. Comprar backlinks tóxicos ou pacotes baratos de PBNs indianas destruirá a credibilidade da sua marca (Shadowban). Entenda como operamos com total segurança:
-               </p>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-8">
-               <div className="bg-slate-800/80 rounded-[2rem] border border-slate-700 backdrop-blur-xl p-10">
-                  <Globe className="text-brand-400 mb-8" size={48} />
-                   <h3 className="text-2xl font-bold text-white mb-5 text-center md:text-left">Digital PR Real</h3>
-                   <p className="text-slate-400 font-light leading-relaxed text-lg text-justify md:text-left">
-                     Produzimos estudos de caso, pesquisas exclusivas do seu mercado e matérias densas. Nossa equipe de assessoria entra em contato com jornalistas e redações de grandes portais que, naturalmente, citam o seu estudo linkando para o seu site original de forma orgânica e livre de riscos.
-                   </p>
-               </div>
-               <div className="bg-slate-800/80 rounded-[2rem] border border-slate-700 backdrop-blur-xl p-10">
-                  <Target className="text-brand-400 mb-8" size={48} />
-                   <h3 className="text-2xl font-bold text-white mb-5 text-center md:text-left">Coesão Semântica</h3>
-                   <p className="text-slate-400 font-light leading-relaxed text-lg text-justify md:text-left">
-                     Nós aplicamos a engenharia reversa nas SERPs focando na relevância tópica (Topical Authority). Não aceitamos que uma clínica médica receba um <strong>backlink</strong> de um blog de receitas de maquiagem. Filtramos estritamente o nicho do domínio parceiro.
-                   </p>
-               </div>
-               <div className="bg-slate-800/80 rounded-[2rem] border border-slate-700 backdrop-blur-xl p-10">
-                  <ShieldCheck className="text-brand-400 mb-8" size={48} />
-                   <h3 className="text-2xl font-bold text-white mb-5 text-center md:text-left">Auditoria e Limpeza (Disavow)</h3>
-                   <p className="text-slate-400 font-light leading-relaxed text-lg text-justify md:text-left">
-                     Parte de uma <strong>estratégia avançada de Link Building</strong> é remover as toxinas que âncoram o seu projeto. Usando as melhores ferramentas de mercado, filtramos todos os links apontados para você que estão gerando <em>spam score</em> e os rejeitamos através do Google Search Console. Faça uma <Link to="/auditoria" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">auditoria técnica de SEO conosco</Link> para investigar.
-                   </p>
-               </div>
-            </div>
-         </div>
-      </section>
+      {/* Roadmap Section */}
+      <ServiceRoadmap 
+        title="Nossa Engenharia de Autoridade"
+        subtitle="Entenda como construímos a credibilidade do seu domínio de forma segura, escalável e livre de punições do Google."
+        steps={[
+          {
+            title: "Auditoria de Link Profile",
+            description: "Analisamos seus links atuais e os dos concorrentes. Identificamos o 'Gap de Autoridade' e as âncoras ideais para posicionar suas páginas mais importantes.",
+            icon: <Search size={24} />
+          },
+          {
+            title: "Prospecção e Digital PR",
+            description: "Nossa equipe de assessoria filtra portais e blogs com alto tráfego e relevância temática. Iniciamos o contato para garantir referências orgânicas e contextuais.",
+            icon: <Newspaper size={24} />
+          },
+          {
+            title: "Curadoria de Conteúdo",
+            description: "Produzimos ou otimizamos o conteúdo que receberá o link. Garantimos que o contexto semântico seja perfeito para que o Google transfira o máximo de PageRank possível.",
+            icon: <FileCheck size={24} />
+          },
+          {
+            title: "Monitoramento e Disavow",
+            description: "Acompanhamos a indexação de cada link conquistado. Caso identifiquemos links tóxicos externos (spam) apontando para você, realizamos a limpeza imediata via Search Console.",
+            icon: <Activity size={24} />
+          }
+        ]}
+      />
+
+      {/* FAQ Section */}
+      <ServiceFAQ 
+        faqs={[
+          {
+            question: "Quanto tempo leva para um backlink fazer efeito?",
+            answer: "Geralmente o Google leva de 3 a 8 semanas para re-rastrear o site de origem e processar a nova autoridade no seu domínio. Os efeitos em posicionamento costumam ser graduais."
+          },
+          {
+            question: "Os links são permanentes?",
+            answer: "Sim. Trabalhamos exclusivamente com links inseridos de forma definitiva no corpo editorial dos parceiros. Não utilizamos aluguel de links ou esquemas temporários."
+          },
+          {
+            question: "Como vocês escolhem os sites parceiros?",
+            answer: "Filtramos por relevância temática (nicho), Domain Rating (DR), Tráfego Orgânico real e ausência de spam. Você não receberá links de sites que não tenham audiência real."
+          },
+          {
+            question: "Existe risco de punição?",
+            answer: "Nossa metodologia de Digital PR e conquista orgânica de links é focada em segurança. Evitamos padrões artificiais e seguimos as diretrizes do Google para construção de autoridade."
+          }
+        ]}
+      />
 
       {/* Content Section 2: Link Quality */}
       <section className="max-w-7xl mx-auto px-6 mb-28">
@@ -165,10 +226,10 @@ export default function LinkBuildingPage() {
                 <Award size={14} /> Qualidade Absoluta
              </div>
              <h2 className="text-3xl sm:text-4xl md:text-5xl leading-[1.15] md:leading-[1.1] text-balance font-extrabold text-slate-900 font-display mb-8 text-center md:text-left">O fim dos pacotes cegos e listas perigosas.</h2>
-             <p className="text-lg text-slate-600 font-light leading-relaxed mb-6 text-justify md:text-left">
+             <p className="text-lg text-slate-600 font-light leading-relaxed mb-6 text-left md:text-left">
                 O modelo atrasado de <strong>venda de backlinks</strong> baseava-se em "Pacotes com 50 links de alta qualidade" onde o cliente não via nada. Isso é passado.
              </p>
-             <p className="text-lg text-slate-600 font-light leading-relaxed mb-10 text-justify md:text-left">
+             <p className="text-lg text-slate-600 font-light leading-relaxed mb-10 text-left md:text-left">
                 A estruturação do Link Profile de uma marca requer transparência total. Você saberá exatamente de onde cada link está vindo, qual o DA/DR do projeto nativo e nós auxiliaremos na escolha da <strong>ancoragem (anchor text)</strong> perfeita para que pareça exatamente um voto orgânico e limpo. Isso protege o seu capital investido.
              </p>
 
@@ -183,8 +244,8 @@ export default function LinkBuildingPage() {
       <section className="bg-white border-t border-slate-100 py-32">
         <div className="max-w-4xl mx-auto text-center px-6">
            <Activity className="text-brand-500 mx-auto mb-8" size={64} />
-           <h2 className="text-4xl md:text-6xl font-extrabold text-slate-900 font-display tracking-tight mb-8 text-center md:text-center">Escale a Autoridade do seu Site Agora</h2>
-           <p className="text-xl text-slate-500 font-light leading-relaxed mb-8 lg:mb-12 text-justify md:text-center">
+           <h2 className="text-4xl md:text-6xl font-extrabold text-slate-900 font-display tracking-tight mb-8 text-center md:text-center px-4">Escale a Autoridade do seu Site Agora</h2>
+           <p className="text-xl text-slate-500 font-light leading-relaxed mb-8 lg:mb-12 text-left md:text-center px-4">
              A maior rede premium privada de publisher do mercado de buscas aliado à inteligência de negócio. Supere seus concorrentes nas SERPs com um planejamento de Off-Page estratégico. Fale agora com nossa equipe em uma rápida <Link to="/auditoria" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">sessão de avaliação com consultores</Link>.
            </p>
            <Link to="/contato" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center group px-12 py-6 gap-4">

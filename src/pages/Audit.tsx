@@ -123,11 +123,44 @@ export default function Audit() {
       <meta property="og:url" content="https://aceleraseo.com.br/auditoria" />
     </Helmet>
 
-    <div className="min-h-screen bg-slate-50/50 relative overflow-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-24">
-      {/* Background decorations */}
-      <div className="absolute top-0 right-0 w-full h-[500px] bg-gradient-to-b from-brand-900/5 to-transparent pointer-events-none"></div>
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-0 pb-0">
+    <Helmet>
+      <title>Auditoria de SEO Gratuita | Otimize com a nossa Agência SEO Profissional</title>
+      <meta name="description" content="Nossa auditoria de SEO detalhada encontra as falhas de SEO que a sua empresa possui e o que não permite que você lidere as buscas online." />
+      <link rel="canonical" href="https://aceleraseo.com.br/auditoria" />
+      <meta property="og:title" content="Auditoria de SEO Gratuita | Otimize com a nossa Agência SEO Profissional" />
+      <meta property="og:description" content="Nossa auditoria de SEO detalhada encontra as falhas de SEO que a sua empresa possui e o que não permite que você lidere as buscas online." />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content="https://aceleraseo.com.br/auditoria" />
+    </Helmet>
 
-      <main className="max-w-7xl mx-auto relative z-10 px-6">
+    {/* Hero Section */}
+    <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
+      <div className="tech-grid" />
+      <div className="hero-glow" />
+      
+      <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center text-center">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-4xl"
+        >
+          <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6 mx-auto">
+            <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Diagnóstico Técnico Imediato
+          </div>
+          
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8 text-balance">
+            Descubra as Falhas de <span className="text-brand-600">SEO</span> do seu Site Gratuitamente.
+          </h1>
+          
+          <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-2xl mx-auto text-balance">
+            Analise sua performance técnica, autoridade e conteúdo. Receba um relatório imediato do que está impedindo seu crescimento no Google.
+          </p>
+        </motion.div>
+      </div>
+    </section>
+
+    <main className="max-w-7xl mx-auto relative z-10 px-6 py-20 lg:py-24">
         
         <AnimatePresence mode="wait">
           {status !== 'results' ? (

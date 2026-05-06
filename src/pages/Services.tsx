@@ -47,7 +47,7 @@ const services = [
 
 export default function Services() {
   return (
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-0 pb-0">
       <Helmet>
         <title>Nossos Serviços | Agência de SEO Focada em Resultados e Venda de Backlinks</title>
         <meta name="description" content="Conheça nossas soluções completas como uma das melhores agências de marketing SEO. Oferecemos tudo, desde auditorias técnicas até venda de backlinks e SEO para sites." />
@@ -58,41 +58,36 @@ export default function Services() {
         <meta property="og:url" content="https://aceleraseo.com.br/servicos" />
         <meta property="og:site_name" content="Acelera SEO" />
         <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Nossos Serviços | Agência de SEO Focada em Resultados" />
-        <meta name="twitter:description" content="Desde auditorias técnicas até Link Building avançado. Estratégias táticas para a escalabilidade da sua receita online." />
-        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto relative px-6 mb-8 md:mb-8 lg:mb-24">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl mx-auto text-center"
-        >
-          <span className="text-brand-600 font-bold uppercase tracking-widest text-[11px] sm:text-xs md:text-sm bg-brand-50 py-2.5 rounded-2xl md:rounded-full inline-flex items-center justify-center w-fit max-w-[90vw] md:max-w-full text-center flex-wrap whitespace-normal mx-auto border border-brand-100 px-5 mb-8 gap-2">
-            <Cpu size={16} /> Nossas Soluções de SEO Táticas
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] text-balance font-extrabold text-slate-900 font-display tracking-tight mb-8 text-center md:text-center">
-            Estratégias de SEO Avançadas para Dominar Buscas Competitivas
-          </h1>
-          <p className="text-lg md:text-2xl text-slate-600 text-pretty font-light leading-relaxed mb-12 text-justify md:text-center">
-            Diferente de uma agência tradicional, operamos como uma engenharia de busca focada estritamente no avanço do seu faturamento e tráfego orgânico.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+quero+saber+mais+sobre+os+servi%C3%A7os+de+SEO!" target="_blank" rel="noopener noreferrer" className="bg-brand-600 text-white font-bold text-lg rounded-xl hover:bg-brand-700 transition-all shadow-xl shadow-brand-500/20 flex items-center justify-center group px-10 py-5 gap-2">
-              Agendar Reunião Técnica <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform"/>
-            </a>
-            <Link to="/auditoria" className="bg-white border border-slate-200 text-slate-700 font-bold text-lg rounded-xl hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center px-10 py-5 gap-2">
-              Fazer Auditoria do Site Integrada
-            </Link>
-          </div>
-        </motion.div>
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
+        <div className="tech-grid" />
+        <div className="hero-glow" />
+        
+        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl"
+          >
+            <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6 mx-auto">
+              <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Nossas Soluções de SEO Táticas
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8 text-balance">
+              Infraestrutura Técnica e <span className="text-brand-600">Performance</span> Digital.
+            </h1>
+            
+            <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-2xl mx-auto text-balance">
+              Diferente de uma agência tradicional, operamos como uma engenharia de busca focada no seu lucro e tráfego orgânico.
+            </p>
+          </motion.div>
+        </div>
       </section>
 
       {/* Intro Context */}
-      <section className="max-w-7xl mx-auto px-6 mb-28">
+      <section className="max-w-7xl mx-auto px-6 py-20 lg:py-24">
         <div className="bg-slate-900 rounded-[2.5rem] border border-slate-800 shadow-2xl grid md:grid-cols-2 items-center p-8 md:p-16 gap-8 md:gap-12 lg:gap-16">
           <div className="order-2 md:order-1">
             <h2 className="text-3xl sm:text-4xl leading-[1.15] md:leading-[1.1] text-balance font-extrabold text-white font-display mb-8 text-center md:text-left">A Morte do SEO Baseado em "Achismo"</h2>

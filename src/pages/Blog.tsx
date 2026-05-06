@@ -67,24 +67,46 @@ export default function Blog() {
         <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
-      <div className="min-h-screen bg-slate-50 relative overflow-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-24">
-        {/* Background elements */}
-        <div className="absolute top-0 right-0 w-full h-[500px] bg-gradient-to-b from-brand-900/5 to-transparent pointer-events-none"></div>
-        <div className="absolute top-40 right-10 w-96 h-96 bg-brand-400/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-0 pb-0">
+      <Helmet>
+        <title>Blog e Glossário SEO | Estratégias Avançadas - Acelera SEO</title>
+        <meta name="description" content="Aprenda estratégias avançadas de SEO, link building, otimização on-page e conteúdo semântico. Domine o Google com artigos para especialistas e iniciantes." />
+        <link rel="canonical" href="https://aceleraseo.com.br/blog" />
+        <meta property="og:title" content="Blog e Glossário SEO | Estratégias Avançadas - Acelera SEO" />
+        <meta property="og:description" content="Aprenda estratégias avançadas de SEO, link building, otimização on-page e conteúdo semântico. Domine o Google com artigos para especialistas e iniciantes." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://aceleraseo.com.br/blog" />
+        <meta property="og:site_name" content="Acelera SEO" />
+        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+      </Helmet>
 
-        <main className="max-w-7xl mx-auto relative z-10 px-6">
-          
-          <header className="text-center mb-20">
-            <div className="inline-flex w-16 h-16 items-center justify-center rounded-2xl bg-white text-brand-600 border border-brand-100 shadow-sm mb-6">
-               <BookOpen size={32} />
+      {/* Hero Section */}
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
+        <div className="tech-grid" />
+        <div className="hero-glow" />
+        
+        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl"
+          >
+            <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6 mx-auto">
+              <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Inteligência & Glossário SEO
             </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 font-display mb-6 text-center md:text-center">
-              Conteúdo & <span className="text-brand-600">Glossário SEO</span>
+            
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8 text-balance">
+              Conteúdo de <span className="text-brand-600">Alta Autoridade</span> Técnica.
             </h1>
-            <p className="text-xl text-slate-500 font-light max-w-3xl mx-auto mb-10 text-justify md:text-center">
+            
+            <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-2xl mx-auto text-balance">
               Tudo o que você precisa saber sobre o algoritmo do Google, desde o básico até estratégias técnicas avançadas de rastreamento e indexação.
             </p>
-          </header>
+          </motion.div>
+        </div>
+      </section>
+
+      <main className="max-w-7xl mx-auto relative z-10 px-6 py-20 lg:py-24">
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-20">
             {allPosts.map((post, index) => (

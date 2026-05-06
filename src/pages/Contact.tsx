@@ -33,7 +33,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-0 pb-0">
       <Helmet>
         <title>Contato | Especialistas em Auditoria de SEO e Marketing SEO</title>
         <meta name="description" content="Fale com nossos especialistas em auditoria de SEO. Inicie seu projeto de SEO para sites focado na liderança orgânica hoje com a nossa agência seo." />
@@ -44,23 +44,35 @@ export default function Contact() {
         <meta property="og:url" content="https://aceleraseo.com.br/contato" />
         <meta property="og:site_name" content="Acelera SEO" />
         <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Contato | Especialistas em Auditoria de SEO e Marketing SEO" />
-        <meta name="twitter:description" content="Fale com nossos especialistas em auditoria de SEO. Inicie seu projeto de SEO para sites focado na liderança orgânica hoje com a nossa agência seo." />
-        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
 
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-brand-600 font-bold uppercase tracking-widest text-sm bg-brand-50 rounded-full inline-block px-4 py-2 mb-6">Fale Conosco</span>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 font-display tracking-tight leading-[1.1] mb-6">
-            Inicie seu projeto na melhor agência de marketing SEO focada em conversão.
-          </h1>
-          <p className="text-lg text-slate-600 font-light leading-relaxed md:text-center">
-            Nossa equipe de especialistas está pronta para realizar uma profunda <strong>auditoria de SEO</strong> no seu site e apresentar um plano de ação escalável para o Google através dos nossos <Link to="/servicos" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">serviços focados em <strong>SEO para sites</strong> e <strong>venda de backlinks</strong></Link>.
-          </p>
+      {/* Hero Section */}
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
+        <div className="tech-grid" />
+        <div className="hero-glow" />
+        
+        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl"
+          >
+            <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6 mx-auto">
+              <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Fale Conosco
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8 text-balance">
+              Inicie seu Projeto com a <span className="text-brand-600">Elite</span> do SEO.
+            </h1>
+            
+            <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-2xl mx-auto text-balance">
+              Nossa equipe de especialistas está pronta para realizar uma profunda auditoria no seu site e apresentar um plano de ação escalável.
+            </p>
+          </motion.div>
         </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-6 py-20 lg:py-24">
 
         <div className="grid lg:grid-cols-2 items-start gap-8 lg:gap-24">
           {/* Contact Info */}

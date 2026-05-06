@@ -2,8 +2,10 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
-import { Target, Users, Search, CheckCircle2, TrendingUp, Lightbulb, FileText, ArrowRight } from 'lucide-react';
+import { Target, Users, Search, CheckCircle2, TrendingUp, Lightbulb, FileText, ArrowRight, ShieldAlert, Zap, BarChart3, Settings2 } from 'lucide-react';
 import { JsonLd } from '../components/JsonLd';
+import { ServiceRoadmap } from '../components/ServiceRoadmap';
+import { ServiceFAQ } from '../components/ServiceFAQ';
 
 export default function ConsultoriaSeoPage() {
   const serviceSchema = {
@@ -39,72 +41,78 @@ export default function ConsultoriaSeoPage() {
       <JsonLd data={serviceSchema} />
       
       {/* Hero Section */}
-      <section className="relative w-full overflow-hidden pt-8 md:pt-16 lg:pt-24 pb-20 md:pb-28 lg:pb-36">
-        <div className="hero-glow" />
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
         <div className="tech-grid" />
+        <div className="hero-glow" />
         
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             <motion.div 
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="flex flex-col items-start"
+              className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left"
             >
-              <motion.span 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="text-brand-600 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs bg-brand-50/80 backdrop-blur-sm py-2 px-4 rounded-full inline-flex items-center gap-2 mb-4 border border-brand-100/50"
-              >
-                <Target size={14} className="animate-pulse" /> Mentoria & Consultoria Avançada
-              </motion.span>
+              <div className="inline-flex items-center rounded-full bg-white border border-slate-200 shadow-sm text-[10px] md:text-xs font-bold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6">
+                <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Mentoria & Consultoria Avançada
+              </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-7xl leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8">
-                Empodere seu Time com <span className="text-brand-600 relative inline-block">SEO<span className="absolute -bottom-1 left-0 w-full h-[6px] bg-brand-200/50 -z-10"></span></span> Orientado a Dados
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:leading-[1.05] tracking-tight font-extrabold text-slate-900 font-display mb-8">
+                Empodere seu Time com SEO <span className="text-brand-600">Estratégico</span>.
               </h1>
               
-              <p className="text-lg md:text-xl text-slate-600 font-light leading-relaxed mb-10 max-w-xl">
+              <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-xl text-balance">
                 Nossa <strong>Consultoria SEO</strong> foi moldada para guiar times internos rumo às melhores práticas de otimização, com metodologias testadas em operações de alta performance.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mb-12">
-                <Link to="/contato" className="bg-brand-600 text-white font-bold text-lg rounded-2xl hover:bg-brand-700 hover:shadow-2xl hover:shadow-brand-600/30 transition-all flex items-center justify-center px-10 py-5 gap-3 group">
-                  Falar com Especialista <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <Link to="/contato" className="bg-brand-600 text-white font-bold text-base rounded-xl hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-500/30 transition-all flex items-center justify-center group px-8 py-4 gap-2">
+                  Falar com Especialista <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
+                <a href="#experiencia" className="bg-white border border-slate-200 text-slate-700 font-semibold text-base rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center shadow-sm px-8 py-4 gap-2">
+                  Ver Metodologia
+                </a>
               </div>
             </motion.div>
 
             <motion.div 
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-              className="relative hidden lg:block"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+              className="lg:col-span-5 relative mt-10 lg:mt-0"
             >
-              <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-tr from-brand-100/50 to-transparent blur-3xl -z-10 rounded-full animate-pulse" />
-                <div className="bg-white p-2 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden group">
-                  <div className="aspect-square rounded-[2rem] overflow-hidden relative">
-                    <img 
-                       src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2000&auto=format&fit=crop" 
-                       alt="Estrategistas de SEO em reunião de consultoria" 
-                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/10 to-transparent" />
+              <div className="bg-white/60 backdrop-blur-2xl border border-white/40 shadow-[0_32px_64px_-16px_rgba(41,96,150,0.12)] rounded-[3rem] relative z-10 w-full overflow-hidden p-4 sm:p-6 ring-1 ring-white/50">
+                <div className="aspect-[4/3] rounded-[2.2rem] overflow-hidden group relative">
+                  <img 
+                      src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2000&auto=format&fit=crop" 
+                      alt="Estrategistas de SEO em reunião de consultoria" 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-60" />
+                  
+                  {/* Floating labels inside card */}
+                  <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+                    <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-white/50">
+                      <p className="text-[10px] font-bold text-brand-600 uppercase tracking-wider mb-1">Status do Projeto</p>
+                      <p className="text-sm font-extrabold text-slate-900">Otimização Ativa 98%</p>
+                    </div>
+                    <div className="w-12 h-12 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-xl">
+                      <TrendingUp size={24} />
+                    </div>
                   </div>
                 </div>
-                
-                {/* Decorative Elements */}
-                <div className="absolute -top-6 -right-6 w-32 h-32 bg-brand-200/30 rounded-full blur-2xl -z-20" />
-                <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-slate-200/40 rounded-full blur-3xl -z-20" />
               </div>
+              
+              {/* External decorative blurs */}
+              <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-brand-400/5 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="absolute -top-10 -right-10 w-48 h-48 bg-brand-200/5 rounded-full blur-3xl pointer-events-none"></div>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* Intro Section */}
-      <section className="max-w-7xl mx-auto px-6 mb-28">
+      <section className="max-w-7xl mx-auto px-6 py-12 md:py-24">
         <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm grid md:grid-cols-2 items-center p-8 md:p-16 gap-8 md:gap-12 lg:gap-16">
           <div className="order-2 md:order-1 relative">
             <div className="aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl relative border-[12px] border-slate-50 bg-slate-100">
@@ -119,7 +127,7 @@ export default function ConsultoriaSeoPage() {
           </div>
           <div className="order-1 md:order-2">
             <h2 className="text-3xl sm:text-4xl leading-[1.15] md:leading-[1.1] text-balance font-extrabold text-slate-900 font-display mb-8 text-center md:text-left">Para Empresas que Precisam de Validação e Direção</h2>
-            <div className="space-y-6 text-slate-600 leading-relaxed font-light text-base md:text-lg text-pretty text-justify md:text-left">
+            <div className="space-y-6 text-slate-600 leading-relaxed font-light text-base md:text-lg text-pretty text-left md:text-left">
                <p>
                  Você tem os desenvolvedores e os redatores, mas não sabe por onde começar ou o que priorizar? É exatamente nesse cenário de desorganização tática que a nossa <strong>consultoria de search engine optimization</strong> se encaixa perfeitamente.
                </p>
@@ -148,50 +156,62 @@ export default function ConsultoriaSeoPage() {
         </div>
       </section>
 
-      {/* Methodology Section */}
-      <section className="bg-slate-900 py-32 mb-28">
-         <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center max-w-4xl mx-auto mb-10 md:mb-8 lg:mb-20">
-               <h2 className="text-3xl sm:text-4xl md:text-5xl leading-[1.15] md:leading-[1.1] text-balance font-extrabold text-white font-display tracking-tight mb-8 text-center md:text-center">
-                  Como funciona nosso escopo de Consultoria SEO?
-               </h2>
-               <p className="text-slate-300 font-light text-xl leading-relaxed text-justify md:text-center">
-                  Não trabalhamos com relatórios automatizados de ferramentas. O grande diferencial de estar conosco é a curadoria humana em cada etapa técnica da construção dos seus ativos na web.
-               </p>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-8">
-               <div className="bg-slate-800/80 rounded-[2rem] border border-slate-700 backdrop-blur-xl p-10">
-                  <Search className="text-emerald-400 mb-8" size={48} />
-                   <h3 className="text-2xl font-bold text-white mb-5 text-center md:text-left">1. Raio-X Técnico</h3>
-                   <p className="text-slate-400 font-light leading-relaxed text-lg text-justify md:text-left">
-                     Iniciamos com uma imersão na saúde atual do domínio. Identificamos as perdas invisíveis (páginas canibalizadas, thin content, códigos quebrados) através de uma minuciosa <Link to="/auditoria" className="text-white hover:text-emerald-400 font-semibold underline underline-offset-2 transition-colors">auditoria especializada</Link>. Esta fase estabiliza a "casa".
-                   </p>
-               </div>
-               <div className="bg-slate-800/80 rounded-[2rem] border border-slate-700 backdrop-blur-xl p-10">
-                  <FileText className="text-emerald-400 mb-8" size={48} />
-                   <h3 className="text-2xl font-bold text-white mb-5 text-center md:text-left">2. Masterplan e Keyword Strategy</h3>
-                   <p className="text-slate-400 font-light leading-relaxed text-lg text-justify md:text-left">
-                     Criamos o plano de ataque. Mapeamos os clusters de tópicos e as deficiências de palavras-chave da sua operação frente aos concorrentes no Google. Elaboramos o planejamento de conteúdo semestral ou anual, orientando o seu time de redação exatamente em quais pautas escrever.
-                   </p>
-               </div>
-               <div className="bg-slate-800/80 rounded-[2rem] border border-slate-700 backdrop-blur-xl p-10">
-                  <TrendingUp className="text-emerald-400 mb-8" size={48} />
-                   <h3 className="text-2xl font-bold text-white mb-5 text-center md:text-left">3. Escalonamento e Off-Page</h3>
-                   <p className="text-slate-400 font-light leading-relaxed text-lg text-justify md:text-left">
-                     Com a estrutura perfeita e o plano de conteúdo ativo, direcionamos toda a orientação para as melhores estratégias de mercado envolvendo Relações Públicas, definindo o setup correto com auxílio de uma <Link to="/agencia-link-building" className="text-white hover:text-emerald-400 font-semibold underline underline-offset-2 transition-colors">agência de link building</Link> experiente para turbinar sua autoridade.
-                   </p>
-               </div>
-            </div>
-         </div>
-      </section>
+      {/* Roadmap Section */}
+      <ServiceRoadmap 
+        title="O Ciclo da nossa Consultoria SEO"
+        subtitle="Não trabalhamos com relatórios automatizados. Nosso diferencial é a curadoria humana em cada etapa técnica e estratégica."
+        steps={[
+          {
+            title: "Diagnóstico e Raio-X",
+            description: "Iniciamos com uma imersão na saúde atual do domínio. Identificamos as perdas invisíveis (páginas canibalizadas, thin content, códigos quebrados) através de uma minuciosa auditoria especializada.",
+            icon: <Search size={24} />
+          },
+          {
+            title: "Masterplan Estratégico",
+            description: "Criamos o plano de ataque. Mapeamos os clusters de tópicos e as deficiências de palavras-chave da sua operação frente aos concorrentes, orientando o seu time de redação exatamente em quais pautas focar.",
+            icon: <Settings2 size={24} />
+          },
+          {
+            title: "Execução e Sprints",
+            description: "Trabalhamos em ciclos quinzenais com sua equipe. Validamos cada implementação técnica e garantimos que o roadmap de SEO seja seguido à risca pelos seus desenvolvedores.",
+            icon: <Zap size={24} />
+          },
+          {
+            title: "Monitoramento e SEO ROI",
+            description: "Acompanhamento em tempo real do crescimento de autoridade e tráfego orgânico, com foco total na conversão e no retorno sobre o investimento realizado na consultoria.",
+            icon: <BarChart3 size={24} />
+          }
+        ]}
+      />
+
+      {/* FAQ Section */}
+      <ServiceFAQ 
+        faqs={[
+          {
+            question: "Quanto tempo dura um contrato de consultoria?",
+            answer: "Nossos contratos padrão têm duração de 6 a 12 meses. O SEO é um canal de médio a longo prazo, e esse tempo é necessário para que as correções técnicas e a autoridade construída maturarem no Google."
+          },
+          {
+            question: "O que recebo mensalmente?",
+            answer: "Você recebe o acompanhamento direto de um analista sênior, reuniões periódicas de alinhamento, auditorias técnicas constantes e o Roadmap priorizado para sua equipe de marketing e TI executar."
+          },
+          {
+            question: "Vocês implementam as alterações no site?",
+            answer: "No modelo de consultoria, nós fornecemos toda a documentação técnica (issues) detalhada para que o seu time de desenvolvimento interno realize as alterações. Também validamos se a implementação foi feita corretamente."
+          },
+          {
+            question: "Para quem é indicada a consultoria?",
+            answer: "É ideal para empresas que já possuem uma equipe interna (desenvolvedores e redatores), mas precisam de uma inteligência estratégica especializada para direcionar o trabalho e garantir resultados."
+          }
+        ]}
+      />
 
       {/* CTA Section */}
       <section className="bg-white border-t border-slate-100 py-24">
         <div className="max-w-4xl mx-auto text-center px-6">
            <Lightbulb className="text-brand-500 mx-auto mb-8" size={64} />
-           <h2 className="text-4xl md:text-6xl font-extrabold text-slate-900 font-display tracking-tight mb-8 text-center md:text-center">Pare de andar no escuro orgânico.</h2>
-           <p className="text-xl text-slate-500 font-light leading-relaxed mb-8 lg:mb-12 text-justify md:text-center">
+           <h2 className="text-4xl md:text-6xl font-extrabold text-slate-900 font-display tracking-tight mb-8 text-center md:text-center px-4">Pare de andar no escuro orgânico.</h2>
+           <p className="text-xl text-slate-500 font-light leading-relaxed mb-8 lg:mb-12 text-left md:text-center px-4">
              Dê ao seu time de in-house o direcionamento cirúrgico de analistas de nível executivo. Contrate nossa consultoria para liderar seu processo de crescimento online orgânico e descubra o que falta para chegar à primeira posição.
            </p>
            <Link to="/contato" className="bg-brand-600 text-white font-bold text-xl rounded-2xl hover:bg-brand-700 transition-colors shadow-2xl shadow-brand-500/20 inline-flex items-center group px-12 py-6 gap-4">

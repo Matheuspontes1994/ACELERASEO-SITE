@@ -96,7 +96,7 @@ export default function BlogPost() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 selection:bg-brand-500 selection:text-white pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
+    <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-0 pb-0">
       <Helmet>
         <title>{post.titleString} | Acelera SEO</title>
         <meta name="description" content={post.excerpt} />
@@ -115,35 +115,40 @@ export default function BlogPost() {
 
       {blogSchema && <JsonLd data={blogSchema} />}
 
-      <article className="max-w-7xl mx-auto grid lg:grid-cols-12 px-6 gap-12">
-        {/* Header Content */}
-        <header className="lg:col-span-12 max-w-4xl mx-auto text-center mb-8">
-          <Link to="/blog" className="inline-flex items-center text-sm font-semibold text-brand-600 hover:text-brand-700 transition-colors gap-2 mb-6">
-            <ArrowLeft size={16} /> Voltar para o Blog
-          </Link>
-          <div className="flex items-center justify-center text-xs font-bold uppercase tracking-widest text-slate-500 gap-3 mb-6">
-            <span className="text-brand-600 bg-brand-50 rounded-full px-3 py-1">{post.category}</span>
-            <span>•</span>
-            <span className="flex items-center gap-1.5"><Calendar size={14}/> {post.date}</span>
-            <span>•</span>
-            <span className="flex items-center gap-1.5"><Clock size={14}/> {post.readTime}</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 font-display tracking-tight leading-[1.1] mb-6 text-center md:text-center">
-            {post.title}
-          </h1>
-          <p className="text-xl text-slate-600 leading-relaxed font-light text-justify md:text-left">
-            {post.excerpt}
-          </p>
-        </header>
+      {/* Hero Header Section */}
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16 lg:pb-20">
+        <div className="tech-grid" />
+        <div className="hero-glow" />
+        
+        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center">
+           <header className="max-w-4xl mx-auto text-center">
+            <Link to="/blog" className="inline-flex items-center text-sm font-semibold text-brand-600 hover:text-brand-700 transition-colors gap-2 mb-6">
+              <ArrowLeft size={16} /> Voltar para o Blog
+            </Link>
+            <div className="flex items-center justify-center text-xs font-bold uppercase tracking-widest text-slate-500 gap-3 mb-6">
+              <span className="text-brand-600 bg-brand-50 rounded-full px-3 py-1">{post.category}</span>
+              <span className="flex items-center gap-1.5"><Calendar size={14}/> {post.date}</span>
+              <span className="flex items-center gap-1.5"><Clock size={14}/> {post.readTime}</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 font-display tracking-tight leading-[1.1] mb-6 text-balance">
+              {post.title}
+            </h1>
+            <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed max-w-3xl mx-auto text-balance">
+              {post.excerpt}
+            </p>
+          </header>
+        </div>
+      </section>
 
+      <article className="max-w-7xl mx-auto grid lg:grid-cols-12 px-6 gap-12 py-12 md:py-16">
         {/* Cover Image */}
-        <div className="lg:col-span-12 aspect-[21/9] rounded-[2rem] overflow-hidden border border-slate-200 shadow-2xl relative">
+        <div className="lg:col-span-12 aspect-[21/9] rounded-[2.5rem] overflow-hidden border border-slate-200 shadow-2xl relative">
           <img src={post.coverImage} alt={post.titleString} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent mix-blend-multiply"></div>
         </div>
 
         {/* Article Body + Sidebar */}
-        <div className="lg:col-span-12 grid lg:grid-cols-12 gap-8 lg:gap-16 md:gap-12 mt-8">
+        <div className="lg:col-span-12 grid lg:grid-cols-12 gap-8 lg:gap-16">
           {/* Main Content */}
           <div className="lg:col-span-8 lg:col-start-2 prose prose-lg prose-slate prose-headings:font-display prose-headings:tracking-tight prose-headings:font-extrabold prose-a:text-brand-600 hover:prose-a:text-brand-700 prose-img:rounded-3xl max-w-none">
             
