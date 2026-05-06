@@ -63,7 +63,7 @@ export const Navbar = () => {
                 fetchPriority="high"
               />
               <span className="text-2xl font-display font-bold tracking-tight text-slate-800">
-                Acelera <span className="text-brand-600 font-light underline decoration-brand-200 decoration-2 underline-offset-4">SEO</span>
+                Acelera <span className="text-brand-600 font-light">SEO</span>
               </span>
             </RouterLink>
           </div>

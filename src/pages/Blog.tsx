@@ -131,7 +131,7 @@ export default function Blog() {
                  Deixe que nossos especialistas técnicos cuidem de tudo: do seu <Tooltip term="sitemap.xml" definition="Arquivo que ajuda os buscadores a encontrar e catalogar o conteúdo do seu site." /> até a construção de uma rede privada de <Tooltip term="Backlinks" definition="Uma rede de sites com alta autoridade indicando o seu site como referência no assunto." /> de alta precisão.
                </p>
                <div className="flex flex-col sm:flex-row justify-center gap-4">
-                 <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C+preciso+de+ajuda+com+o+SEO+da+minha+empresa!" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-500 transition-all flex items-center justify-center shadow-lg shadow-brand-500/20 text-center px-6 sm:px-8 py-4 gap-2">
+                 <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+preciso+de+ajuda+com+o+SEO+da+minha+empresa!" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-500 transition-all flex items-center justify-center shadow-lg shadow-brand-500/20 text-center px-6 sm:px-8 py-4 gap-2">
                    Falar com Especialista
                  </a>
                  <Link to="/auditoria" className="w-full sm:w-auto bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-all border border-white/10 flex items-center justify-center backdrop-blur-sm text-center px-6 sm:px-8 py-4 gap-2">

@@ -73,40 +73,6 @@ export default function ConsultoriaSeoPage() {
                 <Link to="/contato" className="bg-brand-600 text-white font-bold text-lg rounded-2xl hover:bg-brand-700 hover:shadow-2xl hover:shadow-brand-600/30 transition-all flex items-center justify-center px-10 py-5 gap-3 group">
                   Falar com Especialista <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <div className="flex -space-x-3 items-center ml-2 border-l border-slate-200 pl-6 h-12 my-auto">
-                   <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop" alt="User 1" className="w-full h-full object-cover" />
-                   </div>
-                   <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100&auto=format&fit=crop" alt="User 2" className="w-full h-full object-cover" />
-                   </div>
-                   <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center overflow-hidden text-[10px] font-bold text-slate-500">
-                      +50
-                   </div>
-                   <div className="ml-4 flex flex-col">
-                      <div className="flex gap-0.5">
-                        {[1, 2, 3, 4, 5].map((i) => (
-                          <CheckCircle2 key={i} size={12} className="text-amber-500 fill-amber-500" />
-                        ))}
-                      </div>
-                      <span className="text-[11px] text-slate-500 font-medium">Marcas Aceleradas</span>
-                   </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-                <div className="flex items-center gap-2">
-                  <TrendingUp size={18} className="text-slate-400" />
-                  <span className="text-sm font-semibold text-slate-900 tracking-tight">+140% Crescimento</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users size={18} className="text-slate-400" />
-                  <span className="text-sm font-semibold text-slate-900 tracking-tight">Time In-house</span>
-                </div>
-                <div className="hidden sm:flex items-center gap-2">
-                  <Search size={18} className="text-slate-400" />
-                  <span className="text-sm font-semibold text-slate-900 tracking-tight">Audit Sênior</span>
-                </div>
               </div>
             </motion.div>
 
@@ -119,39 +85,13 @@ export default function ConsultoriaSeoPage() {
               <div className="relative">
                 <div className="absolute -inset-4 bg-gradient-to-tr from-brand-100/50 to-transparent blur-3xl -z-10 rounded-full animate-pulse" />
                 <div className="bg-white p-2 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden group">
-                  <div className="aspect-[4/5] rounded-[2rem] overflow-hidden relative">
+                  <div className="aspect-square rounded-[2rem] overflow-hidden relative">
                     <img 
                        src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2000&auto=format&fit=crop" 
                        alt="Estrategistas de SEO em reunião de consultoria" 
                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
-                    
-                    {/* Floating Stats Card in Hero */}
-                    <motion.div 
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 1, duration: 0.5 }}
-                      className="absolute bottom-8 left-8 right-8 bg-white/90 backdrop-blur-md rounded-2xl p-6 border border-white/50 shadow-2xl"
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex flex-col">
-                          <span className="text-xs font-bold text-brand-600 uppercase tracking-wider mb-1">ROI Orgânico</span>
-                          <span className="text-3xl font-black text-slate-900">328%</span>
-                        </div>
-                        <div className="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center text-brand-600">
-                          <TrendingUp size={24} />
-                        </div>
-                      </div>
-                      <div className="h-1.5 w-full bg-slate-100 rounded-full mt-4 overflow-hidden">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: "85%" }}
-                          transition={{ delay: 1.5, duration: 1 }}
-                          className="h-full bg-brand-500 rounded-full"
-                        />
-                      </div>
-                    </motion.div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/10 to-transparent" />
                   </div>
                 </div>
                 

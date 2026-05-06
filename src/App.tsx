@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
+import { motion, useScroll, useTransform, AnimatePresence, useSpring, useMotionValue } from 'motion/react';
 import { 
   BarChart3, 
   Search, 
@@ -24,9 +24,12 @@ import {
   LayoutTemplate,
   HelpCircle,
   ChevronDown,
-  Award
+  Award,
+  Braces,
+  Terminal,
+  Hash
 } from 'lucide-react';
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, Link as RouterLink, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -82,10 +85,49 @@ const structuredData = {
 // --- Hero & Home Sections ---
 
 const Hero = () => {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+    const x = (clientX / innerWidth) - 0.5;
+    const y = (clientY / innerHeight) - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+  }, [mouseX, mouseY]);
+
+  const springX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+  const springY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+
+  const moveX = useTransform(springX, [-0.5, 0.5], [-30, 30]);
+  const moveY = useTransform(springY, [-0.5, 0.5], [-30, 30]);
+  const moveXFaster = useTransform(springX, [-0.5, 0.5], [-60, 60]);
+  const moveYFaster = useTransform(springY, [-0.5, 0.5], [-60, 60]);
+
   return (
-    <section className="relative overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24">
+    <section 
+      onMouseMove={handleMouseMove}
+      className="relative overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-8 md:pt-16 lg:pt-24 pb-16 md:pb-20 lg:pb-24"
+    >
       <div className="tech-grid" />
       <div className="hero-glow" />
+      
+      {/* Decorative Parallax Elements */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <motion.div style={{ x: moveX, y: moveY }} className="absolute top-[15%] left-[10%] text-brand-600/10 hidden lg:block">
+          <Code2 size={120} strokeWidth={1} />
+        </motion.div>
+        <motion.div style={{ x: moveXFaster, y: moveYFaster }} className="absolute bottom-[20%] right-[15%] text-brand-600/5 hidden lg:block">
+          <Braces size={160} strokeWidth={0.5} />
+        </motion.div>
+        <motion.div style={{ x: moveX, y: moveYFaster }} className="absolute top-[30%] right-[5%] text-brand-600/10 hidden lg:block">
+          <Terminal size={80} strokeWidth={1} />
+        </motion.div>
+        <motion.div style={{ x: moveXFaster, y: moveY }} className="absolute bottom-[10%] left-[5%] text-brand-600/5 hidden lg:block">
+          <Hash size={100} strokeWidth={1} />
+        </motion.div>
+      </div>
       
       <div className="max-w-7xl mx-auto grid lg:grid-cols-12 items-center w-full relative z-10 px-6 gap-8 lg:gap-12">
         <motion.div
@@ -119,47 +161,47 @@ const Hero = () => {
           transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
           className="lg:col-span-5 relative mt-10 lg:mt-0"
         >
-          <div className="bg-white/90 backdrop-blur-3xl border border-slate-200/60 shadow-[0_20px_60px_-15px_rgba(41,96,150,0.15)] rounded-3xl sm:rounded-[2.5rem] relative z-10 w-full overflow-hidden p-6 sm:p-10">
-            {/* Soft decorative background inside the card - cleaned up */}
-            <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-brand-50/50 via-transparent to-transparent -z-10"></div>
+          <div className="bg-white/60 backdrop-blur-2xl border border-white/40 shadow-[0_32px_64px_-16px_rgba(41,96,150,0.12)] rounded-[3rem] relative z-10 w-full overflow-hidden p-6 sm:p-12 ring-1 ring-white/50 group/card">
+            {/* Soft decorative background inside the card - improved for glass effect */}
+            <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-brand-100/20 via-transparent to-brand-50/10 -z-10 group-hover/card:opacity-70 transition-opacity duration-500"></div>
 
             <div className="flex justify-between items-center mb-10">
-              <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-400 text-center md:text-left">Acelera SEO em Números</h3>
-              <div className="flex gap-1.5 opacity-60">
-                <div className="w-2 h-2 bg-slate-300 rounded-full"></div>
-                <div className="w-2 h-2 bg-slate-300 rounded-full"></div>
-                <div className="w-2 h-2 bg-slate-300 rounded-full"></div>
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Acelera SEO em Números</h3>
+              <div className="flex gap-2">
+                <div className="w-2 h-2 bg-brand-200 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-brand-100 rounded-full"></div>
+                <div className="w-2 h-2 bg-brand-50 rounded-full"></div>
               </div>
             </div>
             
-            <div className="space-y-2">
-              <div className="flex items-center group hover:bg-slate-50 border border-transparent hover:border-slate-100 rounded-2xl transition-all gap-5 p-4">
-                <div className="w-14 h-14 bg-brand-50 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <Users size={24} className="text-brand-600" />
+            <div className="space-y-3">
+              <div className="flex items-center group hover:bg-white/40 border border-transparent hover:border-white/60 rounded-[2rem] transition-all duration-500 gap-6 p-5 backdrop-blur-sm">
+                <div className="w-16 h-16 bg-white/80 shadow-sm rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-white">
+                  <Users size={28} className="text-brand-600" />
                 </div>
                 <div>
-                  <h4 className="text-3xl sm:text-4xl font-black text-slate-900 font-display">+100</h4>
-                  <p className="text-sm sm:text-base font-medium text-slate-500">Clientes Atendidos</p>
+                  <h4 className="text-4xl font-black text-slate-900 font-display tracking-tight">+100</h4>
+                  <p className="text-sm font-semibold text-slate-500">Clientes Atendidos</p>
                 </div>
               </div>
               
-              <div className="flex items-center group hover:bg-slate-50 border border-transparent hover:border-slate-100 rounded-2xl transition-all gap-5 p-4">
-                <div className="w-14 h-14 bg-brand-50 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <Award size={24} className="text-brand-600" />
+              <div className="flex items-center group hover:bg-white/40 border border-transparent hover:border-white/60 rounded-[2rem] transition-all duration-500 gap-6 p-5 backdrop-blur-sm">
+                <div className="w-16 h-16 bg-white/80 shadow-sm rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500 border border-white">
+                  <Award size={28} className="text-brand-600" />
                 </div>
                 <div>
-                  <h4 className="text-3xl sm:text-4xl font-black text-slate-900 font-display">+10</h4>
-                  <p className="text-sm sm:text-base font-medium text-slate-500">Anos de Experiência dos Profissionais</p>
+                  <h4 className="text-4xl font-black text-slate-900 font-display">+10</h4>
+                  <p className="text-sm font-semibold text-slate-500">Anos de Experiência</p>
                 </div>
               </div>
 
-              <div className="flex items-center group hover:bg-slate-50 border border-transparent hover:border-slate-100 rounded-2xl transition-all gap-5 p-4">
-                <div className="w-14 h-14 bg-brand-50 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <ShieldCheck size={24} className="text-brand-600" />
+              <div className="flex items-center group hover:bg-white/40 border border-transparent hover:border-white/60 rounded-[2rem] transition-all duration-500 gap-6 p-5 backdrop-blur-sm">
+                <div className="w-16 h-16 bg-white/80 shadow-sm rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-white">
+                  <ShieldCheck size={28} className="text-brand-600" />
                 </div>
                 <div>
-                  <h4 className="text-3xl sm:text-4xl font-black text-slate-900 font-display">100%</h4>
-                  <p className="text-sm sm:text-base font-medium text-slate-500">Foco em SEO White-Hat</p>
+                  <h4 className="text-4xl font-black text-slate-900 font-display">100%</h4>
+                  <p className="text-sm font-semibold text-slate-500">SEO White-Hat</p>
                 </div>
               </div>
             </div>
@@ -241,16 +283,22 @@ const ObjectivesSection = () => {
   return (
     <section className="bg-slate-50 text-center relative py-12 md:py-24 lg:py-32">
       <div className="max-w-7xl mx-auto relative z-10 px-6">
-        <h2 className="text-4xl md:text-5xl font-extrabold font-display text-slate-900 tracking-tight mb-8 md:mb-8 lg:mb-16 text-center md:text-left">Nossos Objetivos</h2>
+        <h2 className="text-4xl md:text-5xl font-extrabold font-display text-slate-900 tracking-tight mb-8 md:mb-8 lg:mb-16 text-center">Nossos Objetivos</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
           {objs.map(o => (
-            <div key={o.title} className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col items-center justify-center text-center hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:border-brand-200 hover:-translate-y-1 transition-all duration-300 p-6 sm:p-8">
-              {o.icon}
-              <h3 className="font-bold text-slate-800 text-base lg:text-lg font-display uppercase tracking-tight leading-snug text-center md:text-left">
+            <motion.div 
+              whileHover={{ y: -10, scale: 1.02 }}
+              key={o.title} 
+              className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col items-center justify-center text-center hover:shadow-[0_40px_80px_-15px_rgba(41,96,150,0.15)] hover:border-brand-200 transition-all duration-300 p-6 sm:p-8 group"
+            >
+              <div className="group-hover:scale-110 transition-transform duration-300">
+                {o.icon}
+              </div>
+              <h3 className="font-bold text-slate-800 text-base lg:text-lg font-display uppercase tracking-tight leading-snug text-center group-hover:text-brand-600 transition-colors">
                 {o.title}
-                <span className="block text-brand-600 font-medium mt-1">{o.subtitle}</span>
+                <span className="block text-brand-600 font-medium mt-1 uppercase text-xs opacity-80">{o.subtitle}</span>
               </h3>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -291,29 +339,30 @@ const Services = () => {
       <div className="max-w-7xl mx-auto relative z-10 px-6">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-8 lg:mb-20">
           <p className="text-brand-600 font-bold tracking-widest text-[11px] uppercase mb-6">Nossa Metodologia</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 font-display mb-6 text-center md:text-left">Soluções Transformadas em <span className="text-brand-600">Resultados</span>.</h2>
-          <p className="text-lg text-slate-500 font-light leading-relaxed md:text-center">Transformamos a presença digital da sua empresa através de uma metodologia de SEO de alta performance. Nosso foco é converter buscas em faturamento colocando você no topo.</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 font-display mb-6">Soluções Transformadas em <span className="text-brand-600">Resultados</span>.</h2>
+          <p className="text-lg text-slate-500 font-light leading-relaxed">Transformamos a presença digital da sua empresa através de uma metodologia de SEO de alta performance. Nosso foco é converter buscas em faturamento colocando você no topo.</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
           {services.map((s, i) => (
-            <div
+            <motion.div
+              whileHover={{ y: -8, scale: 1.01 }}
               key={i}
-              className="rounded-[2rem] bg-white border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-brand-900/5 hover:border-brand-200/60 transition-all duration-300 group flex flex-col items-center text-center md:items-start md:text-left p-8 sm:p-10"
+              className="rounded-[2rem] bg-white border border-slate-200/60 shadow-sm hover:shadow-[0_40px_80px_-20px_rgba(41,96,150,0.12)] hover:border-brand-300/40 transition-all duration-300 group flex flex-col items-center text-center md:items-start md:text-left p-8 sm:p-10"
             >
-              <div className="w-14 h-14 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 group-hover:scale-110 transition-transform duration-300 mb-6 mx-auto md:mx-0">
+              <div className="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 mb-8 mx-auto md:mx-0 border border-brand-100">
                 {s.icon}
               </div>
               <h3 className="text-2xl font-extrabold text-slate-900 font-display tracking-tight group-hover:text-brand-600 transition-colors mb-4 text-center md:text-left">{s.title}</h3>
               <p className="text-slate-500 leading-relaxed font-medium text-base mb-8 text-center md:text-left">{s.desc}</p>
               <div className="flex flex-wrap mt-auto justify-center md:justify-start gap-2 w-full">
                 {s.features.map(f => (
-                  <span key={f} className="text-xs font-semibold tracking-wide px-3.5 py-1.5 bg-slate-100 text-slate-600 border border-slate-200/60 rounded-full group-hover:bg-brand-50 group-hover:text-brand-700 group-hover:border-brand-100 transition-colors">
+                  <span key={f} className="text-[10px] font-bold uppercase tracking-wider px-4 py-2 bg-slate-50 text-slate-500 border border-slate-200/60 rounded-xl group-hover:bg-brand-50 group-hover:text-brand-700 group-hover:border-brand-200/50 transition-all duration-300">
                     {f}
                   </span>
                 ))}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

@@ -376,7 +376,7 @@ export default function Audit() {
                      Essa auditoria de SEO revela apenas a superfície do que seu domínio enfrenta. Existem falhas graves tirando você da primeira página todos os dias. Fale com um Especialista e descubra o plano de ação exato para alavancar seu crescimento orgânico.
                    </p>
                    
-                   <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C+fiz+uma+auditoria+SEO+no+meu+site+e+percebi+que+preciso+de+ajuda!" target="_blank" rel="noopener noreferrer" className="flex flex-col sm:flex-row items-center justify-center w-full sm:w-auto bg-brand-600 text-white font-bold rounded-2xl hover:bg-brand-500 transition-all shadow-xl shadow-brand-500/20 text-base sm:text-lg group gap-3 px-8 sm:px-10 py-4 sm:py-5">
+                  <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+fiz+uma+auditoria+SEO+no+meu+site+e+percebi+que+preciso+de+ajuda!" target="_blank" rel="noopener noreferrer" className="flex flex-col sm:flex-row items-center justify-center w-full sm:w-auto bg-brand-600 text-white font-bold rounded-2xl hover:bg-brand-500 transition-all shadow-xl shadow-brand-500/20 text-base sm:text-lg group gap-3 px-8 sm:px-10 py-4 sm:py-5">
                       Corrigir meu Site com um Especialista <ArrowRight size={20} className="hidden sm:inline group-hover:translate-x-1 transition-transform" />
                    </a>
                  </div>
@@ -414,26 +414,7 @@ export default function Audit() {
       </section>
     </div>
 
-    {/* Floating CTA for extreme accessibility */}
-    {status === 'results' && (
-      <motion.div 
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="fixed bottom-6 right-6 z-50 pointer-events-auto"
-      >
-        <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C+fiz+uma+auditoria+SEO+no+meu+site+e+percebi+que+preciso+de+ajuda!" 
-           target="_blank" rel="noopener noreferrer" 
-           className="flex flex-col sm:flex-row items-center bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-colors shadow-2xl shadow-slate-900/40 border border-slate-700 group text-sm sm:text-base text-center hover:scale-105 gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4"
-           aria-label="Falar com Especialista no WhatsApp"
-        >
-          <div className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
-          </div>
-          Corrigir meu site <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-        </a>
-      </motion.div>
-    )}
+    {/* Floating CTA for extreme accessibility - Removed to prevent duplication with global WhatsAppButton */}
     </>
   );
 }

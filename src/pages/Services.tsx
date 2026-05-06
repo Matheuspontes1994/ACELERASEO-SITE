@@ -81,7 +81,7 @@ export default function Services() {
             Diferente de uma agência tradicional, operamos como uma engenharia de busca focada estritamente no avanço do seu faturamento e tráfego orgânico.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C+quero+saber+mais+sobre+os+servi%C3%A7os+de+SEO!" target="_blank" rel="noopener noreferrer" className="bg-brand-600 text-white font-bold text-lg rounded-xl hover:bg-brand-700 transition-all shadow-xl shadow-brand-500/20 flex items-center justify-center group px-10 py-5 gap-2">
+            <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+quero+saber+mais+sobre+os+servi%C3%A7os+de+SEO!" target="_blank" rel="noopener noreferrer" className="bg-brand-600 text-white font-bold text-lg rounded-xl hover:bg-brand-700 transition-all shadow-xl shadow-brand-500/20 flex items-center justify-center group px-10 py-5 gap-2">
               Agendar Reunião Técnica <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform"/>
             </a>
             <Link to="/auditoria" className="bg-white border border-slate-200 text-slate-700 font-bold text-lg rounded-xl hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center px-10 py-5 gap-2">
@@ -151,7 +151,7 @@ export default function Services() {
               <p className="text-slate-600 font-light text-lg leading-relaxed mb-10 text-justify md:text-left">
                 {service.description}
               </p>
-              <a href={`https://wa.me/5511999999999?text=Quero+saber+detalhes+sobre+${service.title}`} target="_blank" rel="noopener noreferrer" className="mt-auto inline-flex items-center bg-white border border-slate-200 text-slate-800 font-bold rounded-xl hover:bg-slate-100 transition-colors gap-3 px-8 py-4">
+              <a href={`https://wa.me/5511992229927?text=Quero+saber+detalhes+sobre+${service.title}`} target="_blank" rel="noopener noreferrer" className="mt-auto inline-flex items-center bg-white border border-slate-200 text-slate-800 font-bold rounded-xl hover:bg-slate-100 transition-colors gap-3 px-8 py-4">
                 Solicitar Proposta Comercial <ArrowRight size={18} />
               </a>
             </div>
@@ -181,7 +181,7 @@ export default function Services() {
            <p className="text-xl text-slate-500 font-light leading-relaxed mb-8 lg:mb-12 text-justify md:text-center">
              Enquanto você adia a priorização do seu projeto de SEO, seus concorrentes assumem a demanda e coletam a sua receita. Inicie com quem aplica performance validada na última década. Descubra mais <Link to="/sobre" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">sobre a nossa metodologia</Link>.
            </p>
-           <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C+preciso+iniciar+meu+projeto+de+SEO!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center group px-12 py-6 gap-4">
+           <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+preciso+iniciar+meu+projeto+de+SEO!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center group px-12 py-6 gap-4">
              Reservar Espaço para Atendimento
            </a>
         </div>

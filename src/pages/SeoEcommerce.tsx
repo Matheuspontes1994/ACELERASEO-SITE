@@ -162,7 +162,7 @@ export default function SeoEcommercePage() {
            <p className="text-xl text-slate-500 font-light leading-relaxed mb-8 lg:mb-12 text-justify md:text-center">
              Faça uma profunda <Link to="/auditoria" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">auditoria técnica exclusiva para e-commerces</Link>. Identifique gargalos na jornada do consumidor e descubra o verdadeiro potencial oculto de faturamento no seu catálogo.
            </p>
-           <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C+quero+saber+mais+sobre+o+servi%C3%A7o+de+SEO+para+Ecommerce!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center group px-12 py-6 gap-4">
+           <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+quero+saber+mais+sobre+o+servi%C3%A7o+de+SEO+para+Ecommerce!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center group px-12 py-6 gap-4">
              Solicitar Análise da minha Loja Virtual
            </a>
         </div>

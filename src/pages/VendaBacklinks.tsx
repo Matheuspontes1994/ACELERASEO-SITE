@@ -167,7 +167,7 @@ export default function VendaBacklinksPage() {
            <p className="text-xl text-slate-500 font-light leading-relaxed mb-8 lg:mb-12 text-justify md:text-center">
              Não adianta otimizar a estrutura dezenas de vezes se sua base de autoridade for frágil. Contrate injeções periódicas e crescentes de referências de mercado e ultrapasse seus maiores competidores usando nosso serviço especializado de aquisição.
            </p>
-           <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C+quero+entender+o+modelo+de+aquisi%C3%A7%C3%A3o+de+backlinks!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center group px-12 py-6 gap-4">
+           <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+quero+entender+o+modelo+de+aquisi%C3%A7%C3%A3o+de+backlinks!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center group px-12 py-6 gap-4">
              Solicitar Planos e Inventário de Backlinks
            </a>
         </div>

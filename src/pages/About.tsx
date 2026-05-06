@@ -18,7 +18,7 @@ export default function About() {
     "description": "Agência boutique de SEO técnico e estratégico focada em performance orgânica e crescimento exponencial de tráfego.",
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": "+55-11-99999-9999",
+      "telephone": "+55-11-99222-9927",
       "contactType": "customer service",
       "areaServed": "BR",
       "availableLanguage": "Portuguese"
@@ -196,7 +196,7 @@ export default function About() {
              Pare de vender o seu posicionamento natural para empresas que possuem um site muito inferior ao seu.
            </p>
            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C+gostaria+de+falar+com+os+especialistas+da+Acelera+SEO!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center justify-center group px-12 py-6 gap-4">
+              <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+gostaria+de+falar+com+os+especialistas+da+Acelera+SEO!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center justify-center group px-12 py-6 gap-4">
                 Explorar Solução Dedicada
               </a>
               <Link to="/servicos" className="bg-white border border-slate-200 text-slate-700 font-bold text-xl rounded-2xl hover:bg-slate-50 transition-all flex items-center justify-center px-12 py-6 gap-2">
