@@ -113,22 +113,6 @@ const Hero = () => {
       <div className="tech-grid" />
       <div className="hero-glow" />
       
-      {/* Decorative Parallax Elements */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        <motion.div style={{ x: moveX, y: moveY }} className="absolute top-[15%] left-[10%] text-brand-600/10 hidden lg:block">
-          <Code2 size={120} strokeWidth={1} />
-        </motion.div>
-        <motion.div style={{ x: moveXFaster, y: moveYFaster }} className="absolute bottom-[20%] right-[15%] text-brand-600/5 hidden lg:block">
-          <Braces size={160} strokeWidth={0.5} />
-        </motion.div>
-        <motion.div style={{ x: moveX, y: moveYFaster }} className="absolute top-[30%] right-[5%] text-brand-600/10 hidden lg:block">
-          <Terminal size={80} strokeWidth={1} />
-        </motion.div>
-        <motion.div style={{ x: moveXFaster, y: moveY }} className="absolute bottom-[10%] left-[5%] text-brand-600/5 hidden lg:block">
-          <Hash size={100} strokeWidth={1} />
-        </motion.div>
-      </div>
-      
       <div className="max-w-7xl mx-auto grid lg:grid-cols-12 items-center w-full relative z-10 px-6 gap-8 lg:gap-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

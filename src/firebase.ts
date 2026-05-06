@@ -4,13 +4,24 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import firebaseConfig from '../firebase-applet-config.json';
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth(app);
+import { logger } from './lib/logger';
 
-// Define explicit persistence to prevent session loss in iframes
-setPersistence(auth, browserLocalPersistence).catch((err) => {
-  console.error("Firebase persistence error:", err);
-});
+let db: any;
+let auth: any;
+let storage: any;
 
-export const storage = getStorage(app);
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+  auth = getAuth(app);
+  storage = getStorage(app);
+  
+  // Define explicit persistence to prevent session loss in iframes
+  setPersistence(auth, browserLocalPersistence).catch((err) => {
+    logger.error("Firebase persistence error", err);
+  });
+} catch (error) {
+  logger.error("Firebase initialization failed", error);
+}
+
+export { db, auth, storage };

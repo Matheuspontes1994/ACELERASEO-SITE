@@ -16,13 +16,20 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [logoUrl, setLogoUrl] = useState(defaultLogo);
 
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'settings', 'general'), (docSnap) => {
-      if (docSnap.exists() && docSnap.data().logoUrl) {
-        setLogoUrl(docSnap.data().logoUrl);
-      }
-    });
+    if (!db) return;
+    try {
+      const unsub = onSnapshot(doc(db, 'settings', 'general'), (docSnap) => {
+        if (docSnap.exists() && docSnap.data().logoUrl) {
+          setLogoUrl(docSnap.data().logoUrl);
+        }
+      }, (err) => {
+        console.error("Settings onSnapshot error:", err);
+      });
 
-    return () => unsub();
+      return () => unsub();
+    } catch (err) {
+      console.error("Failed to setup settings snapshot:", err);
+    }
   }, []);
 
   return (

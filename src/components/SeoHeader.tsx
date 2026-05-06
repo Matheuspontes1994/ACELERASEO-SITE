@@ -15,6 +15,7 @@ export function GlobalSeo() {
     setSeoData(null); // Reset when path changes to show defaults briefly or avoid stale
 
     async function fetchMetadata() {
+      if (!db) return;
       try {
         const q = query(collection(db, 'seo_pages'), where('url', '==', currentPath));
         const snapshot = await getDocs(q);
