@@ -3,6 +3,8 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { MapPin, Target, CheckCircle2, ArrowRight, Building2, Search, LineChart, Globe } from 'lucide-react';
+import { JsonLd } from '../components/JsonLd';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 
 interface SeoLocalProps {
   city: string;
@@ -106,6 +108,30 @@ export default function SeoLocalPage({ city, state, slug }: SeoLocalProps) {
         <meta name="twitter:description" content={meta.description} />
         <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
+
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "name": `Acelera SEO - ${city}`,
+        "description": meta.description,
+        "image": meta.image,
+        "url": `https://aceleraseo.com.br/${slug}`,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": city,
+          "addressRegion": state,
+          "addressCountry": "BR"
+        },
+        "serviceType": "SEO, Link Building, Redação de Conteúdo",
+        "areaServed": {
+          "@type": "City",
+          "name": city
+        }
+      }} />
+
+      <div className="max-w-7xl mx-auto px-6">
+        <Breadcrumbs />
+      </div>
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto relative px-6 mb-8 md:mb-8 lg:mb-24">

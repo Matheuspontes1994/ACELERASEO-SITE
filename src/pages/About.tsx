@@ -3,8 +3,27 @@ import { motion } from 'motion/react';
 import { Helmet } from 'react-helmet-async';
 import { Target, Zap, Shield, Users, ArrowRight, Building, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { JsonLd, generateBreadcrumbSchema } from '../components/JsonLd';
 
 export default function About() {
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Acelera SEO",
+    "url": "https://aceleraseo.com.br",
+    "logo": "https://aceleraseo.com.br/logo.png",
+    "sameAs": [
+      "https://www.linkedin.com/company/acelera-seo"
+    ],
+    "description": "Agência boutique de SEO técnico e estratégico focada em performance orgânica e crescimento exponencial de tráfego.",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+55-11-99999-9999",
+      "contactType": "customer service",
+      "areaServed": "BR",
+      "availableLanguage": "Portuguese"
+    }
+  };
   return (
     <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-20">
       <Helmet>
@@ -22,6 +41,12 @@ export default function About() {
         <meta name="twitter:description" content="Conheça a agência de marketing SEO especializada em transformar a sua web performance de busca em lucro através de tráfego orgânico." />
         <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
+
+      <JsonLd data={organizationSchema} />
+      <JsonLd data={generateBreadcrumbSchema([
+        { name: 'Início', item: 'https://aceleraseo.com.br/' },
+        { name: 'Sobre Nós', item: 'https://aceleraseo.com.br/sobre' }
+      ])} />
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto relative px-6 mb-8 md:mb-8 lg:mb-24">
@@ -56,6 +81,8 @@ export default function About() {
                  src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2000&auto=format&fit=crop&fm=webp" 
                  alt="Equipe de especialistas sêniores na agência Acelera SEO debatendo métricas e performance de ranking." 
                  className="w-full h-full object-cover" 
+                 loading="lazy"
+                 decoding="async"
                />
             </div>
             
@@ -129,7 +156,13 @@ export default function About() {
         <div className="bg-white rounded-[3rem] border border-slate-200 shadow-xl overflow-hidden flex flex-col md:flex-row items-center">
           <div className="md:w-5/12 relative min-h-[400px] h-full w-full">
              {/* Substitua a URL abaixo pela sua foto se quiser */}
-             <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop" alt="Equipe Acelera SEO" className="absolute inset-0 w-full h-full object-cover" />
+             <img 
+               src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop" 
+               alt="Equipe Acelera SEO" 
+               className="absolute inset-0 w-full h-full object-cover" 
+               loading="lazy"
+               decoding="async"
+             />
           </div>
           <div className="md:w-7/12 p-10 md:p-16">
             <h2 className="text-3xl sm:text-4xl md:text-5xl leading-[1.15] md:leading-[1.1] text-balance font-bold text-slate-900 font-display tracking-tight mb-8 text-center md:text-center">O DNA Técnico</h2>

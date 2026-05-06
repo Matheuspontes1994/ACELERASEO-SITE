@@ -1,6 +1,6 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, lazy, Suspense } from 'react';
 import { motion } from 'motion/react';
-import ReactQuill from 'react-quill-new';
+const ReactQuill = lazy(() => import('react-quill-new'));
 import 'react-quill-new/dist/quill.snow.css';
 import { storage } from '../firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
@@ -12,7 +12,7 @@ import { Users, FileText, X, Activity, Calendar } from 'lucide-react';
 export function PostFormModal({ 
   postForm, setPostForm, showPostForm, setShowPostForm, handleSavePost, handleSaveDraft, clientsList, isSaving 
 }: any) {
-  const quillRef = useRef<ReactQuill>(null);
+  const quillRef = useRef<any>(null);
   const internalIsSaving = useRef(false);
 
   React.useEffect(() => {
@@ -292,21 +292,23 @@ export function PostFormModal({
                   </div>
                 </div>
               </div>
-              <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-inner">
-                <ReactQuill
-                  ref={quillRef}
-                  theme="snow"
-                  value={postForm.content}
-                  onChange={(val) => {
-                    setPostForm((prev: any) => {
-                      const stripped = val.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ');
-                      const words = stripped.trim().split(/\s+/).filter(Boolean).length;
-                      return { ...prev, content: val, wordCount: `${words} palavras` };
-                    });
-                  }}
-                  modules={modules}
-                  className="h-[500px] mb-12"
-                />
+              <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-inner min-h-[500px]">
+                <Suspense fallback={<div className="h-[500px] flex items-center justify-center bg-slate-50 text-slate-400 font-medium italic">Preparando editor de alta performance...</div>}>
+                  <ReactQuill
+                    ref={quillRef}
+                    theme="snow"
+                    value={postForm.content}
+                    onChange={(val) => {
+                      setPostForm((prev: any) => {
+                        const stripped = val.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ');
+                        const words = stripped.trim().split(/\s+/).filter(Boolean).length;
+                        return { ...prev, content: val, wordCount: `${words} palavras` };
+                      });
+                    }}
+                    modules={modules}
+                    className="h-[500px] mb-12"
+                  />
+                </Suspense>
               </div>
             </div>
 

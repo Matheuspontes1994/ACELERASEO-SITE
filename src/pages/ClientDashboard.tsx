@@ -25,6 +25,43 @@ import rehypeRaw from 'rehype-raw';
 import { useNavigate, Link } from 'react-router-dom';
 import PostChat from '../components/PostChat';
 
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+  }
+}
+
+function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+    },
+    operationType,
+    path
+  }
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
+
 export default function ClientDashboard() {
   const [activeTab, setActiveTab] = useState('Visão Geral');
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
@@ -51,12 +88,17 @@ export default function ClientDashboard() {
         const isUserAdmin = userEmail === 'matheuspontes290594@gmail.com' || userEmail === 'aceleraseo@gmail.com';
         setIsAdmin(isUserAdmin);
         
-        const clientsQuery = isUserAdmin
-          ? query(collection(db, 'clients'))
-          : query(collection(db, 'clients'), where('clientEmail', '==', userEmail));
-          
-        const clientsSnap = await getDocs(clientsQuery);
-        setClientsData(clientsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+        const path = 'clients';
+        try {
+          const clientsQuery = isUserAdmin
+            ? query(collection(db, path))
+            : query(collection(db, path), where('clientEmail', '==', userEmail));
+            
+          const clientsSnap = await getDocs(clientsQuery);
+          setClientsData(clientsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+        } catch (error) {
+          handleFirestoreError(error, OperationType.GET, path);
+        }
       }
     });
     return () => unsubscribe();
@@ -68,11 +110,12 @@ export default function ClientDashboard() {
 
     const isAdmin = userEmail === 'matheuspontes290594@gmail.com' || userEmail === 'aceleraseo@gmail.com';
     let q;
+    const path = 'blog_posts';
     
     if (isAdmin) {
-      q = query(collection(db, 'blog_posts'), orderBy('createdAt', 'desc'), limit(100));
+      q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(100));
     } else {
-      q = query(collection(db, 'blog_posts'), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(100));
+      q = query(collection(db, path), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(100));
     }
 
     setLoadingPosts(true);
@@ -95,7 +138,7 @@ export default function ClientDashboard() {
       
       setLoadingPosts(false);
     }, (error) => {
-      console.error("Erro ao carregar posts", error);
+      handleFirestoreError(error, OperationType.GET, path);
       setLoadingPosts(false);
     });
 
@@ -108,15 +151,16 @@ export default function ClientDashboard() {
 
   const loadBacklinks = async () => {
     setLoadingBacklinks(true);
+    const path = 'backlinks';
     try {
       const userEmail = auth.currentUser?.email;
       const isAdmin = userEmail === 'matheuspontes290594@gmail.com' || userEmail === 'aceleraseo@gmail.com';
       let q;
       
       if (isAdmin) {
-        q = query(collection(db, 'backlinks'), orderBy('createdAt', 'desc'), limit(100));
+        q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(100));
       } else {
-        q = query(collection(db, 'backlinks'), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(100));
+        q = query(collection(db, path), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(100));
       }
 
       const querySnapshot = await getDocs(q);
@@ -129,20 +173,21 @@ export default function ClientDashboard() {
       });
       setBacklinks(links);
     } catch (error) {
-      console.error("Erro ao carregar backlinks", error);
+      handleFirestoreError(error, OperationType.GET, path);
     }
     setLoadingBacklinks(false);
   };
 
   const loadKeywordsUniverse = async () => {
+    const path = 'keyword_universe';
     try {
       const userEmail = auth.currentUser?.email;
       const isAdmin = userEmail === 'matheuspontes290594@gmail.com' || userEmail === 'aceleraseo@gmail.com';
       let q;
       if (isAdmin) {
-        q = query(collection(db, 'keyword_universe'), orderBy('createdAt', 'desc'), limit(500));
+        q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(500));
       } else {
-        q = query(collection(db, 'keyword_universe'), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(500));
+        q = query(collection(db, path), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(500));
       }
       const querySnapshot = await getDocs(q);
       const kws: any[] = [];
@@ -151,7 +196,7 @@ export default function ClientDashboard() {
       });
       setKeywordsUniverse(kws);
     } catch (error) {
-      console.error("Erro ao carregar keywords", error);
+      handleFirestoreError(error, OperationType.GET, path);
     }
   };
 
@@ -290,11 +335,19 @@ export default function ClientDashboard() {
         </motion.div>
 
         {/* Tab Navigation */}
-        <div className="flex overflow-x-auto no-scrollbar bg-slate-200/30 rounded-2xl border border-slate-200 gap-1 mb-10 p-1 w-full max-w-full">
+        <div 
+          className="flex overflow-x-auto no-scrollbar bg-slate-200/30 rounded-2xl border border-slate-200 gap-1 mb-10 p-1 w-full max-w-full"
+          role="tablist"
+          aria-label="Seções do Portal"
+        >
           {['Visão Geral', 'Aprovação de Conteúdos', 'Conteúdos Publicados', 'Backlinks Publicados', 'Estratégia de Palavras'].map(tab => (
             <button 
               key={tab}
               onClick={() => setActiveTab(tab)}
+              role="tab"
+              aria-selected={activeTab === tab}
+              aria-controls={`panel-${tab.replace(/\s+/g, '-').toLowerCase()}`}
+              id={`tab-${tab.replace(/\s+/g, '-').toLowerCase()}`}
               className={`relative px-6 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all rounded-xl ${activeTab === tab ? 'bg-white text-brand-600 shadow-sm border border-slate-200' : 'text-slate-400 hover:text-slate-600'}`}
             >
               {tab}
@@ -302,13 +355,20 @@ export default function ClientDashboard() {
           ))}
         </div>
 
-        {activeTab === 'Visão Geral' && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            className="space-y-6"
+        <div className="tab-content">
+          <div 
+            id="panel-visão-geral"
+            role="tabpanel"
+            aria-labelledby="tab-visão-geral"
+            hidden={activeTab !== 'Visão Geral'}
           >
-            <div className="glass-card p-6 sm:p-8">
+            {activeTab === 'Visão Geral' && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                className="space-y-6"
+              >
+                <div className="glass-card p-6 sm:p-8">
                <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8">
                  <div>
                    <h2 className="text-2xl font-bold font-display text-slate-900 text-center md:text-left">Meu Plano e Entregáveis</h2>
@@ -415,11 +475,18 @@ export default function ClientDashboard() {
                  </div>
                </div>
             </div>
-          </motion.div>
-        )}
+              </motion.div>
+            )}
+          </div>
 
-        {activeTab === 'Aprovação de Conteúdos' && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+          <div 
+            id="panel-aprovação-de-conteúdos"
+            role="tabpanel"
+            aria-labelledby="tab-aprovação-de-conteúdos"
+            hidden={activeTab !== 'Aprovação de Conteúdos'}
+          >
+            {activeTab === 'Aprovação de Conteúdos' && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm min-h-[500px] p-6">
                <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8">
                  <div>
@@ -562,11 +629,18 @@ export default function ClientDashboard() {
                  </div>
                )}
             </div>
-          </motion.div>
-        )}
+              </motion.div>
+            )}
+          </div>
 
-        {activeTab === 'Conteúdos Publicados' && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+          <div 
+            id="panel-conteúdos-publicados"
+            role="tabpanel"
+            aria-labelledby="tab-conteúdos-publicados"
+            hidden={activeTab !== 'Conteúdos Publicados'}
+          >
+            {activeTab === 'Conteúdos Publicados' && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className="bg-white rounded-[3rem] border border-slate-200 shadow-3xl min-h-[500px] overflow-hidden relative p-6 sm:p-10">
                <div className="flex flex-col md:flex-row justify-between md:items-center relative z-10 gap-4 mb-8 lg:mb-12">
                  <div>
@@ -579,8 +653,8 @@ export default function ClientDashboard() {
                  <table className="w-full text-left border-separate border-spacing-y-2 min-w-[800px]">
                    <thead>
                      <tr className="bg-slate-50/50 border-b border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                       <th className="p-6">Estratégia Meta</th>
-                       <th className="text-center p-6">Data Pub.</th>
+                       <th scope="col" className="p-6">Estratégia Meta</th>
+                       <th scope="col" className="text-center p-6">Data Pub.</th>
                        <th className="text-center p-6">Status</th>
                        <th className="text-right p-6">Direcionamento</th>
                      </tr>
@@ -622,11 +696,18 @@ export default function ClientDashboard() {
                  </table>
                </div>
             </div>
-          </motion.div>
-        )}
+              </motion.div>
+            )}
+          </div>
 
-        {activeTab === 'Backlinks Publicados' && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+          <div 
+            id="panel-backlinks-publicados"
+            role="tabpanel"
+            aria-labelledby="tab-backlinks-publicados"
+            hidden={activeTab !== 'Backlinks Publicados'}
+          >
+            {activeTab === 'Backlinks Publicados' && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className="bg-white rounded-[3rem] border border-slate-200 shadow-3xl min-h-[500px] overflow-hidden relative p-6 sm:p-10">
                <div className="flex flex-col md:flex-row justify-between md:items-center relative z-10 gap-4 mb-8 lg:mb-12">
                  <div>
@@ -639,8 +720,8 @@ export default function ClientDashboard() {
                  <table className="w-full text-left border-separate border-spacing-y-2 min-w-[800px]">
                    <thead>
                      <tr className="bg-slate-50/50 border-b border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                       <th className="p-6">Veículo / Âncora</th>
-                       <th className="text-center p-6">Data Entrega</th>
+                       <th scope="col" className="p-6">Veículo / Âncora</th>
+                       <th scope="col" className="text-center p-6">Data Entrega</th>
                        <th className="text-center p-6">Status</th>
                        <th className="text-right p-6">Direcionamento</th>
                      </tr>
@@ -682,11 +763,18 @@ export default function ClientDashboard() {
                  </table>
                </div>
             </div>
-          </motion.div>
-        )}
+              </motion.div>
+            )}
+          </div>
 
-        {activeTab === 'Estratégia de Palavras' && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+          <div 
+            id="panel-estratégia-de-palavras"
+            role="tabpanel"
+            aria-labelledby="tab-estratégia-de-palavras"
+            hidden={activeTab !== 'Estratégia de Palavras'}
+          >
+            {activeTab === 'Estratégia de Palavras' && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm min-h-[500px] p-6">
                <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8">
                  <div>
@@ -701,7 +789,7 @@ export default function ClientDashboard() {
                    <thead>
                      <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-800 uppercase tracking-wider">
                        <th className="p-4">Cliente</th>
-                       <th className="p-4">Mês Planejado</th>
+                       <th scope="col" className="p-4">Mês Planejado</th>
                        <th className="p-4">Palavra-chave</th>
                        <th className="p-4">Volume</th>
                        <th className="p-4">KD</th>
@@ -732,13 +820,13 @@ export default function ClientDashboard() {
                  <table className="w-[1000px] lg:w-full text-left border-collapse">
                    <thead>
                      <tr className="bg-rose-50 border-b border-rose-100 text-xs font-bold text-rose-800 uppercase tracking-wider">
-                       <th className="p-4">Cliente</th>
-                       <th className="p-4">Palavra Âncora</th>
-                       <th className="p-4">URL de Destino</th>
-                       <th className="p-4">Palavra-chave Foco</th>
-                       <th className="w-64 p-4">Tema</th>
-                       <th className="w-72 p-4">Direcionamento</th>
-                       <th className="text-center p-4">Status</th>
+                       <th scope="col" className="p-4">Cliente</th>
+                       <th scope="col" className="p-4">Palavra Âncora</th>
+                       <th scope="col" className="p-4">URL de Destino</th>
+                       <th scope="col" className="p-4">Palavra-chave Foco</th>
+                       <th scope="col" className="w-64 p-4">Tema</th>
+                       <th scope="col" className="w-72 p-4">Direcionamento</th>
+                       <th scope="col" className="text-center p-4">Status</th>
                      </tr>
                    </thead>
                    <tbody className="divide-y divide-slate-100">
@@ -773,13 +861,13 @@ export default function ClientDashboard() {
                  <table className="w-[1000px] lg:w-full text-left border-collapse">
                    <thead>
                      <tr className="bg-indigo-50 border-b border-indigo-100 text-xs font-bold text-indigo-800 uppercase tracking-wider">
-                       <th className="p-4">Cliente</th>
-                       <th className="p-4">Palavra-chave</th>
-                       <th className="p-4">Linkagem Interna</th>
-                       <th className="w-60 p-4">Tema</th>
-                       <th className="p-4">Secundárias</th>
-                       <th className="w-60 p-4">Direcionamento</th>
-                       <th className="text-center p-4">Status</th>
+                       <th scope="col" className="p-4">Cliente</th>
+                       <th scope="col" className="p-4">Palavra-chave</th>
+                       <th scope="col" className="p-4">Linkagem Interna</th>
+                       <th scope="col" className="w-60 p-4">Tema</th>
+                       <th scope="col" className="p-4">Secundárias</th>
+                       <th scope="col" className="w-60 p-4">Direcionamento</th>
+                       <th scope="col" className="text-center p-4">Status</th>
                      </tr>
                    </thead>
                    <tbody className="divide-y divide-slate-100">
@@ -813,5 +901,7 @@ export default function ClientDashboard() {
         )}
       </div>
     </div>
+  </div>
+</div>
   );
 }

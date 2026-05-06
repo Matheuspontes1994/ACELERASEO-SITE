@@ -5,14 +5,38 @@ import { motion } from 'motion/react';
 import { Helmet } from 'react-helmet-async';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronRight, Calendar, Clock, User, ArrowLeft, Share2, Facebook, Twitter, Linkedin, CheckCircle2 } from 'lucide-react';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { BLOG_POSTS } from '../data/posts';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../firebase';
+import { JsonLd } from '../components/JsonLd';
 
 export default function BlogPost() {
   const { slug } = useParams();
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Schema for BlogPosting
+  const blogSchema = post ? {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.titleString || post.title,
+    "description": post.description || post.excerpt,
+    "image": post.coverImage || "https://aceleraseo.com.br/logo.png",
+    "author": {
+      "@type": "Organization",
+      "name": "Acelera SEO"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Acelera SEO",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://aceleraseo.com.br/logo.png"
+      }
+    },
+    "datePublished": post.date ? post.date.split('/').reverse().join('-') : new Date().toISOString()
+  } : null;
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -71,32 +95,6 @@ export default function BlogPost() {
     return <div className="min-h-screen bg-slate-50 text-center text-slate-500 font-medium pt-16 md:pt-16 lg:pt-32">Carregando...</div>;
   }
 
-  const schemaOrgJSONLD = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": `https://aceleraseo.com.br/blog/${post.slug}`
-    },
-    "headline": post.titleString,
-    "description": post.excerpt,
-    "image": post.coverImage,
-    "author": {
-      "@type": "Person",
-      "name": author.name
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Acelera SEO",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://aceleraseo.com.br/logo.png"
-      }
-    },
-    "datePublished": post.createdAt ? (post.createdAt.toDate ? post.createdAt.toDate().toISOString() : new Date(post.createdAt).toISOString()) : new Date().toISOString(),
-    "dateModified": post.updatedAt ? (post.updatedAt.toDate ? post.updatedAt.toDate().toISOString() : new Date(post.updatedAt).toISOString()) : new Date().toISOString()
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-brand-500 selection:text-white pt-8 md:pt-24 pb-12 md:pb-16 lg:pb-20">
       <Helmet>
@@ -113,10 +111,17 @@ export default function BlogPost() {
         <meta name="twitter:title" content={`${post.titleString} | Acelera SEO`} />
         <meta name="twitter:description" content={post.excerpt} />
         <meta name="twitter:image" content={post.coverImage || "https://aceleraseo.com.br/logo.png"} />
-        <script type="application/ld+json">
-          {JSON.stringify(schemaOrgJSONLD)}
-        </script>
       </Helmet>
+
+      {blogSchema && <JsonLd data={blogSchema} />}
+
+      <div className="max-w-7xl mx-auto px-6 mb-8">
+        <Breadcrumbs items={[
+          { label: 'Início', path: '/' },
+          { label: 'Blog', path: '/blog' },
+          { label: post.titleString, path: `/blog/${post.slug}` }
+        ]} />
+      </div>
 
       <article className="max-w-7xl mx-auto grid lg:grid-cols-12 px-6 gap-12">
         {/* Header Content */}

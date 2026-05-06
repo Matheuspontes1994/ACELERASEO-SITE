@@ -3,6 +3,8 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { Link as LinkIcon, Target, TrendingUp, ShieldCheck, Activity, Globe, Award, CheckCircle2 } from 'lucide-react';
+import { Breadcrumbs } from '../components/Breadcrumbs';
+import { JsonLd } from '../components/JsonLd';
 
 export default function LinkBuildingPage() {
   return (
@@ -22,6 +24,22 @@ export default function LinkBuildingPage() {
         <meta name="twitter:description" content="Escale a autoridade do seu domínio e conquiste o topo do Google com a principal agência de Link Building do mercado. Especialistas em Digital PR e Backlinks." />
         <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
+
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Link Building e Digital PR",
+        "description": "Serviços especializados de aquisição de backlinks e Digital PR para aumentar a autoridade de domínios.",
+        "provider": {
+          "@type": "ProfessionalService",
+          "name": "Acelera SEO",
+          "url": "https://aceleraseo.com.br"
+        }
+      }} />
+
+      <div className="max-w-7xl mx-auto px-6">
+        <Breadcrumbs />
+      </div>
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto relative px-6 mb-8 md:mb-8 lg:mb-24">
@@ -84,6 +102,8 @@ export default function LinkBuildingPage() {
                  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2000&auto=format&fit=crop&fm=webp" 
                  alt="Analista de SEO sênior monitorando um dashboard interativo exibindo o crescimento exponencial do tráfego orgânico e a evolução saudável do Domain Rating da empresa." 
                  className="w-full h-full object-cover" 
+                 loading="lazy"
+                 decoding="async"
                />
             </div>
           </div>
@@ -137,6 +157,8 @@ export default function LinkBuildingPage() {
                  src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2000&auto=format&fit=crop&fm=webp" 
                  alt="Gestores e especialistas em Digital PR organizando uma campanha elaborada de Link Building em uma agência moderna de tecnologia da informação e SEO." 
                  className="w-full h-full object-cover" 
+                 loading="lazy"
+                 decoding="async"
                />
             </div>
             

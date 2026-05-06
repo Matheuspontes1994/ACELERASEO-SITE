@@ -19,25 +19,49 @@ export default function LoginPage() {
     setError('');
     
     try {
-      await setPersistence(auth, browserLocalPersistence);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const userEmail = userCredential.user.email;
       const isAdmin = userEmail === 'matheuspontes290594@gmail.com' || userEmail === 'aceleraseo@gmail.com';
       
+      const from = location.state?.from?.pathname;
       let target = '/portal-cliente';
       
-      const from = location.state?.from?.pathname;
-      
       if (isAdmin) {
+         // Se for Admin e estiver tentando acessar uma página protegida específica, respeita o 'from'
          target = from && from !== '/login' && from !== '/' ? from : '/painel';
       } else {
+         // Clientes sempre vão para o portal-cliente
          target = '/portal-cliente';
       }
 
       navigate(target);
     } catch (err: any) {
       console.error(err);
-      setError('E-mail ou senha incorretos. Verifique suas credenciais.');
+      
+      // Mapeamento de erros específicos do Firebase
+      switch (err.code) {
+        case 'auth/invalid-credential':
+        case 'auth/wrong-password':
+          setError('Senha incorreta. Verifique suas credenciais e tente novamente.');
+          break;
+        case 'auth/user-not-found':
+          setError('Usuário não encontrado. Verifique o e-mail ou crie uma conta.');
+          break;
+        case 'auth/invalid-email':
+          setError('O e-mail informado tem um formato inválido.');
+          break;
+        case 'auth/user-disabled':
+          setError('Esta conta foi desativada. Entre em contato com o suporte.');
+          break;
+        case 'auth/too-many-requests':
+          setError('Muitas tentativas malsucedidas. Sua conta foi temporariamente bloqueada.');
+          break;
+        case 'auth/network-request-failed':
+          setError('Erro de conexão. Verifique sua internet.');
+          break;
+        default:
+          setError('Falha no acesso. Verifique seu e-mail e senha.');
+      }
     } finally {
       setLoading(false);
     }
@@ -114,7 +138,11 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="bg-rose-50 border border-rose-100 text-rose-600 rounded-xl text-sm font-medium flex items-center px-4 py-3 gap-2">
+              <div 
+                role="alert" 
+                aria-live="polite" 
+                className="bg-rose-50 border border-rose-100 text-rose-600 rounded-xl text-sm font-medium flex items-center px-4 py-3 gap-2"
+              >
                 <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></div>
                 {error}
               </div>

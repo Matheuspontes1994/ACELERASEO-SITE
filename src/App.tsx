@@ -29,6 +29,11 @@ import {
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Link as RouterLink, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { logger } from './lib/logger';
+import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
+import { WhatsAppButton } from './components/WhatsAppButton';
 const AuditPage = lazy(() => import('./pages/Audit'));
 const BlogPage = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
@@ -46,6 +51,7 @@ import { SettingsProvider, useSettings, getDefaultLogo } from './contexts/Settin
 import AuthRoute from './components/AuthRoute';
 import { GlobalSeo } from './components/SeoHeader';
 import ScrollToTop from './components/ScrollToTop';
+import { JsonLd } from './components/JsonLd';
 const ClientDashboard = lazy(() => import('./pages/ClientDashboard'));
 const DashboardPage = lazy(() => import('./pages/Dashboard'));
 const LoginPage = lazy(() => import('./pages/Login'));
@@ -58,6 +64,13 @@ const structuredData = {
   "description": "Agência de SEO e Marketing SEO focada em SEO para sites, auditoria de SEO técnica e link building.",
   "url": "https://aceleraseo.com.br",
   "logo": "https://aceleraseo.com.br/logo.png",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+55-11-99222-9927",
+    "contactType": "customer service",
+    "areaServed": "BR",
+    "availableLanguage": "Portuguese"
+  },
   "address": {
     "@type": "PostalAddress",
     "addressCountry": "BR"
@@ -66,164 +79,7 @@ const structuredData = {
   "areaServed": "Global"
 };
 
-// --- Components ---
-
-const Navbar = () => {
-  const { logoUrl } = useSettings();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [solutionsOpen, setSolutionsOpen] = useState(false);
-  const location = useLocation();
-  const isPortal = location.pathname === '/portal-cliente';
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [mobileMenuOpen]);
-
-  return (
-    <>
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${(isScrolled || mobileMenuOpen) ? 'py-3 glass' : 'py-3 md:py-6 bg-transparent'}`}>
-      <div className="max-w-7xl mx-auto flex justify-between items-center px-6">
-        <div className="flex items-center gap-3">
-          <RouterLink to="/" className="flex items-center gap-3">
-            <img src={logoUrl} alt="Acelera SEO Logo" className="h-11 w-auto object-contain" onError={(e) => (e.target as HTMLImageElement).src = getDefaultLogo()} />
-            <span className={`text-2xl font-display font-bold tracking-tight ${isPortal && !isScrolled ? 'text-white' : 'text-slate-800'}`}>Acelera <span className="text-brand-600 font-light">SEO</span></span>
-          </RouterLink>
-        </div>
-        
-        <div className="hidden md:flex items-center gap-8">
-          <RouterLink to="/sobre" className="text-sm font-medium text-slate-500 hover:text-brand-600 transition-colors">Sobre</RouterLink>
-          
-          {/* Dropdown Soluções */}
-          <div className="relative group py-6">
-            <button className="text-sm font-medium text-slate-500 hover:text-brand-600 transition-colors flex items-center focus:outline-none gap-1">
-              Soluções <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
-            </button>
-            <div className="absolute top-[80%] left-0 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-64 bg-white shadow-xl rounded-2xl border border-slate-100 overflow-hidden z-50 pt-2">
-              <RouterLink to="/seo-ecommerce" className="block text-sm text-slate-600 hover:bg-slate-50 hover:text-brand-600 transition-colors font-medium border-b border-slate-50 px-5 py-3">SEO para E-commerce</RouterLink>
-              <RouterLink to="/consultoria-seo" className="block text-sm text-slate-600 hover:bg-slate-50 hover:text-brand-600 transition-colors font-medium border-b border-slate-50 px-5 py-3">Consultoria SEO</RouterLink>
-              <RouterLink to="/especialista-em-seo" className="block text-sm text-slate-600 hover:bg-slate-50 hover:text-brand-600 transition-colors font-medium border-b border-slate-50 px-5 py-3">Especialista em SEO</RouterLink>
-              <RouterLink to="/agencia-link-building" className="block text-sm text-slate-600 hover:bg-slate-50 hover:text-brand-600 transition-colors font-medium border-b border-slate-50 px-5 py-3">Agência Link Building</RouterLink>
-              <RouterLink to="/venda-backlinks" className="block text-sm text-slate-600 hover:bg-slate-50 hover:text-brand-600 transition-colors font-medium px-5 py-3">Venda de Backlinks</RouterLink>
-              <div className="p-2">
-                <RouterLink to="/servicos" className="block text-sm font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-xl transition-colors text-center px-4 py-3">Ver todas as soluções</RouterLink>
-              </div>
-            </div>
-          </div>
-
-          <RouterLink to="/blog" className="text-sm font-medium text-slate-500 hover:text-brand-600 transition-colors">Blog</RouterLink>
-          <RouterLink to="/contato" className="text-sm font-medium text-slate-500 hover:text-brand-600 transition-colors">Contato</RouterLink>
-          <RouterLink to="/auditoria" className="text-sm font-bold text-brand-600 hover:text-brand-700 transition-colors">Auditoria Grátis</RouterLink>
-          
-          <div className="flex items-center ml-4 pl-6 border-l border-slate-200 gap-3">
-            <RouterLink to="/login" className="flex items-center justify-center p-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-brand-50 hover:text-brand-600 transition-all focus:outline-none" title="Acessar Sistema">
-              <Users size={18} />
-            </RouterLink>
-             <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C+preciso+de+uma+consultoria+SEO!" target="_blank" rel="noopener noreferrer" className="py-2.5 bg-slate-900 text-white font-bold text-sm rounded-xl hover:bg-brand-600 hover:shadow-lg hover:shadow-brand-500/20 transition-all transform hover:-translate-y-0.5 px-6">
-              Falar no WhatsApp
-            </a>
-          </div>
-        </div>
-
-        <button className="md:hidden text-slate-800" onClick={() => setMobileMenuOpen(true)}>
-          <Menu size={28} />
-        </button>
-      </div>
-    </nav>
-
-    {/* Mobile Menu Fullscreen Overlay */}
-    <AnimatePresence>
-      {mobileMenuOpen && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-[100] bg-white/98 backdrop-blur-3xl md:hidden flex flex-col overflow-hidden"
-        >
-          {/* Header Mobile Menu */}
-          <div className="flex justify-between items-center h-[80px] border-b border-slate-100/50 px-6">
-            <RouterLink to="/" className="flex items-center gap-3" onClick={() => setMobileMenuOpen(false)}>
-              <img src={logoUrl} alt="Acelera SEO Logo" className="h-10 w-auto object-contain" onError={(e) => (e.target as HTMLImageElement).src = getDefaultLogo()} />
-              <span className="text-2xl font-display font-bold tracking-tight text-slate-900">Acelera<span className="text-brand-600 font-light">SEO</span></span>
-            </RouterLink>
-            <button className="text-slate-500 hover:bg-slate-100 rounded-full transition-colors bg-slate-50 border border-slate-100 p-2" onClick={() => setMobileMenuOpen(false)}>
-              <X size={24} strokeWidth={2} />
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto flex flex-col px-6 py-8 gap-6 pb-32">
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.3 }}
-              className="flex flex-col gap-2"
-            >
-              <RouterLink to="/sobre" className="text-xl font-medium text-slate-800 hover:text-brand-600 transition-colors py-3 border-b border-slate-100" onClick={() => setMobileMenuOpen(false)}>Sobre a Agência</RouterLink>
-              
-              <div className="flex flex-col border-b border-slate-100">
-                <button 
-                  onClick={() => setSolutionsOpen(!solutionsOpen)} 
-                  className="flex items-center justify-between py-3 text-xl font-medium text-slate-800 hover:text-brand-600 transition-colors"
-                >
-                  Nossas Soluções
-                  <ChevronDown size={20} className={`transition-transform duration-300 ${solutionsOpen ? 'rotate-180 text-brand-600' : 'text-slate-400'}`} />
-                </button>
-                <AnimatePresence>
-                  {solutionsOpen && (
-                    <motion.div 
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden flex flex-col gap-3 pl-4 pb-4"
-                    >
-                      <RouterLink to="/seo-ecommerce" className="text-base text-slate-500 hover:text-brand-600 transition-colors mt-2" onClick={() => setMobileMenuOpen(false)}>SEO para E-commerce</RouterLink>
-                      <RouterLink to="/consultoria-seo" className="text-base text-slate-500 hover:text-brand-600 transition-colors" onClick={() => setMobileMenuOpen(false)}>Consultoria SEO</RouterLink>
-                      <RouterLink to="/especialista-em-seo" className="text-base text-slate-500 hover:text-brand-600 transition-colors" onClick={() => setMobileMenuOpen(false)}>Especialista em SEO</RouterLink>
-                      <RouterLink to="/agencia-link-building" className="text-base text-slate-500 hover:text-brand-600 transition-colors" onClick={() => setMobileMenuOpen(false)}>Agência Link Building</RouterLink>
-                      <RouterLink to="/venda-backlinks" className="text-base text-slate-500 hover:text-brand-600 transition-colors" onClick={() => setMobileMenuOpen(false)}>Venda de Backlinks</RouterLink>
-                      <RouterLink to="/servicos" className="text-base font-bold text-brand-600 flex items-center gap-1 mt-1" onClick={() => setMobileMenuOpen(false)}>Explorar todas <ArrowRight size={16} /></RouterLink>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <RouterLink to="/blog" className="text-xl font-medium text-slate-800 hover:text-brand-600 transition-colors py-3 border-b border-slate-100" onClick={() => setMobileMenuOpen(false)}>Blog</RouterLink>
-              <RouterLink to="/contato" className="text-xl font-medium text-slate-800 hover:text-brand-600 transition-colors py-3 border-b border-slate-100" onClick={() => setMobileMenuOpen(false)}>Fale Conosco</RouterLink>
-            </motion.div>
-            
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.3 }}
-              className="flex flex-col mt-2 gap-4"
-            >
-              <RouterLink to="/auditoria" className="bg-brand-50 text-brand-700 w-full rounded-2xl font-bold text-center hover:bg-brand-100 transition-colors text-lg py-4" onClick={() => setMobileMenuOpen(false)}>
-                Auditoria Grátis
-              </RouterLink>
-              <RouterLink to="/login" className="text-slate-700 bg-white border-2 border-slate-100 rounded-2xl font-bold hover:bg-slate-50 hover:border-slate-200 transition-all flex justify-center items-center text-lg shadow-sm py-4 gap-2" onClick={() => setMobileMenuOpen(false)}>
-                <Users size={20} className="text-brand-600" /> Acesso ao Sistema
-              </RouterLink>
-              <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C+preciso+de+uma+consultoria+SEO!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white w-full rounded-2xl font-bold text-center hover:bg-slate-800 transition-colors flex items-center justify-center text-lg shadow-lg shadow-slate-900/20 py-4 gap-2 mt-4">
-                Falar no WhatsApp
-              </a>
-            </motion.div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </>
-  );
-};
+// --- Hero & Home Sections ---
 
 const Hero = () => {
   return (
@@ -244,11 +100,11 @@ const Hero = () => {
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[5rem] leading-[1.1] md:leading-[1.05] font-extrabold text-slate-900 font-display tracking-tight text-balance mb-6 mx-auto lg:mx-0 text-center lg:text-left">
             A Agência de SEO <span className="text-brand-600">perfeita</span> para o seu Negócio.
           </h1>
-          <p className="text-lg md:text-xl text-slate-500 max-w-xl font-light leading-relaxed text-justify md:text-left mb-10 mx-auto lg:mx-0">
+          <p className="text-lg md:text-xl text-slate-500 max-w-xl font-light leading-relaxed mb-10 mx-auto lg:mx-0">
             Nós decodificamos o algoritmo. Escale sua empresa com uma infraestrutura técnica feita por uma agência SEO focada em <Tooltip term="E-E-A-T" definition="Experiência, Especialidade, Autoridade e Confiabilidade. Critérios do Google para avaliar o nível de qualidade e credibilidade do seu site." />, entregando o melhor <Tooltip term="SEO On-Page" definition="Otimizações feitas dentro e na estrutura da própria página, como títulos, conteúdo e velocidade, para melhorar as posições da sua empresa nos buscadores." /> para o seu desenvolvimento tech e elaborando uma <Tooltip term="Arquitetura Semântica" definition="Organização lógica e estrutural do conteúdo do seu site para facilitar o entendimento pelos robôs." /> vencedora.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center lg:justify-start">
-            <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C+preciso+escalar+meu+tr%C3%A1fego+org%C3%A2nico!" target="_blank" rel="noopener noreferrer" className="bg-brand-600 text-white font-bold text-base rounded-xl hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-500/30 transition-all flex justify-center items-center group px-8 py-4 gap-2 w-full sm:w-auto">
+            <a href="https://wa.me/5511992229927?text=Ol%C3%A1%2C+preciso+escalar+meu+tr%C3%A1fego+org%C3%A2nico!" target="_blank" rel="noopener noreferrer" className="bg-brand-600 text-white font-bold text-base rounded-xl hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-500/30 transition-all flex justify-center items-center group px-8 py-4 gap-2 w-full sm:w-auto">
               Falar com Especialista <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </a>
             <RouterLink to="/auditoria" className="bg-slate-900 border border-slate-800 text-white font-semibold text-base rounded-xl hover:bg-slate-800 transition-all flex justify-center items-center shadow-sm px-8 py-4 gap-2 w-full sm:w-auto">
@@ -353,7 +209,7 @@ const AboutSection = () => {
             <Users size={16} /> Especialistas em Resultados
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold font-display tracking-tight text-slate-900 mb-6 text-center md:text-left">Por que escolher nossa agência SEO?</h2>
-          <div className="space-y-5 text-slate-600 leading-relaxed font-light flex-1 text-justify">
+          <div className="space-y-5 text-slate-600 leading-relaxed font-light flex-1">
             <p>Somos uma <strong>agência de SEO</strong> dedicada e focada exclusivamente em performance orgânica e <strong className="font-semibold">venda de backlinks</strong> estratégicos de alta autoridade. Atuamos todos os dias ajudando empresas a dominarem o Google com metodologias ágeis e técnicas muito precisas.</p>
             <p>Cada projeto é rigorosamente construído a partir de uma <RouterLink to="/auditoria"><strong className="font-semibold text-brand-600 underline underline-offset-2 hover:opacity-80 transition-opacity">auditoria de SEO</strong></RouterLink> aprofundada, entregando sempre relatórios transparentes e um planejamento personalizado que vai muito além do básico de <strong>SEO para sites</strong> convencionais.</p>
             <p>Nossa abordagem combina as mais avançadas técnicas de otimização de mercado, focando sempre na conversão real. Afinal, um tráfego volumoso não é nada sem a atração de leads que sejam extremamente qualificados.</p>
@@ -364,7 +220,7 @@ const AboutSection = () => {
             <Search size={16} /> Entenda o Processo
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold font-display tracking-tight text-slate-900 mb-6 text-center md:text-left">O que podemos fazer pela sua empresa?</h2>
-          <div className="space-y-5 text-slate-600 leading-relaxed font-light flex-1 text-justify">
+          <div className="space-y-5 text-slate-600 leading-relaxed font-light flex-1">
             <p>Uma <strong>agência de marketing SEO</strong> é responsável por preparar todo o terreno do seu domínio para receber visitas de forma constante e escalonada. Na Acelera SEO, aplicamos as nossas principais <RouterLink to="/servicos" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">soluções estratégicas e técnicas de busca avançada</RouterLink>.</p>
             <p>Através da nossa rigorosa <strong>seo auditoria</strong>, detectamos falhas invisíveis para amadores e construímos uma fundação baseada em credibilidade. Diferente da publicidade temporária, a presença orgânica se torna o principal ativo da sua visibilidade a longo prazo.</p>
             <p>Faça parte do grupo de negócios que investe pesado em aquisições contínuas, seja lidando com consultorias especializadas ou buscando a curadoria única na <strong>venda de backlinks</strong> (link building exclusivo).</p>
@@ -436,7 +292,7 @@ const Services = () => {
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-8 lg:mb-20">
           <p className="text-brand-600 font-bold tracking-widest text-[11px] uppercase mb-6">Nossa Metodologia</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 font-display mb-6 text-center md:text-left">Soluções Transformadas em <span className="text-brand-600">Resultados</span>.</h2>
-          <p className="text-lg text-slate-500 font-light leading-relaxed text-justify md:text-center">Transformamos a presença digital da sua empresa através de uma metodologia de SEO de alta performance. Nosso foco é converter buscas em faturamento colocando você no topo.</p>
+          <p className="text-lg text-slate-500 font-light leading-relaxed md:text-center">Transformamos a presença digital da sua empresa através de uma metodologia de SEO de alta performance. Nosso foco é converter buscas em faturamento colocando você no topo.</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
@@ -448,8 +304,8 @@ const Services = () => {
               <div className="w-14 h-14 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 group-hover:scale-110 transition-transform duration-300 mb-6 mx-auto md:mx-0">
                 {s.icon}
               </div>
-              <h3 className="text-2xl font-extrabold text-slate-900 font-display tracking-tight group-hover:text-brand-600 transition-colors mb-4 text-center">{s.title}</h3>
-              <p className="text-slate-500 leading-relaxed font-medium text-base mb-8 text-justify md:text-left">{s.desc}</p>
+              <h3 className="text-2xl font-extrabold text-slate-900 font-display tracking-tight group-hover:text-brand-600 transition-colors mb-4 text-center md:text-left">{s.title}</h3>
+              <p className="text-slate-500 leading-relaxed font-medium text-base mb-8 text-center md:text-left">{s.desc}</p>
               <div className="flex flex-wrap mt-auto justify-center md:justify-start gap-2 w-full">
                 {s.features.map(f => (
                   <span key={f} className="text-xs font-semibold tracking-wide px-3.5 py-1.5 bg-slate-100 text-slate-600 border border-slate-200/60 rounded-full group-hover:bg-brand-50 group-hover:text-brand-700 group-hover:border-brand-100 transition-colors">
@@ -492,7 +348,7 @@ const FaqSection = () => {
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 font-display text-center md:text-left">
             Perguntas Frequentes
           </h2>
-          <p className="text-slate-500 font-light text-lg mt-4 text-justify md:text-center">
+          <p className="text-slate-500 font-light text-lg mt-4 md:text-center">
             Dúvidas rápidas sobre nossa agência SEO e nossa forma de trabalho com SEO para sites.
           </p>
         </div>
@@ -500,7 +356,7 @@ const FaqSection = () => {
           {faqs.map((faq, i) => (
             <div key={i} className="bg-slate-50 rounded-2xl border border-slate-100 p-6 md:p-8">
               <h3 className="text-xl font-bold text-slate-800 font-display mb-3 text-center md:text-left">{faq.q}</h3>
-              <p className="text-slate-600 font-light leading-relaxed text-justify md:text-left">{faq.a}</p>
+              <p className="text-slate-600 font-light leading-relaxed text-center md:text-left">{faq.a}</p>
             </div>
           ))}
         </div>
@@ -510,6 +366,21 @@ const FaqSection = () => {
 };
 
 const AuditSection = () => {
+  const [domain, setDomain] = useState('');
+  const [isValid, setIsValid] = useState<boolean | null>(null);
+
+  const validateUrl = (u: string) => {
+    if (!u) return null;
+    const regex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+    return regex.test(u);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setDomain(val);
+    setIsValid(validateUrl(val));
+  };
+
   return (
     <section className="relative bg-slate-50 border-t border-slate-200/60 overflow-hidden py-12 md:py-16">
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-50 rounded-full blur-[80px] opacity-60 pointer-events-none transform translate-x-1/3 -translate-y-1/3"></div>
@@ -522,27 +393,50 @@ const AuditSection = () => {
              <Zap size={24} strokeWidth={1.5} />
           </div>
           
-          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-display leading-tight mb-3 text-center md:text-left">
+          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-display leading-tight mb-3">
             Descubra o que impede seu <span className="text-brand-600">ranqueamento</span>.
           </h2>
           
-          <p className="text-base text-slate-500 font-light max-w-lg mx-auto leading-relaxed mb-6 text-justify md:text-center">
+          <p className="text-base text-slate-500 font-light max-w-lg mx-auto leading-relaxed mb-6">
             O tráfego de amanhã se conquista ajustando a infraestrutura hoje. Faça uma avaliação técnica rápida do seu domínio.
           </p>
           
-          <form className="flex flex-col sm:flex-row w-full max-w-xl mx-auto p-1.5 bg-white border border-slate-200 rounded-xl shadow-sm focus-within:ring-4 focus-within:ring-brand-500/10 focus-within:border-brand-300 transition-all duration-300 gap-2">
-            <input 
-              type="url" 
-              placeholder="Cole seu domínio (ex: https://empresa.com.br)" 
-              className="w-full sm:flex-1 bg-transparent text-slate-900 outline-none placeholder:text-slate-400 font-medium rounded-lg text-sm px-4 py-2"
-              required
-            />
-            <RouterLink to="/auditoria" className="w-full sm:w-auto bg-slate-900 text-white font-bold rounded-lg hover:bg-brand-600 transition-colors shadow-sm text-sm flex items-center justify-center text-center whitespace-nowrap px-6 py-2">
-              Gerar Diagnóstico
-            </RouterLink>
-          </form>
+          <div className="w-full max-w-xl mx-auto relative">
+            <form className={`flex flex-col sm:flex-row w-full p-1.5 bg-white border rounded-xl shadow-sm focus-within:ring-4 focus-within:ring-brand-500/10 transition-all duration-300 gap-2 ${
+              isValid === true ? 'border-emerald-200 ring-2 ring-emerald-500/10' : 
+              isValid === false ? 'border-rose-200 ring-2 ring-rose-500/10' : 
+              'border-slate-200 focus-within:border-brand-300'
+            }`}>
+              <input 
+                type="text" 
+                value={domain}
+                onChange={handleChange}
+                placeholder="Cole seu domínio (ex: empresa.com.br)" 
+                className="w-full sm:flex-1 bg-transparent text-slate-900 outline-none placeholder:text-slate-400 font-medium rounded-lg text-sm px-4 py-2"
+                required
+              />
+              <RouterLink 
+                to={isValid ? `/auditoria?url=${encodeURIComponent(domain)}` : "#"}
+                onClick={(e) => { if(!isValid) e.preventDefault(); }}
+                className={`w-full sm:w-auto font-bold rounded-lg transition-all shadow-sm text-sm flex items-center justify-center text-center whitespace-nowrap px-6 py-2 ${
+                  isValid ? 'bg-slate-900 text-white hover:bg-brand-600' : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                }`}
+              >
+                Gerar Diagnóstico
+              </RouterLink>
+            </form>
+            {isValid === false && domain.length > 0 && (
+              <motion.p 
+                initial={{ opacity: 0, y: -5 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                className="absolute -bottom-6 left-2 text-[10px] text-rose-500 font-bold"
+              >
+                Formato de URL inválido. Ex: empresa.com.br
+              </motion.p>
+            )}
+          </div>
           
-          <div className="text-slate-500 text-[11px] font-medium flex items-center bg-slate-50 py-1.5 rounded-full border border-slate-100 mt-5 gap-2 px-3">
+          <div className="text-slate-500 text-[11px] font-medium flex items-center bg-slate-50 py-1.5 rounded-full border border-slate-100 mt-10 gap-2 px-3">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -552,80 +446,6 @@ const AuditSection = () => {
         </div>
       </div>
     </section>
-  );
-};
-
-const Footer = () => {
-  const { logoUrl } = useSettings();
-  return (
-    <footer className="w-full border-t border-slate-200 bg-slate-50 px-6 py-16">
-      <div className="grid grid-cols-1 lg:grid-cols-12 max-w-7xl mx-auto gap-8 md:gap-12 lg:gap-16">
-        
-        <div className="lg:col-span-4 max-w-xl">
-          <div className="flex items-center gap-3 mb-6">
-            <img src={logoUrl} alt="Acelera SEO Logo" className="h-10 w-auto object-contain" />
-            <span className="text-xl font-display font-bold text-slate-800">Acelera <span className="text-brand-600 font-light">SEO</span></span>
-          </div>
-          <p className="text-sm text-slate-500 font-medium leading-relaxed mb-6 text-justify md:text-left">
-            Poder computacional aliado à ciência estratégica para multiplicar sua receita via descoberta orgânica. Desenvolvemos ecossistemas analíticos e frameworks que traduzem a sua autoridade em tráfego previsível.
-          </p>
-          <div className="flex gap-3">
-             <a href="#" className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-brand-600 hover:border-brand-200 shadow-sm transition-all"><Globe2 size={18}/></a>
-             <a href="#" className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-brand-600 hover:border-brand-200 shadow-sm transition-all"><Zap size={18}/></a>
-          </div>
-        </div>
-
-        <div className="lg:col-span-8 w-full">
-          <div className="grid grid-cols-2 md:grid-cols-4 w-full gap-8 mb-12">
-            <div>
-              <h4 className="font-bold text-slate-900 mb-4">Empresa</h4>
-              <ul className="space-y-3">
-                <li><RouterLink to="/sobre" className="text-sm text-slate-500 hover:text-brand-600">Sobre a Agência</RouterLink></li>
-                <li><RouterLink to="/contato" className="text-sm text-slate-500 hover:text-brand-600">Fale Conosco</RouterLink></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-slate-900 mb-4">Serviços</h4>
-              <ul className="space-y-3">
-                <li><RouterLink to="/servicos" className="text-sm text-slate-500 hover:text-brand-600">Nossas Soluções</RouterLink></li>
-                <li><RouterLink to="/auditoria" className="text-sm text-slate-500 hover:text-brand-600">Auditoria Grátis</RouterLink></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-slate-900 mb-4">Recursos</h4>
-              <ul className="space-y-3">
-                <li><RouterLink to="/blog" className="text-sm text-slate-500 hover:text-brand-600">Blog SEO</RouterLink></li>
-                <li><RouterLink to="/login" className="text-sm text-slate-500 hover:text-brand-600">Acesso ao Sistema</RouterLink></li>
-              </ul>
-            </div>
-            <div>
-               <h4 className="font-bold text-slate-900 mb-4">Legal</h4>
-               <ul className="space-y-3">
-                <li><a href="#" className="text-sm text-slate-500 hover:text-brand-600">Termos de Uso</a></li>
-                <li><a href="#" className="text-sm text-slate-500 hover:text-brand-600">Privacidade</a></li>
-               </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-slate-200 pt-8">
-            <h4 className="font-bold text-slate-900 mb-6">Atendimento Regional SEO</h4>
-            <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-y-4 gap-x-2">
-              <li><RouterLink to="/agencia-seo-sao-paulo" className="text-sm text-slate-600 hover:text-brand-600">São Paulo (SP)</RouterLink></li>
-              <li><RouterLink to="/agencia-seo-rio-de-janeiro" className="text-sm text-slate-600 hover:text-brand-600">Rio de Janeiro (RJ)</RouterLink></li>
-              <li><RouterLink to="/agencia-seo-belo-horizonte" className="text-sm text-slate-600 hover:text-brand-600">Belo Horizonte (MG)</RouterLink></li>
-              <li><RouterLink to="/agencia-seo-vitoria" className="text-sm text-slate-600 hover:text-brand-600">Vitória (ES)</RouterLink></li>
-              <li><RouterLink to="/agencia-seo-curitiba" className="text-sm text-slate-600 hover:text-brand-600">Curitiba (PR)</RouterLink></li>
-              <li><RouterLink to="/agencia-seo-florianopolis" className="text-sm text-slate-600 hover:text-brand-600">Florianópolis (SC)</RouterLink></li>
-              <li><RouterLink to="/agencia-seo-porto-alegre" className="text-sm text-slate-600 hover:text-brand-600">Porto Alegre (RS)</RouterLink></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      
-      <div className="max-w-7xl mx-auto border-t border-slate-200 flex flex-col justify-between items-center mt-8 md:mt-8 lg:mt-16 pt-8 gap-6">
-        <p className="text-sm font-medium text-slate-400 text-center">© 2026 Acelera SEO Analytics. Todos os direitos protegidos.</p>
-      </div>
-    </footer>
   );
 };
 
@@ -699,10 +519,9 @@ function AppContent() {
         <meta name="twitter:description" content="Otimização técnica experiente focada no crescimento do seu negócio através da aquisição orgânica." />
         <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
         <link rel="canonical" href="https://aceleraseo.com.br" />
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
       </Helmet>
+
+      <JsonLd data={structuredData} />
 
       {!hideGlobalLayout && <Navbar />}
       
@@ -718,7 +537,7 @@ function AppContent() {
             <Route path="/venda-backlinks" element={<VendaBacklinksPage />} />
             <Route path="/especialista-em-seo" element={<EspecialistaSeoPage />} />
             
-            {/* Regional SEO Pages - Sudeste e Sul */}
+            {/* Regional SEO Pages */}
             <Route path="/agencia-seo-sao-paulo" element={<SeoLocalPage city="São Paulo" state="SP" slug="agencia-seo-sao-paulo" />} />
             <Route path="/agencia-seo-rio-de-janeiro" element={<SeoLocalPage city="Rio de Janeiro" state="RJ" slug="agencia-seo-rio-de-janeiro" />} />
             <Route path="/agencia-seo-belo-horizonte" element={<SeoLocalPage city="Belo Horizonte" state="MG" slug="agencia-seo-belo-horizonte" />} />
@@ -740,19 +559,40 @@ function AppContent() {
       </main>
 
       {!hideGlobalLayout && <Footer />}
+      {!hideGlobalLayout && <WhatsAppButton />}
     </div>
   );
 }
 
 export default function App() {
+  useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      logger.error('Unhandled Promise Rejection', event.reason);
+    };
+
+    const handleGlobalError = (event: ErrorEvent) => {
+      logger.error('Global Error', event.error || event.message);
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    window.addEventListener('error', handleGlobalError);
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('error', handleGlobalError);
+    };
+  }, []);
+
   return (
-    <SettingsProvider>
-      <HelmetProvider>
-        <BrowserRouter>
-          <ScrollToTop />
-          <AppContent />
-        </BrowserRouter>
-      </HelmetProvider>
-    </SettingsProvider>
+    <ErrorBoundary>
+      <SettingsProvider>
+        <HelmetProvider>
+          <BrowserRouter>
+            <ScrollToTop />
+            <AppContent />
+          </BrowserRouter>
+        </HelmetProvider>
+      </SettingsProvider>
+    </ErrorBoundary>
   );
 }

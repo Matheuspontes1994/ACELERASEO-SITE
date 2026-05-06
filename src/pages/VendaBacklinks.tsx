@@ -3,6 +3,8 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { Link as LinkIcon, ExternalLink, ShieldCheck, CheckCircle2, TrendingUp, Handshake, Network, ArrowRight } from 'lucide-react';
+import { Breadcrumbs } from '../components/Breadcrumbs';
+import { JsonLd } from '../components/JsonLd';
 
 export default function VendaBacklinksPage() {
   return (
@@ -22,6 +24,22 @@ export default function VendaBacklinksPage() {
         <meta name="twitter:description" content="Na Acelera SEO você acessa a venda de backlinks essenciais para expandir o seu DR. Digital PR altamente qualificado em notícias, parceiros e blogs com alto tráfego." />
         <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
+
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Venda de Backlinks Premium",
+        "description": "Venda estratégica de backlinks em portais de notícias, blogs de autoridade e Digital PR.",
+        "provider": {
+          "@type": "ProfessionalService",
+          "name": "Acelera SEO",
+          "url": "https://aceleraseo.com.br"
+        }
+      }} />
+
+      <div className="max-w-7xl mx-auto px-6">
+        <Breadcrumbs />
+      </div>
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto relative px-6 mb-8 md:mb-8 lg:mb-24">

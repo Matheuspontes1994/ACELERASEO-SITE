@@ -10,6 +10,7 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    whatsapp: '',
     company: '',
     message: ''
   });
@@ -24,7 +25,7 @@ export default function Contact() {
         createdAt: serverTimestamp()
       });
       setStatus('success');
-      setFormData({ name: '', email: '', company: '', message: '' });
+      setFormData({ name: '', email: '', whatsapp: '', company: '', message: '' });
     } catch (error) {
       console.error("Error submitting contact form: ", error);
       setStatus('error');
@@ -53,22 +54,22 @@ export default function Contact() {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-brand-600 font-bold uppercase tracking-widest text-sm bg-brand-50 rounded-full inline-block px-4 py-2 mb-6">Fale Conosco</span>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 font-display tracking-tight leading-[1.1] mb-6 text-center md:text-center">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 font-display tracking-tight leading-[1.1] mb-6">
             Inicie seu projeto na melhor agência de marketing SEO focada em conversão.
           </h1>
-          <p className="text-lg text-slate-600 font-light leading-relaxed text-justify md:text-center">
+          <p className="text-lg text-slate-600 font-light leading-relaxed md:text-center">
             Nossa equipe de especialistas está pronta para realizar uma profunda <strong>auditoria de SEO</strong> no seu site e apresentar um plano de ação escalável para o Google através dos nossos <Link to="/servicos" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">serviços focados em <strong>SEO para sites</strong> e <strong>venda de backlinks</strong></Link>.
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 items-start gap-8 lg:gap-24">
           {/* Contact Info */}
-          <div className="space-y-10 text-justify md:text-left">
+          <div className="space-y-10">
             <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden p-8">
               <div className="absolute top-0 right-0 w-32 h-32 bg-brand-50 rounded-full blur-[40px] opacity-60 mix-blend-multiply"></div>
-              <h3 className="text-2xl font-bold text-slate-900 font-display mb-8 text-center md:text-left">Informações de Contato</h3>
+              <h3 className="text-2xl font-bold text-slate-900 font-display mb-8">Informações de Contato</h3>
               
-              <div className="space-y-6 text-justify md:text-left">
+              <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-brand-600 shrink-0">
                     <MapPin size={20} />
@@ -86,7 +87,7 @@ export default function Contact() {
                   <div>
                     <h4 className="font-bold text-slate-900">E-mail Comercial</h4>
                     <p className="text-slate-500 text-sm mt-1 mb-2">Para propostas e novos negócios</p>
-                    <a href="mailto:aceleraseo@gmail.com" className="font-medium text-brand-600 hover:text-brand-800 transition-colors">aceleraseo@gmail.com</a>
+                    <a href="mailto:contato@aceleraseo.com.br" className="font-medium text-brand-600 hover:text-brand-800 transition-colors">contato@aceleraseo.com.br</a>
                   </div>
                 </div>
 
@@ -97,7 +98,7 @@ export default function Contact() {
                   <div>
                     <h4 className="font-bold text-slate-900">Telefone / WhatsApp</h4>
                     <p className="text-slate-500 text-sm mt-1 mb-2">Respostas em menos de 10 minutos comerciais</p>
-                    <a href="https://wa.me/553199229927" target="_blank" rel="noopener noreferrer" className="font-medium text-brand-600 hover:text-brand-800 transition-colors">+55 31 9922-9927</a>
+                    <a href="https://wa.me/5511992229927" target="_blank" rel="noopener noreferrer" className="font-medium text-brand-600 hover:text-brand-800 transition-colors">+55 11 99222-9927</a>
                   </div>
                 </div>
               </div>
@@ -124,15 +125,19 @@ export default function Contact() {
                    <CheckCircle2 size={32} />
                 </div>
                 <h4 className="text-emerald-800 font-bold text-xl mb-2">Mensagem Enviada!</h4>
-                <p className="text-emerald-600 font-medium mb-6">Nossa equipe comercial entrará em contato com você em breve.</p>
-                <button onClick={() => setStatus('idle')} className="py-2.5 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors px-6">
-                  Enviar outra mensagem
-                </button>
+                <p className="text-emerald-600 font-medium mb-1">Obrigado pelo seu interesse.</p>
+                <p className="text-emerald-600/70 text-sm mb-6">Nossa equipe comercial analisará seu caso e entrará em contato em até 2 horas úteis.</p>
+                <div className="flex flex-col gap-3">
+                  <button onClick={() => setStatus('idle')} className="py-2.5 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors px-6">
+                    Enviar outra mensagem
+                  </button>
+                  <Link to="/" className="text-xs text-emerald-700 hover:underline">Voltar para a Home</Link>
+                </div>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid sm:grid-cols-2 gap-6">
-                  <div>
+                  <div className="sm:col-span-1">
                     <label htmlFor="name" className="block text-sm font-bold text-slate-700 mb-2">Nome Completo</label>
                     <input 
                       type="text" 
@@ -144,7 +149,7 @@ export default function Contact() {
                       placeholder="Seu nome"
                     />
                   </div>
-                  <div>
+                  <div className="sm:col-span-1">
                     <label htmlFor="email" className="block text-sm font-bold text-slate-700 mb-2">E-mail Corporativo</label>
                     <input 
                       type="email" 
@@ -156,17 +161,29 @@ export default function Contact() {
                       placeholder="nome@empresa.com.br"
                     />
                   </div>
-                </div>
-                <div>
-                  <label htmlFor="company" className="block text-sm font-bold text-slate-700 mb-2">Empresa / Site</label>
-                  <input 
-                    type="text" 
-                    id="company" 
-                    value={formData.company}
-                    onChange={e => setFormData({ ...formData, company: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all font-medium text-slate-800 px-4 py-3"
-                    placeholder="Sua empresa ou URL do site"
-                  />
+                  <div className="sm:col-span-1">
+                    <label htmlFor="whatsapp" className="block text-sm font-bold text-slate-700 mb-2">WhatsApp / Telefone</label>
+                    <input 
+                      type="tel" 
+                      id="whatsapp" 
+                      required 
+                      value={formData.whatsapp}
+                      onChange={e => setFormData({ ...formData, whatsapp: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all font-medium text-slate-800 px-4 py-3"
+                      placeholder="(11) 99999-9999"
+                    />
+                  </div>
+                  <div className="sm:col-span-1">
+                    <label htmlFor="company" className="block text-sm font-bold text-slate-700 mb-2">Empresa / Site</label>
+                    <input 
+                      type="text" 
+                      id="company" 
+                      value={formData.company}
+                      onChange={e => setFormData({ ...formData, company: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all font-medium text-slate-800 px-4 py-3"
+                      placeholder="Sua empresa ou URL do site"
+                    />
+                  </div>
                 </div>
                 <div>
                   <label htmlFor="message" className="block text-sm font-bold text-slate-700 mb-2">Como podemos te ajudar?</label>

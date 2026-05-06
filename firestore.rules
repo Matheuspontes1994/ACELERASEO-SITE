@@ -4,7 +4,12 @@ service cloud.firestore {
     
     // --- Global Helpers ---
     function isSignedIn() { return request.auth != null; }
-    function isAdmin() { return isSignedIn() && request.auth.token.email == 'matheuspontes290594@gmail.com'; }
+    function isAdmin() { 
+      return isSignedIn() && (
+        request.auth.token.email == 'matheuspontes290594@gmail.com' || 
+        request.auth.token.email == 'aceleraseo@gmail.com'
+      ); 
+    }
     function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
@@ -30,6 +35,10 @@ service cloud.firestore {
              data.createdAt is timestamp;
     }
 
+    function isValidStatusUpdate(incoming, existing) {
+      return incoming.diff(existing).affectedKeys().hasOnly(['status', 'clientComment', 'updatedAt']);
+    }
+
     // --- Global Safety Net ---
     match /{document=**} { allow read, write: if false; }
 
@@ -52,12 +61,11 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    match /settings/{document=**} {
+    match /settings/{settingId} {
       allow read: if true;
       allow write: if isAdmin();
     }
     
-    // Default allowed for other collections (clients, etc.) - Needs refinement if they contain PII
     match /clients/{clientId} {
       allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail);
       allow write: if isAdmin();
@@ -65,10 +73,21 @@ service cloud.firestore {
     
     match /blog_posts/{postId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (
+        isSignedIn() && 
+        request.auth.token.email == existing().clientEmail && 
+        isValidStatusUpdate(incoming(), existing())
+      );
+      allow delete: if isAdmin();
     }
     
     match /backlinks/{backlinkId} {
+      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail);
+      allow write: if isAdmin();
+    }
+
+    match /keyword_universe/{keywordId} {
       allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail);
       allow write: if isAdmin();
     }

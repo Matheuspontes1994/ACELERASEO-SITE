@@ -34,7 +34,6 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy, limit, where, startAfter } from 'firebase/firestore';
 import { db, auth } from '../firebase';
-import MDEditor from '@uiw/react-md-editor';
 import PostChat from '../components/PostChat';
 
 const defaultTrafficData = [

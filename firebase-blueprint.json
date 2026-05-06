@@ -56,11 +56,44 @@
       "type": "object",
       "properties": {
         "agencyUid": { "type": "string" },
+        "clientName": { "type": "string" },
+        "clientEmail": { "type": "string" },
+        "title": { "type": "string" },
         "status": { "type": "string" },
         "slug": { "type": "string" },
-        "content": { "type": "string" }
+        "content": { "type": "string" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
       },
       "required": ["agencyUid", "status", "slug"]
+    },
+    "Backlink": {
+      "title": "Backlink",
+      "description": "A backlink record.",
+      "type": "object",
+      "properties": {
+        "agencyUid": { "type": "string" },
+        "clientName": { "type": "string" },
+        "clientEmail": { "type": "string" },
+        "title": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      }
+    },
+    "Keyword": {
+      "title": "Keyword Universe",
+      "description": "A keyword planning record.",
+      "type": "object",
+      "properties": {
+        "agencyUid": { "type": "string" },
+        "clientName": { "type": "string" },
+        "clientEmail": { "type": "string" },
+        "keyword": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      }
     }
   },
   "firestore": {
@@ -83,6 +116,18 @@
     "/blog_posts/{postId}": {
       "schema": { "$ref": "#/entities/BlogPost" },
       "description": "Blog management"
+    },
+    "/backlinks/{backlinkId}": {
+      "schema": { "$ref": "#/entities/Backlink" },
+      "description": "Backlink management"
+    },
+    "/keyword_universe/{keywordId}": {
+      "schema": { "$ref": "#/entities/Keyword" },
+      "description": "Keyword planning"
+    },
+    "/settings/{settingId}": {
+      "schema": { "type": "object" },
+      "description": "Global settings"
     }
   }
 }

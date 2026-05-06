@@ -1,5 +1,5 @@
-import React from 'react';
-import MDEditor from '@uiw/react-md-editor';
+import React, { lazy, Suspense } from 'react';
+const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 import { motion } from 'motion/react';
 import { X, Link as LinkIcon, FileText, Target, Layers, AlignLeft } from 'lucide-react';
 
@@ -199,13 +199,15 @@ export function BacklinkFormModal({
                 <AlignLeft size={16} className="text-slate-400" />
                 <h4 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wider">Corpo do Conteúdo (Markdown)</h4>
               </div>
-              <div data-color-mode="light" className="border border-slate-100 rounded-[2rem] overflow-hidden shadow-inner">
-                <MDEditor 
-                  value={backlinkForm.content} 
-                  onChange={(val) => setBacklinkForm({...backlinkForm, content: val || ''})} 
-                  height={350} 
-                  preview="edit" 
-                />
+              <div data-color-mode="light" className="border border-slate-100 rounded-[2rem] overflow-hidden shadow-inner min-h-[350px]">
+                <Suspense fallback={<div className="h-[350px] flex items-center justify-center bg-slate-50 text-slate-400 font-medium italic text-sm">Carregando editor markdown...</div>}>
+                  <MDEditor 
+                    value={backlinkForm.content} 
+                    onChange={(val) => setBacklinkForm({...backlinkForm, content: val || ''})} 
+                    height={350} 
+                    preview="edit" 
+                  />
+                </Suspense>
               </div>
             </div>
 

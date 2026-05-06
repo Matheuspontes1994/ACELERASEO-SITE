@@ -7,6 +7,7 @@ import { BLOG_POSTS } from '../data/posts';
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 
 export default function Blog() {
   const [dynamicPosts, setDynamicPosts] = useState<any[]>([]);
@@ -72,6 +73,7 @@ export default function Blog() {
         <div className="absolute top-40 right-10 w-96 h-96 bg-brand-400/10 rounded-full blur-[120px] pointer-events-none"></div>
 
         <main className="max-w-7xl mx-auto relative z-10 px-6">
+          <Breadcrumbs />
           
           <header className="text-center mb-20">
             <div className="inline-flex w-16 h-16 items-center justify-center rounded-2xl bg-white text-brand-600 border border-brand-100 shadow-sm mb-6">

@@ -32,6 +32,12 @@ export default function Audit() {
     return true;
   };
 
+  const validateUrl = (u: string) => {
+    if (!u) return false;
+    const regex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+    return regex.test(u);
+  };
+
   const handleAudit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
@@ -46,8 +52,8 @@ export default function Audit() {
       return;
     }
 
-    if (!url) {
-      setErrorMsg('Por favor, informe a URL do site.');
+    if (!validateUrl(url)) {
+      setErrorMsg('Por favor, informe uma URL válida (ex: seusite.com.br).');
       return;
     }
 
@@ -216,7 +222,13 @@ export default function Audit() {
                       *A nossa ferramenta fará uma varredura real do código fonte front-end do domínio informado.
                     </div>
                     {errorMsg && (
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-rose-500 font-medium text-sm text-center mt-2">
+                      <motion.div 
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        role="alert"
+                        aria-live="polite"
+                        className="text-rose-500 font-medium text-sm text-center mt-2"
+                      >
                         <AlertTriangle className="inline mr-1" size={16} /> {errorMsg}
                       </motion.div>
                     )}
@@ -236,7 +248,23 @@ export default function Audit() {
                             <Activity className="text-brand-600 animate-pulse" size={32} />
                          </div>
                          <svg className="absolute top-0 left-0 w-24 h-24 -rotate-90">
-                           <circle cx="48" cy="48" r="44" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-brand-500" strokeDasharray="276" strokeDashoffset={276 - (276 * Math.min(progress, 100)) / 100} style={{ transition: 'stroke-dashoffset 0.5s ease-in-out' }} />
+                           <circle 
+                             cx="48" 
+                             cy="48" 
+                             r="44" 
+                             stroke="currentColor" 
+                             strokeWidth="8" 
+                             fill="transparent" 
+                             className="text-brand-500" 
+                             strokeDasharray="276" 
+                             strokeDashoffset={276 - (276 * Math.min(progress, 100)) / 100} 
+                             style={{ transition: 'stroke-dashoffset 0.5s ease-in-out' }}
+                             role="progressbar"
+                             aria-valuenow={Math.min(progress, 100)}
+                             aria-valuemin={0}
+                             aria-valuemax={100}
+                             aria-label="Progresso da análise"
+                           />
                          </svg>
                       </div>
                       <h3 className="text-2xl font-bold text-slate-900 font-display mb-2 text-center md:text-left">Conectando...</h3>
@@ -248,7 +276,14 @@ export default function Audit() {
                           <span className="text-brand-600">{Math.min(progress, 100)}%</span>
                         </div>
                         <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden shadow-inner">
-                          <div className="h-full bg-brand-500 transition-all duration-300" style={{ width: `${Math.min(progress, 100)}%` }}></div>
+                          <div 
+                            className="h-full bg-brand-500 transition-all duration-300" 
+                            style={{ width: `${Math.min(progress, 100)}%` }}
+                            role="progressbar"
+                            aria-valuenow={Math.min(progress, 100)}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                          ></div>
                         </div>
                       </div>
                     </div>
@@ -272,7 +307,13 @@ export default function Audit() {
                 <div className="flex items-center gap-6">
                   <div className="text-center md:text-right">
                     <p className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Health Score</p>
-                    <p className={`text-4xl sm:text-5xl font-extrabold font-display ${auditData!.score >= 80 ? 'text-emerald-500' : auditData!.score >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
+                    <p 
+                      className={`text-4xl sm:text-5xl font-extrabold font-display ${auditData!.score >= 80 ? 'text-emerald-500' : auditData!.score >= 50 ? 'text-amber-500' : 'text-rose-500'}`}
+                      role="progressbar"
+                      aria-valuenow={auditData!.score}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                    >
                       {auditData!.score}<span className="text-xl sm:text-2xl text-slate-300">/100</span>
                     </p>
                   </div>

@@ -3,6 +3,8 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, TrendingUp, Search, Zap, CheckCircle2, BarChart, Tag, Layers, Activity } from 'lucide-react';
+import { Breadcrumbs } from '../components/Breadcrumbs';
+import { JsonLd } from '../components/JsonLd';
 
 export default function SeoEcommercePage() {
   return (
@@ -22,6 +24,23 @@ export default function SeoEcommercePage() {
         <meta name="twitter:description" content="Escale o faturamento da sua loja virtual saindo da dependência de anúncios. Agência especialista em SEO para E-commerce, categorias e Core Web Vitals." />
         <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
       </Helmet>
+
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "SEO para E-commerce",
+        "description": "Estratégias de SEO técnico, conteúdo e link building focadas em aumentar as vendas orgânicas de lojas virtuais.",
+        "provider": {
+          "@type": "ProfessionalService",
+          "name": "Acelera SEO",
+          "url": "https://aceleraseo.com.br"
+        },
+        "serviceType": "Search Engine Optimization"
+      }} />
+
+      <div className="max-w-7xl mx-auto px-6">
+        <Breadcrumbs />
+      </div>
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto relative px-6 mb-8 md:mb-8 lg:mb-24">
