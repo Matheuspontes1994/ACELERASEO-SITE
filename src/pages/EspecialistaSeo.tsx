@@ -47,7 +47,7 @@ export default function EspecialistaSeoPage() {
               </h1>
               
               <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-xl text-balance">
-                Mude o jogo orgânico da sua empresa com um <strong>Especialista de SEO focado em resultados</strong> rápidos e performance de longo prazo.
+                Mude o jogo orgânico da sua empresa com a expertise de uma <Link to="/" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">agência de SEO</Link> focada em resultados rápidos e performance de longo prazo.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
@@ -123,7 +123,7 @@ export default function EspecialistaSeoPage() {
             <ul className="space-y-5">
               <li className="flex items-start gap-4">
                 <ShieldCheck className="text-emerald-500 shrink-0 mt-1" size={24} />
-                <span className="text-slate-700 text-lg">Investigação Avançada de <Link to="/auditoria" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">Problemas Técnicos</Link> Críticos (Auditoria Profunda).</span>
+                <span className="text-slate-700 text-lg">Investigação Avançada de <Link to="/auditoria" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">Problemas Técnicos</Link> Críticos (Auditoria Profunda).</span>
               </li>
               <li className="flex items-start gap-4">
                 <ShieldCheck className="text-emerald-500 shrink-0 mt-1" size={24} />
@@ -194,7 +194,7 @@ export default function EspecialistaSeoPage() {
            <BookOpen className="text-brand-500 mx-auto mb-8" size={64} />
            <h2 className="text-4xl md:text-6xl font-extrabold text-slate-900 font-display tracking-tight mb-8 text-center md:text-center px-4">O Fim da Dependência em Tráfego Pago</h2>
            <p className="text-xl text-slate-500 font-light leading-relaxed mb-8 lg:mb-12 text-left md:text-center px-4">
-             Aumente o patrimônio do seu negócio estabilizando líderes orgânicos no Google. <Link to="/blog" className="font-semibold text-brand-600 hover:opacity-80 underline underline-offset-2">Estude com nossos especialistas no Blog</Link>, ou marque uma reunião técnica executável agora mesmo.
+             Aumente o patrimônio do seu negócio estabilizando líderes orgânicos no Google. <Link to="/blog" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">Estude com nossos especialistas no Blog</Link>, ou marque uma reunião técnica executável agora mesmo.
            </p>
            <Link to="/contato" className="bg-brand-600 text-white font-bold text-xl rounded-2xl hover:bg-brand-700 transition-colors shadow-2xl shadow-brand-500/20 inline-flex items-center group px-12 py-6 gap-4">
              Falar com o Especialista

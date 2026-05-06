@@ -84,6 +84,7 @@ export const Footer = () => {
                 <li><RouterLink to="/servicos" className="text-sm text-slate-500 hover:text-brand-600 transition-colors">Todos os Serviços</RouterLink></li>
                 <li><RouterLink to="/consultoria-seo" className="text-sm text-slate-500 hover:text-brand-600 transition-colors">Consultoria SEO</RouterLink></li>
                 <li><RouterLink to="/seo-ecommerce" className="text-sm text-slate-500 hover:text-brand-600 transition-colors">SEO E-commerce</RouterLink></li>
+                <li><RouterLink to="/especialista-em-seo" className="text-sm text-slate-500 hover:text-brand-600 transition-colors">Especialista em SEO</RouterLink></li>
                 <li><RouterLink to="/agencia-link-building" className="text-sm text-slate-500 hover:text-brand-600 transition-colors">Link Building</RouterLink></li>
               </ul>
             </div>

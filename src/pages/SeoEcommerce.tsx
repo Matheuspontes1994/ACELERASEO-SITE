@@ -63,7 +63,7 @@ export default function SeoEcommercePage() {
               </h1>
               
               <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-xl text-balance">
-                Chega de depender exclusivamente de tráfego pago. Escalar o faturamento da sua loja de forma orgânica e previsível é o nosso negócio. Nós consertamos a estrutura do seu e-commerce.
+                Chega de depender exclusivamente de tráfego pago. Escalar o faturamento da sua loja de forma orgânica e previsível é o nosso negócio. Nossa <Link to="/" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">agência de SEO</Link> conserta a estrutura do seu e-commerce.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
@@ -131,10 +131,10 @@ export default function SeoEcommercePage() {
                  Quando se trata de varejo online, não basta apenas atrair acessos curiosos; é preciso fisgar o cliente que já está com o cartão na mão (Fundo de Funil). Nosso serviço de <strong>SEO para e-commerce</strong> otimiza suas páginas estruturais para intenção transacional.
                </p>
                <p>
-                 A maioria das lojas virtuais sofre com rastreamento "aranha" incorreto (Crawl Budget). Elas indexam acidentalmente milhares de páginas duplicadas graças aos links de paginação e filtros desorganizados, o que suga o poder do domínio. Nós solucionamos a <strong>Faceted Navigation</strong> para focar a força do ranqueamento onde realmente importa: nas categorias e produtos mais lucrativos.
+                 A maioria das lojas virtuais sofre com rastreamento "aranha" incorreto (Crawl Budget). Elas indexam acidentalmente milhares de páginas duplicadas graças aos links de paginação e filtros desorganizados, o que suga o poder do domínio. Nós solucionamos a <Link to="/consultoria-seo" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">Faceted Navigation</Link> para focar a força do ranqueamento onde realmente importa: nas categorias e produtos mais lucrativos.
                </p>
                <p>
-                 Você tem interesse em como organizamos seu catálogo em clusters? Confira a nossa página de <Link to="/consultoria-seo" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">Consultoria de SEO técnico</Link> para equipes in-house.
+                 Você tem interesse em como organizamos seu catálogo em clusters? Confira a nossa página de <Link to="/consultoria-seo" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">Consultoria de SEO técnico</Link> para equipes in-house.
                </p>
             </div>
             <ul className="space-y-5 mt-8">
@@ -173,7 +173,7 @@ export default function SeoEcommercePage() {
           },
           {
             title: "Escala de Autoridade de Vitrine",
-            description: "Direcionamos força de backlinks para as categorias mais lucrativas da sua loja, aumentando a relevância comercial do seu domínio perante os concorrentes.",
+            description: <>Direcionamos força de <Link to="/agencia-link-building" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">backlinks</Link> para as categorias mais lucrativas da sua loja, aumentando a relevância comercial do seu domínio perante os concorrentes.</>,
             icon: <BarChart3 size={24} />
           }
         ]}
@@ -207,7 +207,7 @@ export default function SeoEcommercePage() {
            <BarChart className="text-brand-500 mx-auto mb-8" size={64} />
            <h2 className="text-4xl md:text-6xl font-extrabold text-slate-900 font-display tracking-tight mb-8 text-center md:text-center px-4">Vamos acelerar suas vendas?</h2>
            <p className="text-xl text-slate-500 font-light leading-relaxed mb-8 lg:mb-12 text-left md:text-center px-4">
-             Faça uma profunda <Link to="/auditoria" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">auditoria técnica exclusiva para e-commerces</Link>. Identifique gargalos na jornada do consumidor e descubra o verdadeiro potencial oculto de faturamento no seu catálogo.
+             Faça uma profunda <Link to="/auditoria" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">auditoria técnica exclusiva para e-commerces</Link>. Identifique gargalos na jornada do consumidor e descubra o verdadeiro potencial oculto de faturamento no seu catálogo.
            </p>
            <a href="https://wa.me/5531999229927?text=Ol%C3%A1%2C+quero+saber+mais+sobre+o+servi%C3%A7o+de+SEO+para+Ecommerce!" target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center group px-12 py-6 gap-4">
              Solicitar Análise da minha Loja Virtual

@@ -30,6 +30,39 @@
         "isProtected": { "type": "boolean", "description": "Se true, não pode ser deletada (ex: Geral)" }
       },
       "required": ["name", "slug"]
+    },
+    "clients": {
+      "title": "Client",
+      "description": "Clientes da agência",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "clientEmail": { "type": "string" },
+        "websiteUrl": { "type": "string" },
+        "billingDay": { "type": "string" },
+        "contractStart": { "type": "string" },
+        "monthlyPosts": { "type": "number" },
+        "monthlyBacklinks": { "type": "number" },
+        "active": { "type": "boolean" },
+        "agencyUid": { "type": "string" }
+      },
+      "required": ["name", "clientEmail"]
+    },
+    "backlinks": {
+      "title": "Backlink",
+      "description": "Registros de link building",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "clientName": { "type": "string" },
+        "targetUrl": { "type": "string" },
+        "anchor": { "type": "string" },
+        "status": { "type": "string", "enum": ["Rascunho", "Planejado", "Publicado"] },
+        "publishedUrl": { "type": "string" },
+        "targetMonth": { "type": "string" },
+        "agencyUid": { "type": "string" }
+      },
+      "required": ["title", "clientName", "targetUrl"]
     }
   },
   "firestore": {
@@ -40,6 +73,14 @@
     "blog_categories": {
       "schema": "blog_categories",
       "description": "Coleção de categorias gerenciáveis"
+    },
+    "clients": {
+      "schema": "clients",
+      "description": "Coleção de clientes da agência"
+    },
+    "backlinks": {
+      "schema": "backlinks",
+      "description": "Coleção de registros de link building"
     }
   }
 }

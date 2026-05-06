@@ -4,7 +4,7 @@ import { CheckCircle2 } from 'lucide-react';
 
 interface Step {
   title: string;
-  description: string;
+  description: React.ReactNode;
   icon?: React.ReactNode;
 }
 

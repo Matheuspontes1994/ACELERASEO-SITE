@@ -2099,13 +2099,149 @@ export default function Dashboard() {
           </motion.div>
         ) : activeTab === 'Configurações' ? (
           <SettingsGlobal />
-        ) : activeTab === 'Planejamento' || activeTab === 'Artigos e Conteúdos' || activeTab === 'Backlinks' ? (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-20 flex flex-col items-center justify-center text-center">
-            <div className="w-20 h-20 bg-slate-50 text-slate-300 rounded-3xl flex items-center justify-center mb-6 border border-slate-100">
-              <Activity size={40} />
+        ) : activeTab === 'Artigos e Conteúdos' ? (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+            <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10">
+              <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-10">
+                <div>
+                  <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Central de Conteúdo</h2>
+                  <p className="text-slate-500 font-medium">Todos os artigos em produção, aprovação e publicados.</p>
+                </div>
+                <button onClick={() => {
+                  setPostForm({ id: '', title: '', clientName: '', clientEmail: '', targetMonth: '', slug: '', description: '', content: '', coverImage: '', category: '', focusKeywords: '', anchor: '', seoTitle: '', wordCount: '', targetWords: '', imagesInfo: '', status: 'Rascunho', publishedAt: '', publishedUrl: '', internalLinking: '', theme: '', secondaryKeywords: '', directioning: '' });
+                  setShowPostForm(true);
+                }} className="bg-slate-900 text-white font-black uppercase tracking-widest rounded-2xl text-[10px] px-8 py-4 hover:bg-brand-600 transition-all shadow-lg active:scale-95">
+                  + Novo Artigo
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {blogPosts.length === 0 ? (
+                  <div className="col-span-full py-20 text-center border-2 border-dashed border-slate-100 rounded-[2.5rem] bg-slate-50/30">
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Nenhum artigo encontrado</p>
+                  </div>
+                ) : (
+                  blogPosts.map((post: any) => (
+                    <div key={post.id} className="group bg-slate-50/50 border border-slate-200 rounded-[2rem] p-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all flex flex-col">
+                      <div className="flex justify-between items-start mb-4">
+                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                          post.status === 'Publicado' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                          post.status === 'Aguardando Aprovação' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                          'bg-white text-slate-400 border-slate-200'
+                        }`}>
+                          {post.status}
+                        </span>
+                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{post.clientName || 'Geral'}</span>
+                      </div>
+                      <h4 className="text-base font-black text-slate-900 leading-tight mb-6 line-clamp-2">{post.title}</h4>
+                      <div className="mt-auto flex items-center justify-between pt-6 border-t border-slate-100">
+                        <div className="flex gap-4">
+                           <button onClick={() => { setPostForm(post); setShowPostForm(true); }} className="text-[10px] font-black text-slate-400 hover:text-brand-600 uppercase tracking-widest transition-colors">Editar</button>
+                           <button onClick={() => handleDeletePost(post.id, post.coverImage)} className="text-[10px] font-black text-slate-400 hover:text-rose-500 uppercase tracking-widest transition-colors">Remover</button>
+                        </div>
+                        {post.publishedUrl && (
+                          <a href={post.publishedUrl} target="_blank" rel="noreferrer" className="text-slate-300 hover:text-slate-900 transition-colors">
+                            <ArrowUpRight size={18} />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Seção em Atualização</h3>
-            <p className="text-slate-500 font-medium max-w-sm">Estamos refinando a interface desta ferramenta para melhor performance técnica.</p>
+          </motion.div>
+        ) : activeTab === 'Backlinks' ? (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+            <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10">
+              <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-10">
+                <div>
+                  <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Monitoramento de Backlinks</h2>
+                  <p className="text-slate-500 font-medium">Gestão de links externos e autoridade de domínio.</p>
+                </div>
+                <button onClick={() => {
+                  setBacklinkForm({ id: '', title: '', clientName: '', clientEmail: '', targetMonth: '', focusKeywords: '', anchor: '', targetUrl: '', theme: '', directioning: '', content: '', status: 'Rascunho', publishedAt: '', publishedUrl: '', wordCount: '', targetWords: '' });
+                  setShowBacklinkForm(true);
+                }} className="bg-slate-900 text-white font-black uppercase tracking-widest rounded-2xl text-[10px] px-8 py-4 hover:bg-brand-600 transition-all shadow-lg active:scale-95">
+                  + Novo Link
+                </button>
+              </div>
+
+              <div className="overflow-x-auto no-scrollbar">
+                <table className="w-full text-left border-collapse min-w-[800px]">
+                  <thead>
+                    <tr className="border-b border-slate-100">
+                      <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4">Status</th>
+                      <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4">Cliente</th>
+                      <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4">Target Keyword / Âncora</th>
+                      <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4">URL Alvo</th>
+                      <th className="text-[10px] font-black text-slate-300 uppercase tracking-widest pb-6 px-4 text-right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {backlinks.length === 0 ? (
+                      <tr><td colSpan={5} className="py-20 text-center text-slate-400 font-medium italic">Nenhum backlink registrado</td></tr>
+                    ) : (
+                      backlinks.map((link: any) => (
+                        <tr key={link.id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="py-5 px-4">
+                            <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase border tracking-widest ${
+                              link.status === 'Publicado' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-white text-slate-400 border-slate-200'
+                            }`}>
+                              {link.status}
+                            </span>
+                          </td>
+                          <td className="py-5 px-4 text-sm font-black text-slate-900">{link.clientName}</td>
+                          <td className="py-5 px-4 text-sm font-bold text-slate-600">{link.anchor || link.focusKeywords || '-'}</td>
+                          <td className="py-5 px-4 text-xs font-medium text-slate-400 truncate max-w-[200px]">{link.targetUrl}</td>
+                          <td className="py-5 px-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <button onClick={() => { setBacklinkForm(link); setShowBacklinkForm(true); }} className="p-2 text-slate-400 hover:text-brand-600"><Edit2 size={16} /></button>
+                              <button onClick={() => handleDeleteBacklink(link.id)} className="p-2 text-slate-400 hover:text-rose-500"><Trash2 size={16} /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </motion.div>
+        ) : activeTab === 'Planejamento' ? (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+            <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10">
+              <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-10">
+                <div>
+                  <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Planejamento Editorial</h2>
+                  <p className="text-slate-500 font-medium">Pipeline de oportunidades e pautas futuras.</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {keywordsUniverse.length === 0 ? (
+                  <div className="col-span-full py-20 text-center border-2 border-dashed border-slate-100 rounded-[2.5rem]">
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Nenhum planejamento disponível</p>
+                  </div>
+                ) : (
+                  keywordsUniverse.map((kw: any) => (
+                    <div key={kw.id} className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all border-l-4 border-l-brand-500">
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="text-[10px] font-black text-brand-600 uppercase tracking-widest">{kw.targetMonth || 'Pendente'}</span>
+                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{kw.clientName}</span>
+                      </div>
+                      <h4 className="text-base font-black text-slate-900 mb-6">{kw.keyword}</h4>
+                      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        <span>{kw.searchVolume || '0 Vol'}</span>
+                        <div className="flex gap-2">
+                           <button onClick={() => { setKeywordForm(kw); setShowKeywordForm(true); }} className="hover:text-brand-600">Editar</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </motion.div>
         ) : null}
       </div>

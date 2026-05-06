@@ -129,13 +129,13 @@ export default function ConsultoriaSeoPage() {
             <h2 className="text-3xl sm:text-4xl leading-[1.15] md:leading-[1.1] text-balance font-extrabold text-slate-900 font-display mb-8 text-center md:text-left">Para Empresas que Precisam de Validação e Direção</h2>
             <div className="space-y-6 text-slate-600 leading-relaxed font-light text-base md:text-lg text-pretty text-left md:text-left">
                <p>
-                 Você tem os desenvolvedores e os redatores, mas não sabe por onde começar ou o que priorizar? É exatamente nesse cenário de desorganização tática que a nossa <strong>consultoria de search engine optimization</strong> se encaixa perfeitamente.
+                 Você tem os desenvolvedores e os redatores, mas não sabe por onde começar ou o que priorizar? É exatamente nesse cenário de desorganização tática que a nossa <Link to="/consultoria-seo" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">consultoria de search engine optimization</Link> se encaixa perfeitamente.
                </p>
                <p>
-                 Atuamos como um cérebro analítico terceirizado. Nossa equipe realiza as investigações altamente técnicas em logs, código fonte e concorrência, e devolve para as suas lideranças apenas o <strong>plano de ação priorizado</strong> (Roadmap) pronto para ser inserido nos sprints do seu desenvolvimento.
+                 Atuamos como um cérebro analítico terceirizado. Nossa equipe realiza as investigações altamente técnicas em logs, código fonte e concorrência, e devolve para as suas lideranças apenas o <Link to="/servicos" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">plano de ação priorizado</Link> (Roadmap) pronto para ser inserido nos sprints do seu desenvolvimento.
                </p>
                <p>
-                 Sem achismos, sem tentativas e falhas. Encurte a jornada da sua empresa. Deixe a nossa agência liderar a sua arquitetura, enquanto sua equipe opera a longo prazo com acompanhamento quinzenal dos nossos diretores.
+                 Sem achismos, sem tentativas e falhas. Encurte a jornada da sua empresa. Deixe a nossa <Link to="/" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">agência de SEO</Link> liderar a sua <Link to="/consultoria-seo" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">arquitetura</Link>, enquanto sua equipe opera a longo prazo com acompanhamento quinzenal dos nossos diretores.
                </p>
             </div>
             <ul className="space-y-5 mt-8">
@@ -149,7 +149,7 @@ export default function ConsultoriaSeoPage() {
               </li>
               <li className="flex items-start gap-4">
                 <CheckCircle2 className="text-brand-500 shrink-0 mt-1" size={24} />
-                <span className="text-slate-700 text-lg">Alinhamento entre as estruturas <Link to="/seo-ecommerce" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">e-commerce</Link>, conteúdo institucional e integrações.</span>
+                <span className="text-slate-700 text-lg">Alinhamento entre as estruturas <Link to="/seo-ecommerce" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">SEO para e-commerce</Link>, conteúdo institucional e integrações.</span>
               </li>
             </ul>
           </div>
@@ -163,12 +163,12 @@ export default function ConsultoriaSeoPage() {
         steps={[
           {
             title: "Diagnóstico e Raio-X",
-            description: "Iniciamos com uma imersão na saúde atual do domínio. Identificamos as perdas invisíveis (páginas canibalizadas, thin content, códigos quebrados) através de uma minuciosa auditoria especializada.",
+            description: <>Iniciamos com uma imersão na saúde atual do domínio. Identificamos as perdas invisíveis (páginas canibalizadas, thin content, códigos quebrados) através de uma minuciosa <Link to="/auditoria" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">auditoria técnica</Link> especializada.</>,
             icon: <Search size={24} />
           },
           {
             title: "Masterplan Estratégico",
-            description: "Criamos o plano de ataque. Mapeamos os clusters de tópicos e as deficiências de palavras-chave da sua operação frente aos concorrentes, orientando o seu time de redação exatamente em quais pautas focar.",
+            description: <>Criamos o plano de ataque. Mapeamos os clusters de tópicos e as deficiências de palavras-chave da sua operação frente aos concorrentes, orientando o seu time de redação exatamente em qual <Link to="/blog" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">estratégia de conteúdo</Link> focar.</>,
             icon: <Settings2 size={24} />
           },
           {
@@ -178,7 +178,7 @@ export default function ConsultoriaSeoPage() {
           },
           {
             title: "Monitoramento e SEO ROI",
-            description: "Acompanhamento em tempo real do crescimento de autoridade e tráfego orgânico, com foco total na conversão e no retorno sobre o investimento realizado na consultoria.",
+            description: <>Acompanhamento em tempo real do crescimento de <Link to="/agencia-link-building" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">autoridade de domínio</Link> e tráfego orgânico, com foco total na conversão e no retorno sobre o investimento realizado na consultoria.</>,
             icon: <BarChart3 size={24} />
           }
         ]}

@@ -62,7 +62,7 @@ export default function LinkBuildingPage() {
               </h1>
               
               <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-10 max-w-xl text-balance">
-                Não adianta ter o melhor conteúdo do mundo se o Google não enxerga o seu site como uma referência. Nossa <strong>agência de link building</strong> fornece credibilidade real através de backlinks estratégicos.
+                Não adianta ter o melhor conteúdo do mundo se o Google não enxerga o seu site como uma referência. Nossa <Link to="/" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">agência de SEO</Link> fornece credibilidade real através de backlinks estratégicos.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
@@ -118,13 +118,13 @@ export default function LinkBuildingPage() {
             <h2 className="text-3xl sm:text-4xl leading-[1.15] md:leading-[1.1] text-balance font-extrabold text-slate-900 font-display mb-8 text-center md:text-left">O que é Link Building e como impacta o seu SEO?</h2>
             <div className="space-y-6 text-slate-600 leading-relaxed font-light text-base md:text-lg text-pretty text-left md:text-left">
                <p>
-                 O processo de <strong>Link Building</strong> é o pilar mais crítico e desafiador do <strong>SEO Off-Page</strong>. Ele consiste em articular e conquistar links de outros sites respeitados da internet apontando diretamente para o seu domínio (os famosos <strong>backlinks</strong>).
+                 O processo de <strong>Link Building</strong> é o pilar mais crítico e desafiador do <Link to="/consultoria-seo" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">SEO Off-Page</Link>. Ele consiste em articular e conquistar links de outros sites respeitados da internet apontando diretamente para o seu domínio (os famosos <strong>backlinks</strong>).
                </p>
                <p>
                  Esses apontamentos funcionam como &quot;votos de confiança&quot; aos olhos do algoritmo de busca. Quanto mais portais jornalísticos, universidades e blogs de alto <strong>Domain Rating (DR)</strong> fizerem referências ao seu negócio, mais o Google entenderá que a sua empresa é a principal autoridade sobre aquele tema no Brasil.
                </p>
                <p>
-                 É impossível rankear para palavras-chave altamente competitivas e de alto volume de busca contando apenas com conteúdo. Você precisa de <strong>autoridade</strong>. Nós ajudamos você a construir essa autoridade através de campanhas puras de <Link to="/servicos" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">Digital PR e prospecção ativa de parceiros</Link>.
+                 É impossível rankear para palavras-chave altamente competitivas e de alto volume de busca contando apenas com conteúdo. Você precisa de <strong>autoridade</strong>. Nós ajudamos você a construir essa autoridade através de campanhas puras de <Link to="/servicos" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">Digital PR e prospecção ativa de parceiros</Link>.
                </p>
             </div>
             <ul className="space-y-5 mt-8">
@@ -173,7 +173,7 @@ export default function LinkBuildingPage() {
           },
           {
             title: "Curadoria de Conteúdo",
-            description: "Produzimos ou otimizamos o conteúdo que receberá o link. Garantimos que o contexto semântico seja perfeito para que o Google transfira o máximo de PageRank possível.",
+            description: <>Produzimos ou otimizamos o <Link to="/blog" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">conteúdo relevante</Link> que receberá o link. Garantimos que o contexto semântico seja perfeito para que o Google transfira o máximo de PageRank possível.</>,
             icon: <FileCheck size={24} />
           },
           {
@@ -246,7 +246,7 @@ export default function LinkBuildingPage() {
            <Activity className="text-brand-500 mx-auto mb-8" size={64} />
            <h2 className="text-4xl md:text-6xl font-extrabold text-slate-900 font-display tracking-tight mb-8 text-center md:text-center px-4">Escale a Autoridade do seu Site Agora</h2>
            <p className="text-xl text-slate-500 font-light leading-relaxed mb-8 lg:mb-12 text-left md:text-center px-4">
-             A maior rede premium privada de publisher do mercado de buscas aliado à inteligência de negócio. Supere seus concorrentes nas SERPs com um planejamento de Off-Page estratégico. Fale agora com nossa equipe em uma rápida <Link to="/auditoria" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity">sessão de avaliação com consultores</Link>.
+             A maior rede premium privada de publisher do mercado de buscas aliado à inteligência de negócio. Supere seus concorrentes nas SERPs com um planejamento de Off-Page estratégico. Fale agora com nossa equipe em uma rápida <Link to="/auditoria" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">sessão de avaliação com consultores</Link>.
            </p>
            <Link to="/contato" className="bg-slate-900 text-white font-bold text-xl rounded-2xl hover:bg-brand-600 transition-colors shadow-2xl inline-flex items-center group px-12 py-6 gap-4">
              Quero um Plano de Link Building VIP
