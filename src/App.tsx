@@ -35,6 +35,7 @@ import ConsultoriaSeoPage from './pages/ConsultoriaSeo';
 const ClientDashboard = lazy(() => import('./pages/ClientDashboard'));
 const DashboardPage = lazy(() => import('./pages/Dashboard'));
 const LoginPage = lazy(() => import('./pages/Login'));
+const RegisterPage = lazy(() => import('./pages/Register'));
 
 // --- SEO Structured Data ---
 const structuredData = {
@@ -61,7 +62,20 @@ const structuredData = {
 
 function AppContent() {
   const location = useLocation();
-  const hideGlobalLayout = ['/portal-cliente', '/painel', '/dashboard'].includes(location.pathname);
+  const hideGlobalLayout = ['/portal-cliente', '/painel', '/dashboard', '/login', '/cadastro'].includes(location.pathname);
+  
+  // Páginas que possuem Hero section próprio e não precisam de padding-top no main
+  const heroDrivenPages = [
+    '/', 
+    '/servicos', 
+    '/consultoria-seo', 
+    '/seo-ecommerce', 
+    '/agencia-link-building', 
+    '/especialista-em-seo', 
+    '/sobre',
+    '/blog',
+    '/auditoria'
+  ].includes(location.pathname) || location.pathname.startsWith('/blog/');
 
   return (
     <div className="min-h-screen flex flex-col justify-between font-sans selection:bg-brand-200 selection:text-brand-900">
@@ -86,7 +100,7 @@ function AppContent() {
 
       {!hideGlobalLayout && <Navbar />}
       
-      <main className={`flex-grow ${hideGlobalLayout ? '' : 'pt-20 md:pt-24'}`}>
+      <main className={`flex-grow ${hideGlobalLayout || heroDrivenPages ? '' : 'pt-20 md:pt-24'}`}>
         <Suspense fallback={<div className="flex justify-center items-center h-64"><Activity className="animate-spin text-brand-600" size={40}/></div>}>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -111,6 +125,7 @@ function AppContent() {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/cadastro" element={<RegisterPage />} />
             <Route path="/portal-cliente" element={<AuthRoute><ClientDashboard /></AuthRoute>} />
             <Route path="/painel" element={<AuthRoute><DashboardPage /></AuthRoute>} />
           </Routes>

@@ -123,7 +123,7 @@ export default function Audit() {
       <meta property="og:url" content="https://aceleraseo.com.br/auditoria" />
     </Helmet>
 
-    <div className="min-h-[calc(100vh-80px)] bg-slate-50 w-full overflow-x-hidden flex flex-col justify-center py-12 lg:py-20">
+    <div className="min-h-[calc(100vh-80px)] bg-slate-50 w-full overflow-x-hidden flex flex-col justify-center pt-24 md:pt-32 pb-12 lg:pb-20">
     <main className="max-w-7xl mx-auto relative z-10 px-6 w-full">
         
         <AnimatePresence mode="wait">

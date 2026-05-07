@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Users, ChevronDown, ArrowRight } from 'lucide-react';
+import { Menu, X, Users, ChevronDown, ArrowRight, Activity } from 'lucide-react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useSettings, getDefaultLogo } from '../contexts/SettingsContext';
 
@@ -50,7 +50,7 @@ export const Navbar = () => {
   return (
     <>
       <nav className={`fixed top-0 w-full z-[1000] transition-all duration-500 ${
-        (isScrolled || mobileMenuOpen) ? 'py-3 bg-white/80 backdrop-blur-xl border-b border-slate-100 shadow-sm' : 'py-3 md:py-6 bg-transparent'
+        (isScrolled || mobileMenuOpen) ? 'py-3 bg-white/80 backdrop-blur-xl border-b border-slate-100 shadow-sm' : 'py-3 md:py-4 bg-transparent'
       }`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6">
           <div className="flex items-center gap-3">
@@ -58,11 +58,11 @@ export const Navbar = () => {
               <img 
                 src={logoUrl} 
                 alt="Acelera SEO Logo" 
-                className="h-11 w-auto object-contain group-hover:scale-105 transition-transform" 
+                className="h-9 w-auto object-contain group-hover:scale-105 transition-transform" 
                 onError={(e) => (e.target as HTMLImageElement).src = getDefaultLogo()} 
                 fetchPriority="high"
               />
-              <span className="text-2xl font-display font-bold tracking-tight text-slate-800">
+              <span className="text-xl font-display font-bold tracking-tight text-slate-800">
                 Acelera <span className="text-brand-600 font-light">SEO</span>
               </span>
             </RouterLink>

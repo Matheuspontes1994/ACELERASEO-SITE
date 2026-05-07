@@ -71,7 +71,7 @@ export default function Blog() {
 
     <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden pt-0 pb-0">
       {/* Hero Section */}
-      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-12 md:pt-20 pb-20 md:pb-32">
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-24 md:pt-32 pb-20 md:pb-32">
         <div className="tech-grid opacity-30" />
         <div className="hero-glow opacity-40" />
         

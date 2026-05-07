@@ -27,8 +27,11 @@ import {
   Circle,
   AlertCircle,
   Zap,
-  LogOut
+  LogOut,
+  RefreshCcw,
+  Key
 } from 'lucide-react';
+import { sendPasswordResetEmail } from 'firebase/auth';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
@@ -476,22 +479,36 @@ export default function Dashboard() {
 
   const generateInviteLink = (client: any) => {
     const baseUrl = window.location.origin;
-    // Usamos o campo name ou websiteUrl como identificador no link
-    const inviteLink = `${baseUrl}?invitedBy=${auth.currentUser?.uid}&clientEmail=${encodeURIComponent(client.websiteUrl || client.name)}`;
+    // Link format: /cadastro?clientId=XYZ&clientEmail=abc@example.com
+    const inviteLink = `${baseUrl}/cadastro?clientId=${client.id}&clientEmail=${encodeURIComponent(client.clientEmail || '')}&clientName=${encodeURIComponent(client.name || '')}&clientWebsite=${encodeURIComponent(client.websiteUrl || '')}`;
     navigator.clipboard.writeText(inviteLink);
-    alert("Link de convite copiado para a área de transferência! Envie para o administrador do cliente.");
+    alert("Link de cadastro personalizado copiado! Envie este link para o cliente realizar o cadastro e vincular sua conta automaticamente.");
   };
 
-  // Efeito para capturar convites na URL
+  const handleResetPassword = async (email: string) => {
+    if (!email) {
+      alert("Este cliente não possui um e-mail cadastrado.");
+      return;
+    }
+
+    if (window.confirm(`Deseja enviar um e-mail de redefinição de senha para ${email}?`)) {
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert(`E-mail de redefinição enviado com sucesso para ${email}! O cliente deve verificar a caixa de entrada.`);
+      } catch (error: any) {
+        console.error("Erro ao enviar reset de senha:", error);
+        alert("Ocorreu um erro ao enviar o e-mail. Verifique se o e-mail é válido e está cadastrado no sistema.");
+      }
+    }
+  };
+
+  // Effect to capture invites (Standardizing this might be better in App.tsx or a dedicated hook, but keeping it here if it's dashboard specific)
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const invitedBy = params.get('invitedBy');
-    const clientEmail = params.get('clientEmail');
+    const clientId = params.get('clientId');
     
-    if (invitedBy && clientEmail && auth.currentUser) {
-      // Se o usuário logado for o convidado, podemos fazer um link formal no DB se necessário
-      console.log("Usuário entrou por convite:", clientEmail, "Agência:", invitedBy);
-      // Aqui poderíamos atualizar o UID do cliente no DB para vincular definitivamente
+    if (clientId && auth.currentUser) {
+       // Logic to bind UID if needed
     }
   }, [auth.currentUser]);
   const [reviewingPost, setReviewingPost] = useState<any>(null);
@@ -1631,6 +1648,13 @@ export default function Dashboard() {
                               className="text-slate-400 hover:text-emerald-600 p-1"
                             >
                               <LinkIcon size={16} />
+                            </button>
+                            <button 
+                              onClick={() => handleResetPassword(client.clientEmail)} 
+                              title="Redefinir Senha do Cliente"
+                              className="text-slate-400 hover:text-amber-600 p-1"
+                            >
+                              <RefreshCcw size={16} />
                             </button>
                              <button onClick={() => {
                                setClientForm({

@@ -41,7 +41,7 @@ export default function LinkBuildingPage() {
 
 
       {/* Hero Section */}
-      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-12 md:pt-20 pb-20 md:pb-32">
+      <section className="relative w-full overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-24 md:pt-32 pb-20 md:pb-32">
         <div className="tech-grid" />
         <div className="hero-glow" />
         
