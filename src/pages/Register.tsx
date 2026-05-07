@@ -53,42 +53,44 @@ export default function RegisterPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      if (clientIdFromUrl) {
-        // Update existing client document instead of creating a new one
-        await updateDoc(doc(db, 'clients', clientIdFromUrl), {
-          uid: user.uid,
-          updatedAt: serverTimestamp(),
-          // Sync fields in case they were edited in the form
-          name,
-          clientEmail: email,
-          websiteUrl: website
-        });
-      } else {
-        // Fallback for direct registration (create new client record)
-        await addDoc(collection(db, 'clients'), {
-          name,
-          clientEmail: email,
-          websiteUrl: website,
-          uid: user.uid,
-          active: true,
-          createdAt: serverTimestamp(),
-          agencyUid: 'admin' // Default to admin for self-registrations
-        });
+      try {
+        if (clientIdFromUrl) {
+          // Update existing client document instead of creating a new one
+          await updateDoc(doc(db, 'clients', clientIdFromUrl), {
+            uid: user.uid,
+            updatedAt: serverTimestamp(),
+            // Sync fields in case they were edited in the form
+            name,
+            clientEmail: email,
+            websiteUrl: website
+          });
+        } else {
+          // Fallback for direct registration (create new client record)
+          await addDoc(collection(db, 'clients'), {
+            name,
+            clientEmail: email,
+            websiteUrl: website,
+            uid: user.uid,
+            active: true,
+            createdAt: serverTimestamp(),
+            agencyUid: 'admin' // Default to admin for self-registrations
+          });
+        }
+        navigate('/portal-cliente');
+      } catch (firestoreErr: any) {
+        console.error("Erro ao salvar dados no Firestore:", firestoreErr);
+        // If auth succeeded but firestore failed, we might want to guide the user
+        setError('Conta criada, mas houve um erro ao vincular seus dados. Por favor, entre em contato com o suporte.');
       }
-
-      navigate('/portal-cliente');
     } catch (err: any) {
-      console.error(err);
+      console.error("Erro no cadastro:", err);
       
       switch (err.code) {
         case 'auth/email-already-in-use':
-          setError('Este e-mail já está cadastrado no sistema. Tente fazer login ou recuperar sua senha.');
+          setError('Este e-mail já está cadastrado. Se você já tem uma conta, por favor faça login.');
           break;
         case 'auth/invalid-email':
           setError('O e-mail informado tem um formato inválido.');
-          break;
-        case 'auth/operation-not-allowed':
-          setError('O cadastro por e-mail e senha não está ativado.');
           break;
         case 'auth/weak-password':
           setError('A senha escolhida é muito fraca (mínimo 6 caracteres).');
@@ -96,8 +98,11 @@ export default function RegisterPage() {
         case 'auth/network-request-failed':
           setError('Erro de conexão. Verifique sua internet.');
           break;
+        case 'permission-denied':
+          setError('Você não tem permissão para realizar esta operação. Entre em contato.');
+          break;
         default:
-          setError('Falha ao criar conta. Tente novamente mais tarde.');
+          setError(err.message || 'Falha ao criar conta. Tente novamente mais tarde.');
       }
     } finally {
       setLoading(false);
