@@ -262,48 +262,49 @@ export default function YoastTrafficLight({ title = '', description = '', conten
   const readabilityState = calculateTabState(readabilityResults);
 
   return (
-    <div className="bg-white p-5 rounded-xl border border-slate-200 mt-4 shadow-sm">
-      <div className="flex items-center mb-4">
-        <div>
-          <h4 className="text-sm font-bold text-slate-800 leading-tight">Yoast SEO</h4>
+    <div className="bg-white p-10 sm:p-12 rounded-[40px] border border-slate-100 mt-12 shadow-sm">
+      <div className="flex items-center justify-between mb-8">
+        <h4 className="text-[12px] font-black text-slate-900 uppercase tracking-[0.25em]">Yoast Strategic SEO Intelligence</h4>
+        <div className="flex items-center gap-2">
+           <div className={`w-2 h-2 rounded-full ${overallState === 'good' ? 'bg-emerald-500 animate-pulse' : overallState === 'ok' ? 'bg-amber-500' : 'bg-rose-500 animate-pulse'}`}></div>
+           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{getOverallEmoji(overallState).split(' ')[1]}</span>
         </div>
       </div>
 
-      <div className="flex gap-4 border-b border-slate-200 mb-4 px-1">
+      <div className="flex gap-10 border-b border-slate-100 mb-10 overflow-x-auto no-scrollbar">
         <button 
           type="button"
           onClick={() => setActiveTab('seo')}
-          className={`pb-2 text-sm font-bold -mb-px flex items-center gap-2 transition-colors ${activeTab === 'seo' ? 'border-b-2 border-brand-600 text-brand-600' : 'text-slate-500 hover:text-slate-800'}`}
+          className={`pb-5 text-[11px] font-black uppercase tracking-[0.2em] -mb-px flex items-center gap-3 transition-all whitespace-nowrap ${activeTab === 'seo' ? 'border-b-2 border-slate-900 text-slate-900' : 'text-slate-300 hover:text-slate-900'}`}
         >
-          SEO
-          {seoState === 'good' ? '🟢' : seoState === 'ok' ? '🟠' : '🔴'}
+          Análise SEO
+          <span className={`text-[10px] ${seoState === 'good' ? 'text-emerald-500' : seoState === 'ok' ? 'text-amber-500' : 'text-rose-500'}`}>
+            {seoState === 'good' ? '●' : seoState === 'ok' ? '●' : '●'}
+          </span>
         </button>
         <button 
           type="button"
           onClick={() => setActiveTab('readability')}
-          className={`pb-2 text-sm font-bold -mb-px flex items-center gap-2 transition-colors ${activeTab === 'readability' ? 'border-b-2 border-brand-600 text-brand-600' : 'text-slate-500 hover:text-slate-800'}`}
+          className={`pb-5 text-[11px] font-black uppercase tracking-[0.2em] -mb-px flex items-center gap-3 transition-all whitespace-nowrap ${activeTab === 'readability' ? 'border-b-2 border-slate-900 text-slate-900' : 'text-slate-300 hover:text-slate-900'}`}
         >
           Legibilidade
-          {readabilityState === 'good' ? '🟢' : readabilityState === 'ok' ? '🟠' : '🔴'}
+          <span className={`text-[10px] ${readabilityState === 'good' ? 'text-emerald-500' : readabilityState === 'ok' ? 'text-amber-500' : 'text-rose-500'}`}>
+            {readabilityState === 'good' ? '●' : readabilityState === 'ok' ? '●' : '●'}
+          </span>
         </button>
       </div>
       
-      <div className="space-y-4">
-        <div className="mb-2">
-          <p className="text-xs font-semibold text-slate-600">
-            Análise de {activeTab === 'seo' ? 'SEO' : 'Legibilidade'}: <span className="font-bold">{getOverallEmoji(overallState)}</span>
-          </p>
-        </div>
-
+      <div className="space-y-12">
         {bads.length > 0 && (
-          <div>
-            <h5 className="text-xs font-bold text-slate-800 mb-2 flex items-center gap-2">
-               Problemas ({bads.length})
+          <div className="space-y-6">
+            <h5 className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] flex items-center gap-3">
+               <div className="w-4 h-[1px] bg-rose-500"></div>
+               Críticos ({bads.length})
             </h5>
-            <ul className="space-y-2">
+            <ul className="space-y-4">
               {bads.map(item => (
-                <li key={item.id} className="flex items-start gap-2 text-sm text-slate-600 leading-snug">
-                  <span className="mt-0.5"><StateIcon status="bad" /></span>
+                <li key={item.id} className="flex items-start gap-4 text-xs font-semibold text-slate-600 leading-relaxed bg-rose-50/30 p-4 rounded-2xl border border-rose-100/50">
+                  <span className="mt-1"><StateIcon status="bad" /></span>
                   {item.text}
                 </li>
               ))}
@@ -312,14 +313,15 @@ export default function YoastTrafficLight({ title = '', description = '', conten
         )}
 
         {oks.length > 0 && (
-          <div>
-            <h5 className="text-xs font-bold text-slate-800 mb-2 flex items-center gap-2">
-               Melhorias ({oks.length})
+          <div className="space-y-6">
+            <h5 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] flex items-center gap-3">
+               <div className="w-4 h-[1px] bg-amber-500"></div>
+               Otimizações ({oks.length})
             </h5>
-            <ul className="space-y-2">
+            <ul className="space-y-4">
               {oks.map(item => (
-                <li key={item.id} className="flex items-start gap-2 text-sm text-slate-600 leading-snug">
-                  <span className="mt-0.5"><StateIcon status="ok" /></span>
+                <li key={item.id} className="flex items-start gap-4 text-xs font-semibold text-slate-600 leading-relaxed bg-amber-50/30 p-4 rounded-2xl border border-amber-100/50">
+                  <span className="mt-1"><StateIcon status="ok" /></span>
                   {item.text}
                 </li>
               ))}
@@ -328,14 +330,15 @@ export default function YoastTrafficLight({ title = '', description = '', conten
         )}
 
         {goods.length > 0 && (
-          <div>
-            <h5 className="text-xs font-bold text-slate-800 mb-2 flex items-center gap-2">
-               Bons resultados ({goods.length})
+          <div className="space-y-6">
+            <h5 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] flex items-center gap-3">
+               <div className="w-4 h-[1px] bg-emerald-500"></div>
+               Excelência ({goods.length})
             </h5>
-            <ul className="space-y-2">
+            <ul className="space-y-4">
               {goods.map(item => (
-                <li key={item.id} className="flex items-start gap-2 text-sm text-slate-600 leading-snug">
-                  <span className="mt-0.5"><StateIcon status="good" /></span>
+                <li key={item.id} className="flex items-start gap-4 text-xs font-semibold text-slate-600 leading-relaxed bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100/50">
+                  <span className="mt-1"><StateIcon status="good" /></span>
                   {item.text}
                 </li>
               ))}

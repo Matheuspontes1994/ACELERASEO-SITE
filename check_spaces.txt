@@ -1,0 +1,1 @@
+                   <h2 className="text-2xl font-black font-display text-slate-900 text-left">Meu Plano e Entregáveis</h2>

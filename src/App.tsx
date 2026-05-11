@@ -29,13 +29,14 @@ const SeoLocalPage = lazy(() => import('./pages/SeoLocal'));
 import { SettingsProvider } from './contexts/SettingsContext';
 import AuthRoute from './components/AuthRoute';
 import { GlobalSeo } from './components/SeoHeader';
+import Skeleton from './components/ui/Skeleton';
 import ScrollToTop from './components/ScrollToTop';
 import { JsonLd } from './components/JsonLd';
 import ConsultoriaSeoPage from './pages/ConsultoriaSeo';
-const ClientDashboard = lazy(() => import('./pages/ClientDashboard'));
-const DashboardPage = lazy(() => import('./pages/Dashboard'));
-const LoginPage = lazy(() => import('./pages/Login'));
-const RegisterPage = lazy(() => import('./pages/Register'));
+import ClientDashboard from './pages/ClientDashboard';
+import DashboardPage from './pages/Dashboard';
+import LoginPage from './pages/Login';
+import RegisterPage from './pages/Register';
 
 // --- SEO Structured Data ---
 const structuredData = {
@@ -101,7 +102,21 @@ function AppContent() {
       {!hideGlobalLayout && <Navbar />}
       
       <main className={`flex-grow ${hideGlobalLayout || heroDrivenPages ? '' : 'pt-20 md:pt-24'}`}>
-        <Suspense fallback={<div className="flex justify-center items-center h-64"><Activity className="animate-spin text-brand-600" size={40}/></div>}>
+        <Suspense fallback={
+          <div className="min-h-screen bg-slate-50 flex flex-col pt-32 px-6">
+            <div className="max-w-7xl mx-auto w-full space-y-12">
+              <div className="space-y-4">
+                <Skeleton variant="rectangular" className="h-4 w-32 rounded-full" />
+                <Skeleton variant="rectangular" className="h-12 w-3/4 rounded-2xl" />
+              </div>
+              <div className="grid md:grid-cols-3 gap-8">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} variant="rectangular" className="h-48 rounded-[2rem]" />
+                ))}
+              </div>
+            </div>
+          </div>
+        }>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/sobre" element={<AboutPage />} />

@@ -11,7 +11,7 @@ interface ChatMessage {
   createdAt: number;
 }
 
-export default function PostChat({ postId, currentUserRole, currentUserName }: { postId: string, currentUserRole: 'agency'|'client', currentUserName: string }) {
+export default function PostChat({ postId, currentUserRole, currentUserName, addToast }: { postId: string, currentUserRole: 'agency'|'client', currentUserName: string, addToast?: (msg: string, type: any) => void }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -50,7 +50,9 @@ export default function PostChat({ postId, currentUserRole, currentUserName }: {
       });
     } catch (error) {
       console.error(error);
-      alert('Erro ao enviar mensagem.');
+      if (addToast) {
+        addToast('Erro ao enviar mensagem.', 'error');
+      }
     }
   };
 

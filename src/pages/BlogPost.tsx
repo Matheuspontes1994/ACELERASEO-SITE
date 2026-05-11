@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { motion, useScroll, useSpring } from 'motion/react';
+import Skeleton from '../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronRight, Calendar, Clock, User, ArrowLeft, Share2, Facebook, Twitter, Linkedin, CheckCircle2, ArrowRight, Bookmark, BookOpen, Activity, Search } from 'lucide-react';
@@ -203,7 +204,34 @@ export default function BlogPost() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-slate-50 text-center text-slate-500 font-medium pt-16 md:pt-16 lg:pt-32">Carregando...</div>;
+    return (
+      <div className="min-h-screen bg-slate-50 space-y-12">
+        <div className="h-1.5 w-full bg-slate-100" />
+        <section className="pt-20 pb-16">
+          <div className="max-w-7xl mx-auto px-6 space-y-8">
+            <Skeleton variant="rectangular" className="h-4 w-32" />
+            <div className="space-y-4">
+              <Skeleton variant="rectangular" className="h-12 w-3/4" />
+              <Skeleton variant="rectangular" className="h-6 w-1/2" />
+            </div>
+          </div>
+        </section>
+        <div className="max-w-5xl mx-auto px-6">
+          <Skeleton variant="rectangular" className="aspect-[21/9] rounded-[3.5rem]" />
+        </div>
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-20 py-16">
+          <div className="lg:col-span-8 space-y-6">
+            <Skeleton variant="rectangular" className="h-6 w-full" />
+            <Skeleton variant="rectangular" className="h-6 w-full" />
+            <Skeleton variant="rectangular" className="h-6 w-3/4" />
+            <Skeleton variant="rectangular" className="h-40 w-full" />
+          </div>
+          <div className="lg:col-span-4 space-y-12">
+            <Skeleton variant="rectangular" className="h-64 w-full rounded-[2rem]" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

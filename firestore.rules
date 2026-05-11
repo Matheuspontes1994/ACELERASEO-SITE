@@ -67,33 +67,34 @@ service cloud.firestore {
     }
     
     match /clients/{clientId} {
-      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail);
+      allow read: if isSignedIn() && (isAdmin() || request.auth.uid == resource.data.uid || request.auth.token.email == resource.data.clientEmail);
       allow create: if isSignedIn() && (isAdmin() || request.auth.token.email == incoming().clientEmail);
       allow update: if isSignedIn() && (
         isAdmin() || 
+        (request.auth.uid == existing().uid && incoming().uid == existing().uid && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'clientEmail', 'websiteUrl', 'logoUrl', 'updatedAt'])) ||
         (request.auth.token.email == existing().clientEmail && incoming().uid == request.auth.uid)
       );
       allow delete: if isAdmin();
     }
     
     match /blog_posts/{postId} {
-      allow read: if true;
+      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail || request.auth.uid == resource.data.uid);
       allow create: if isAdmin();
       allow update: if isAdmin() || (
         isSignedIn() && 
-        request.auth.token.email == existing().clientEmail && 
+        (request.auth.token.email == existing().clientEmail || request.auth.uid == existing().uid) && 
         isValidStatusUpdate(incoming(), existing())
       );
       allow delete: if isAdmin();
     }
     
     match /backlinks/{backlinkId} {
-      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail);
+      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail || request.auth.uid == resource.data.uid);
       allow write: if isAdmin();
     }
-
+  
     match /keyword_universe/{keywordId} {
-      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail);
+      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail || request.auth.uid == resource.data.uid);
       allow write: if isAdmin();
     }
   }

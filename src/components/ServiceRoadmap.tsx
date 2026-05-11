@@ -94,9 +94,9 @@ export const ServiceRoadmap: React.FC<ServiceRoadmapProps> = ({
                   <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 group-hover:text-brand-600 transition-colors">
                     {step.title}
                   </h3>
-                  <p className="text-slate-500 leading-relaxed font-light text-base md:text-lg">
+                  <div className="text-slate-500 leading-relaxed font-light text-base md:text-lg">
                     {step.description}
-                  </p>
+                  </div>
                 </div>
               </motion.div>
             ))}

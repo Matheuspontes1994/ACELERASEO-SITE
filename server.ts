@@ -39,24 +39,32 @@ async function startServer() {
     if (adminDb) return adminDb;
     const admin = (await import("firebase-admin")).default;
     if (admin.apps.length === 0) {
-      // If we have GOOGLE_SERVICE_ACCOUNT_JSON, use it. Otherwise, use project default.
+      // If we have GOOGLE_SERVICE_ACCOUNT_JSON, use it. Otherwise, try use config or project default.
       const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
       if (serviceAccountJson) {
         try {
           const cert = JSON.parse(serviceAccountJson);
           admin.initializeApp({
-            credential: admin.credential.cert(cert),
-            databaseURL: firebaseConfig?.firestoreDatabaseId ? `https://${firebaseConfig.firestoreDatabaseId}.firebaseio.com` : undefined
+            credential: admin.credential.cert(cert)
           });
         } catch (e) {
           console.error("Erro ao parsear GOOGLE_SERVICE_ACCOUNT_JSON, falhando para default:", e);
           admin.initializeApp();
         }
+      } else if (firebaseConfig?.projectId) {
+        // Explicitly use the provisioned project and database from config
+        admin.initializeApp({
+          projectId: firebaseConfig.projectId
+        });
       } else {
         admin.initializeApp();
       }
     }
-    adminDb = admin.firestore();
+    // For Enterprise Firestore, we must use the specific database ID if it exists
+    const { getFirestore } = await import("firebase-admin/firestore");
+    adminDb = firebaseConfig?.firestoreDatabaseId 
+      ? getFirestore(firebaseConfig.firestoreDatabaseId)
+      : getFirestore();
     return adminDb;
   }
 

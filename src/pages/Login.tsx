@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { Lock, Mail, Loader2, Rocket, ArrowLeft, ChevronRight } from 'lucide-react';
