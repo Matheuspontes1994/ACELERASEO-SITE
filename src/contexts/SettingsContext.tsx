@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
-import defaultLogo from '../assets/logo.png';
+
+const defaultLogo = '/logo.png';
 
 interface SettingsContextType {
   logoUrl: string;
