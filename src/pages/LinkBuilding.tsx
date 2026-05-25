@@ -6,6 +6,7 @@ import { Link as LinkIcon, Target, TrendingUp, ShieldCheck, Activity, Globe, Awa
 import { JsonLd } from '../components/JsonLd';
 import { ServiceRoadmap } from '../components/ServiceRoadmap';
 import { ServiceFAQ } from '../components/ServiceFAQ';
+import LayoutImage from '../components/LayoutImage';
 
 export default function LinkBuildingPage() {
   return (
@@ -83,9 +84,8 @@ export default function LinkBuildingPage() {
             >
               <div className="bg-white/60 backdrop-blur-2xl border border-white/40 shadow-[0_32px_64px_-16px_rgba(41,96,150,0.12)] rounded-[3rem] relative z-10 w-full overflow-hidden p-4 sm:p-6 ring-1 ring-white/50">
                 <div className="aspect-[4/3] rounded-[2.2rem] overflow-hidden group relative">
-                  <img 
-                      src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2000&auto=format&fit=crop" 
-                      alt="Monitoramento de Autoridade e Domain Rating" 
+                  <LayoutImage 
+                      imageKey="link_building_hero" 
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-60" />
@@ -144,12 +144,9 @@ export default function LinkBuildingPage() {
           </div>
           <div className="relative">
             <div className="aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl relative border-[12px] border-slate-50 bg-slate-100">
-               <img 
-                 src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2000&auto=format&fit=crop&fm=webp" 
-                 alt="Analista de SEO sênior monitorando um dashboard interativo exibindo o crescimento exponencial do tráfego orgânico e a evolução saudável do Domain Rating da empresa." 
+               <LayoutImage 
+                 imageKey="link_building_hero" 
                  className="w-full h-full object-cover" 
-                 loading="lazy"
-                 decoding="async"
                />
             </div>
           </div>
@@ -211,12 +208,9 @@ export default function LinkBuildingPage() {
         <div className="grid md:grid-cols-2 items-center gap-8 md:gap-12 lg:gap-16">
           <div className="relative order-2 md:order-1">
             <div className="aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-xl relative border-[10px] border-slate-100">
-               <img 
-                 src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2000&auto=format&fit=crop&fm=webp" 
-                 alt="Gestores e especialistas em Digital PR organizando uma campanha elaborada de Link Building em uma agência moderna de tecnologia da informação e SEO." 
+               <LayoutImage 
+                 imageKey="link_building_secondary" 
                  className="w-full h-full object-cover" 
-                 loading="lazy"
-                 decoding="async"
                />
             </div>
           </div>

@@ -126,9 +126,44 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["name", "phone", "url"]
+    },
+    "seo_pages": {
+      "title": "SEO Page Metadata",
+      "description": "Configurações customizadas de metadados para URLs específicas do site",
+      "type": "object",
+      "properties": {
+        "url": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "agencyUid": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["url", "title", "createdAt", "agencyUid"]
+    },
+    "settings": {
+      "title": "Global Settings",
+      "description": "Configurações e ativos visuais globais (logo, favicon e imagens de layout)",
+      "type": "object",
+      "properties": {
+        "logoUrl": { "type": "string" },
+        "faviconUrl": { "type": "string" },
+        "defaultTitle": { "type": "string" },
+        "defaultDescription": { "type": "string" },
+        "defaultKeywords": { "type": "string" },
+        "images": { "type": "object", "description": "Mapeamento chave-valor de ativos de imagem de layout" }
+      }
     }
   },
   "firestore": {
+    "seo_pages": {
+      "schema": "seo_pages",
+      "description": "Coleção de metadados e tags de SEO por rota/URL"
+    },
+    "settings": {
+      "schema": "settings",
+      "description": "Coleção de configurações globais e imagens de layout"
+    },
     "blog_posts": {
       "schema": "blog_posts",
       "description": "Coleção principal de artigos"

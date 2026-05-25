@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Target, Zap, Shield, Users, ArrowRight, Building, Award, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { JsonLd, generateBreadcrumbSchema } from '../components/JsonLd';
+import LayoutImage from '../components/LayoutImage';
 
 export default function About() {
   const organizationSchema = {
@@ -87,9 +88,8 @@ export default function About() {
             >
               <div className="bg-white/60 backdrop-blur-2xl border border-white/40 shadow-[0_32px_64px_-16px_rgba(41,96,150,0.12)] rounded-[3rem] relative z-10 w-full overflow-hidden p-4 sm:p-6 ring-1 ring-white/50">
                 <div className="aspect-[4/3] rounded-[2.2rem] overflow-hidden group relative">
-                  <img 
-                      src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2000&auto=format&fit=crop" 
-                      alt="Sobre a Acelera SEO" 
+                  <LayoutImage 
+                      imageKey="about_hero" 
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-60" />
@@ -118,12 +118,9 @@ export default function About() {
         <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm grid md:grid-cols-2 items-center p-8 md:p-16 gap-8 md:gap-12 lg:gap-16">
           <div className="order-2 md:order-1 relative">
             <div className="aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl relative border-[12px] border-slate-50 bg-slate-100">
-               <img 
-                 src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2000&auto=format&fit=crop&fm=webp" 
-                 alt="Equipe de especialistas sêniores na agência Acelera SEO debatendo métricas e performance de ranking." 
+               <LayoutImage 
+                 imageKey="about_team" 
                  className="w-full h-full object-cover" 
-                 loading="lazy"
-                 decoding="async"
                />
             </div>
           </div>
@@ -186,12 +183,9 @@ export default function About() {
         <div className="bg-white rounded-[3rem] border border-slate-200 shadow-xl overflow-hidden flex flex-col md:flex-row items-center">
           <div className="md:w-5/12 relative min-h-[400px] h-full w-full">
              {/* Substitua a URL abaixo pela sua foto se quiser */}
-             <img 
-               src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop" 
-               alt="Equipe Acelera SEO" 
+             <LayoutImage 
+               imageKey="about_office" 
                className="absolute inset-0 w-full h-full object-cover" 
-               loading="lazy"
-               decoding="async"
              />
           </div>
           <div className="md:w-7/12 p-10 md:p-16">

@@ -334,6 +334,23 @@ export default function Dashboard() {
         updatedAt: serverTimestamp()
       });
 
+      try {
+        if (selectedAdminTicket.clientUid) {
+          await addDoc(collection(db, 'notifications'), {
+            userId: selectedAdminTicket.clientUid,
+            clientEmail: selectedAdminTicket.clientEmail || '',
+            title: 'Nova Mensagem de Suporte',
+            message: `Você recebeu uma resposta da nossa equipe no chamado: "${selectedAdminTicket.subject}".`,
+            type: 'info',
+            category: 'suporte',
+            read: false,
+            createdAt: serverTimestamp()
+          });
+        }
+      } catch (notifErr) {
+        console.error("Erro ao criar notificação de resposta:", notifErr);
+      }
+
       setAdminReplyText('');
       fetchAdminTickets();
     } catch (err) {
@@ -4660,6 +4677,23 @@ export default function Dashboard() {
                                     createdAt: serverTimestamp()
                                   });
 
+                                  try {
+                                    if (selectedAdminTicket.clientUid) {
+                                      await addDoc(collection(db, 'notifications'), {
+                                        userId: selectedAdminTicket.clientUid,
+                                        clientEmail: selectedAdminTicket.clientEmail || '',
+                                        title: 'Novo Chamado de Suporte',
+                                        message: `O Atendimento Acelera SEO iniciou um chamado: "${selectedAdminTicket.subject || 'Suporte Técnico Direto'}".`,
+                                        type: 'info',
+                                        category: 'suporte',
+                                        read: false,
+                                        createdAt: serverTimestamp()
+                                      });
+                                    }
+                                  } catch (notifErr) {
+                                    console.error("Erro ao notificar início do suporte direto:", notifErr);
+                                  }
+
                                   setAdminReplyText('');
                                   addToast('Chamado inicial criado!', 'success');
                                   fetchAdminTickets();
@@ -4711,6 +4745,23 @@ export default function Dashboard() {
                                   message: adminReplyText,
                                   createdAt: serverTimestamp()
                                 });
+
+                                try {
+                                  if (selectedAdminTicket.clientUid) {
+                                    await addDoc(collection(db, 'notifications'), {
+                                      userId: selectedAdminTicket.clientUid,
+                                      clientEmail: selectedAdminTicket.clientEmail || '',
+                                      title: 'Novo Chamado de Suporte',
+                                      message: `O Atendimento Acelera SEO iniciou um chamado: "${selectedAdminTicket.subject || 'Suporte Técnico Direto'}".`,
+                                      type: 'info',
+                                      category: 'suporte',
+                                      read: false,
+                                      createdAt: serverTimestamp()
+                                    });
+                                  }
+                                } catch (notifErr) {
+                                  console.error("Erro ao notificar início do suporte direto:", notifErr);
+                                }
 
                                 setAdminReplyText('');
                                 addToast('Chamado inicial criado!', 'success');

@@ -41,7 +41,7 @@ service cloud.firestore {
     function isValidSeoPage(data) {
       return data.keys().hasAll(['url', 'title', 'createdAt', 'agencyUid']) &&
              data.keys().size() >= 4 && data.keys().size() <= 8 &&
-             data.url is string && data.url.size() > 5 &&
+             data.url is string && data.url.size() >= 1 &&
              data.title is string && data.title.size() > 0 &&
              data.createdAt == request.time &&
              data.agencyUid == request.auth.uid;

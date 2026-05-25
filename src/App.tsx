@@ -30,7 +30,7 @@ import ClientDashboard from './pages/ClientDashboard';
 import DashboardPage from './pages/Dashboard';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
-import { SettingsProvider } from './contexts/SettingsContext';
+import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import AuthRoute from './components/AuthRoute';
 import { GlobalSeo } from './components/SeoHeader';
 import Skeleton from './components/ui/Skeleton';
@@ -62,6 +62,7 @@ const structuredData = {
 
 function AppContent() {
   const location = useLocation();
+  const { defaultTitle, defaultDescription, logoUrl, faviconUrl } = useSettings();
   const hideGlobalLayout = ['/portal-cliente', '/painel', '/dashboard', '/login', '/cadastro'].includes(location.pathname);
   
   // Páginas que possuem Hero section próprio e não precisam de padding-top no main
@@ -81,19 +82,21 @@ function AppContent() {
     <div className="min-h-screen flex flex-col justify-between font-sans selection:bg-brand-200 selection:text-brand-900">
       <Helmet>
         <html lang="pt-BR" />
-        <title>Acelera SEO | Agência de SEO Especializada em Otimização de Sites</title>
-        <meta name="description" content="Acelera SEO é uma agência focada em auditoria de SEO técnica, Link Building de alta autoridade e SEO On-Page para potencializar o seu ranqueamento no Google e as vendas orgânicas." />
-        <meta property="og:title" content="Acelera SEO | Agência de SEO Especializada" />
-        <meta property="og:description" content="Engenharia reversa e otimização tech extrema focada em auditorias SEO para posicionar o site da sua empresa no topo das buscas." />
+        <title>{defaultTitle}</title>
+        <meta name="description" content={defaultDescription} />
+        <meta property="og:title" content={defaultTitle} />
+        <meta property="og:description" content={defaultDescription} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://aceleraseo.com.br" />
         <meta property="og:site_name" content="Acelera SEO" />
-        <meta property="og:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta property="og:image" content={logoUrl || "https://aceleraseo.com.br/logo.png"} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Acelera SEO | Agência de SEO Especializada" />
-        <meta name="twitter:description" content="Otimização técnica experiente focada no crescimento do seu negócio através da aquisição orgânica." />
-        <meta name="twitter:image" content="https://aceleraseo.com.br/logo.png" />
+        <meta name="twitter:title" content={defaultTitle} />
+        <meta name="twitter:description" content={defaultDescription} />
+        <meta name="twitter:image" content={logoUrl || "https://aceleraseo.com.br/logo.png"} />
         <link rel="canonical" href="https://aceleraseo.com.br" />
+        <link rel="icon" type="image/png" href={faviconUrl || "/logo.png"} />
+        <link rel="shortcut icon" type="image/png" href={faviconUrl || "/logo.png"} />
       </Helmet>
 
       <JsonLd data={structuredData} />

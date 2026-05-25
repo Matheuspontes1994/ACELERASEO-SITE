@@ -85,6 +85,23 @@ export default function ClientDashboard() {
   const [reviewingPost, setReviewingPost] = useState<any>(null);
   const [reviewComment, setReviewComment] = useState<string>('');
   const [filterMonth, setFilterMonth] = useState<string>('');
+
+  const [postsLimit, setPostsLimit] = useState(5);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const [backlinksLimit, setBacklinksLimit] = useState(5);
+  const [hasMoreBacklinks, setHasMoreBacklinks] = useState(true);
+
+  const handleLoadMorePosts = () => {
+    const newLimit = postsLimit + 10;
+    setPostsLimit(newLimit);
+    loadBlogPosts(newLimit);
+  };
+
+  const handleLoadMoreBacklinks = () => {
+    const newLimit = backlinksLimit + 10;
+    setBacklinksLimit(newLimit);
+    loadBacklinks(newLimit);
+  };
   
   const formatCycleDate = (dateStr: string) => {
     if (!dateStr) return '';
@@ -131,10 +148,35 @@ export default function ClientDashboard() {
     if (!auth.currentUser) return;
     setLoadingTickets(true);
     try {
-      const q = query(
-        collection(db, 'support_tickets'),
-        where('clientUid', '==', auth.currentUser.uid)
-      );
+      const activeClient = selectedClient 
+        ? clientsData.find(c => c.name === selectedClient) 
+        : clientsData.find(c => c.uid === auth.currentUser?.uid || c.clientEmail === auth.currentUser?.email);
+
+      let q;
+      if (isAdmin && activeClient) {
+        if (activeClient.uid) {
+          q = query(
+            collection(db, 'support_tickets'),
+            where('clientUid', '==', activeClient.uid)
+          );
+        } else if (activeClient.clientEmail) {
+          q = query(
+            collection(db, 'support_tickets'),
+            where('clientEmail', '==', activeClient.clientEmail)
+          );
+        } else {
+          q = query(
+            collection(db, 'support_tickets'),
+            where('clientName', '==', activeClient.name)
+          );
+        }
+      } else {
+        q = query(
+          collection(db, 'support_tickets'),
+          where('clientUid', '==', auth.currentUser.uid)
+        );
+      }
+
       const snap = await getDocs(q);
       const list = snap.docs.map(d => ({ id: d.id, ...d.data() as any }));
       list.sort((a, b) => {
@@ -173,14 +215,16 @@ export default function ClientDashboard() {
     setSubmittingTicket(true);
     try {
       const ticketRef = doc(collection(db, 'support_tickets'));
-      const activeClient = clientsData[0];
+      const activeClient = selectedClient 
+        ? clientsData.find(c => c.name === selectedClient) 
+        : clientsData.find(c => c.uid === auth.currentUser?.uid || c.clientEmail === auth.currentUser?.email) || clientsData[0];
       const clientName = activeClient?.name || auth.currentUser.displayName || auth.currentUser.email?.split('@')[0] || 'Cliente';
       
       const ticketData = {
         subject: newTicketSubject,
-        clientEmail: auth.currentUser.email || '',
+        clientEmail: activeClient?.clientEmail || auth.currentUser.email || '',
         clientName: clientName,
-        clientUid: auth.currentUser.uid,
+        clientUid: activeClient?.uid || auth.currentUser.uid,
         status: 'pending',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -194,13 +238,45 @@ export default function ClientDashboard() {
       const messageRef = doc(collection(db, 'support_tickets', ticketRef.id, 'messages'));
       const messageData = {
         senderId: auth.currentUser.uid,
-        senderName: clientName,
-        senderRole: 'client',
+        senderName: isAdmin ? 'Atendimento Acelera SEO' : clientName,
+        senderRole: isAdmin ? 'admin' : 'client',
         message: newTicketMessage,
         createdAt: serverTimestamp()
       };
 
       await setDoc(messageRef, messageData);
+
+      try {
+        if (isAdmin) {
+          if (activeClient?.uid) {
+            await addDoc(collection(db, 'notifications'), {
+              userId: activeClient.uid,
+              clientEmail: activeClient.clientEmail || '',
+              title: 'Novo Chamado de Suporte',
+              message: `O Atendimento Acelera SEO abriu um chamado para você: "${newTicketSubject}".`,
+              type: 'info',
+              category: 'suporte',
+              read: false,
+              createdAt: serverTimestamp()
+            });
+          }
+        } else {
+          if (activeClient?.agencyUid) {
+            await addDoc(collection(db, 'notifications'), {
+              userId: activeClient.agencyUid,
+              clientEmail: activeClient.clientEmail || auth.currentUser.email || '',
+              title: 'Novo Chamado de Suporte',
+              message: `O cliente ${clientName} abriu o chamado: "${newTicketSubject}".`,
+              type: 'info',
+              category: 'suporte',
+              read: false,
+              createdAt: serverTimestamp()
+            });
+          }
+        }
+      } catch (notifErr) {
+        console.error("Erro ao criar notificação de chamado:", notifErr);
+      }
 
       setNewTicketSubject('');
       setNewTicketMessage('');
@@ -219,13 +295,15 @@ export default function ClientDashboard() {
     if (!chatMessageText.trim() || !selectedTicket || !auth.currentUser) return;
     setSendingMessage(true);
     try {
-      const activeClient = clientsData[0];
+      const activeClient = selectedClient 
+        ? clientsData.find(c => c.name === selectedClient) 
+        : clientsData.find(c => c.uid === auth.currentUser?.uid || c.clientEmail === auth.currentUser?.email);
       const clientName = activeClient?.name || auth.currentUser.displayName || auth.currentUser.email?.split('@')[0] || 'Cliente';
       
       const messageData = {
         senderId: auth.currentUser.uid,
-        senderName: clientName,
-        senderRole: 'client',
+        senderName: isAdmin ? 'Atendimento Acelera SEO' : clientName,
+        senderRole: isAdmin ? 'admin' : 'client',
         message: chatMessageText,
         createdAt: serverTimestamp()
       };
@@ -234,12 +312,44 @@ export default function ClientDashboard() {
       await setDoc(messageRef, messageData);
 
       await updateDoc(doc(db, 'support_tickets', selectedTicket.id), {
-        unreadByAdmin: true,
-        unreadByClient: false,
+        unreadByAdmin: !isAdmin,
+        unreadByClient: isAdmin,
         lastMessage: chatMessageText.substring(0, 150),
-        status: 'pending',
+        status: isAdmin ? 'answered' : 'pending',
         updatedAt: serverTimestamp()
       });
+
+      try {
+        if (isAdmin) {
+          if (activeClient?.uid) {
+            await addDoc(collection(db, 'notifications'), {
+              userId: activeClient.uid,
+              clientEmail: activeClient.clientEmail || '',
+              title: 'Nova Mensagem de Suporte',
+              message: `Você recebeu uma resposta da nossa equipe no chamado: "${selectedTicket.subject}".`,
+              type: 'info',
+              category: 'suporte',
+              read: false,
+              createdAt: serverTimestamp()
+            });
+          }
+        } else {
+          if (activeClient?.agencyUid) {
+            await addDoc(collection(db, 'notifications'), {
+              userId: activeClient.agencyUid,
+              clientEmail: activeClient.clientEmail || auth.currentUser.email || '',
+              title: 'Nova Mensagem de Suporte',
+              message: `O cliente ${clientName} enviou uma resposta no chamado: "${selectedTicket.subject}".`,
+              type: 'info',
+              category: 'suporte',
+              read: false,
+              createdAt: serverTimestamp()
+            });
+          }
+        }
+      } catch (notifErr) {
+        console.error("Erro ao criar notificação do chat de suporte:", notifErr);
+      }
 
       setChatMessageText('');
       fetchTickets();
@@ -380,6 +490,12 @@ export default function ClientDashboard() {
   useEffect(() => {
     if (!auth.currentUser) return;
     
+    // reset pagination limits on client switch
+    setPostsLimit(5);
+    setBacklinksLimit(5);
+    setHasMorePosts(true);
+    setHasMoreBacklinks(true);
+
     // Pre-selecionar o ciclo atual do cliente selecionado
     const activeClient = selectedClient 
       ? clientsData.find(c => c.name === selectedClient) 
@@ -389,9 +505,10 @@ export default function ClientDashboard() {
       setFilterMonth(activeClient.currentCycleDate);
     }
 
-    loadBlogPosts();
-    loadBacklinks();
+    loadBlogPosts(5);
+    loadBacklinks(5);
     loadKeywordsUniverse();
+    fetchTickets();
   }, [selectedClient, clientsData]);
 
   // Real-time listener for the selected ticket's messages
@@ -419,7 +536,7 @@ export default function ClientDashboard() {
     return () => unsubscribe();
   }, [selectedTicket?.id]);
 
-  const loadBlogPosts = async () => {
+  const loadBlogPosts = async (customLimit = postsLimit) => {
     const user = auth.currentUser;
     if (!user) return;
 
@@ -432,23 +549,24 @@ export default function ClientDashboard() {
     try {
       if (isUserAdmin) {
         if (selectedClient) {
-          q = query(collection(db, path), where('clientName', '==', selectedClient), orderBy('createdAt', 'desc'), limit(100));
+          q = query(collection(db, path), where('clientName', '==', selectedClient), orderBy('createdAt', 'desc'), limit(customLimit));
         } else {
-          q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(100));
+          q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(customLimit));
         }
       } else {
         // For clients, we try to match by email OR uid (if we have a client record with that uid)
         const clientRecord = clientsData.find(c => c.uid === userId || c.clientEmail === userEmail);
         if (clientRecord) {
           // Many older posts might only have clientEmail or clientName
-          q = query(collection(db, path), where('clientEmail', '==', clientRecord.clientEmail), orderBy('createdAt', 'desc'), limit(100));
+          q = query(collection(db, path), where('clientEmail', '==', clientRecord.clientEmail), orderBy('createdAt', 'desc'), limit(customLimit));
         } else {
-          q = query(collection(db, path), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(100));
+          q = query(collection(db, path), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(customLimit));
         }
       }
 
       setLoadingPosts(true);
       const snapshot = await getDocs(q);
+      setHasMorePosts(snapshot.docs.length === customLimit);
       const posts: any[] = [];
       snapshot.forEach((docSnap) => {
         const data = docSnap.data() as any;
@@ -496,7 +614,7 @@ export default function ClientDashboard() {
     }
   };
 
-  const loadBacklinks = async () => {
+  const loadBacklinks = async (customLimit = backlinksLimit) => {
     const user = auth.currentUser;
     if (!user) return;
 
@@ -510,20 +628,21 @@ export default function ClientDashboard() {
       setLoadingBacklinks(true);
       if (isUserAdmin) {
         if (selectedClient) {
-          q = query(collection(db, path), where('clientName', '==', selectedClient), orderBy('createdAt', 'desc'), limit(100));
+          q = query(collection(db, path), where('clientName', '==', selectedClient), orderBy('createdAt', 'desc'), limit(customLimit));
         } else {
-          q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(100));
+          q = query(collection(db, path), orderBy('createdAt', 'desc'), limit(customLimit));
         }
       } else {
         const clientRecord = clientsData.find(c => c.uid === userId || c.clientEmail === userEmail);
         if (clientRecord) {
-          q = query(collection(db, path), where('clientEmail', '==', clientRecord.clientEmail), orderBy('createdAt', 'desc'), limit(100));
+          q = query(collection(db, path), where('clientEmail', '==', clientRecord.clientEmail), orderBy('createdAt', 'desc'), limit(customLimit));
         } else {
-          q = query(collection(db, path), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(100));
+          q = query(collection(db, path), where('clientEmail', '==', userEmail), orderBy('createdAt', 'desc'), limit(customLimit));
         }
       }
 
       const querySnapshot = await getDocs(q);
+      setHasMoreBacklinks(querySnapshot.docs.length === customLimit);
       const links: any[] = [];
       querySnapshot.forEach((docSnap) => {
         const data = docSnap.data() as any;
@@ -1489,7 +1608,8 @@ export default function ClientDashboard() {
                      </div>
                  </div>
                ) : (
-                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                 <>
+                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                    {loadingPosts ? (
                       <div className="col-span-full grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {Array.from({ length: 3 }).map((_, i) => (
@@ -1529,6 +1649,26 @@ export default function ClientDashboard() {
                      </div>
                    ))}
                  </div>
+                 {hasMorePosts && !loadingPosts && (
+                   <div className="flex justify-center mt-12 pb-4">
+                     <button 
+                       onClick={handleLoadMorePosts} 
+                       className="inline-flex items-center gap-2 px-6 py-3 border border-slate-200 rounded-xl bg-white hover:bg-slate-50 text-[10px] font-black uppercase tracking-[0.15em] transition-all cursor-pointer shadow-sm hover:shadow active:scale-95 text-slate-600 hover:text-slate-900"
+                     >
+                       <ChevronDown size={14} className="text-slate-400" />
+                       Carregar Mais
+                     </button>
+                   </div>
+                 )}
+                 {loadingPosts && postsLimit > 5 && (
+                   <div className="flex justify-center mt-12 pb-4">
+                     <div className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] bg-slate-50 text-slate-400">
+                       <RefreshCcw size={14} className="animate-spin text-slate-400" />
+                       Carregando...
+                     </div>
+                   </div>
+                 )}
+                 </>
                )}
             </div>
               </motion.div>
@@ -1654,6 +1794,25 @@ export default function ClientDashboard() {
                     </div>
                   ))}
                 </div>
+                {hasMorePosts && !loadingPosts && (
+                  <div className="flex justify-center mt-12 pb-4">
+                    <button 
+                      onClick={handleLoadMorePosts} 
+                      className="inline-flex items-center gap-2 px-6 py-3 border border-slate-200 rounded-xl bg-white hover:bg-slate-50 text-[10px] font-black uppercase tracking-[0.15em] transition-all cursor-pointer shadow-sm hover:shadow active:scale-95 text-slate-600 hover:text-slate-900"
+                    >
+                      <ChevronDown size={14} className="text-slate-400" />
+                      Carregar Mais
+                    </button>
+                  </div>
+                )}
+                {loadingPosts && postsLimit > 5 && (
+                  <div className="flex justify-center mt-12 pb-4">
+                    <div className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] bg-slate-50 text-slate-400">
+                      <RefreshCcw size={14} className="animate-spin text-slate-400" />
+                      Carregando...
+                    </div>
+                  </div>
+                )}
             </div>
               </motion.div>
             )}
@@ -1756,6 +1915,25 @@ export default function ClientDashboard() {
                     </div>
                   ))}
                 </div>
+                {hasMoreBacklinks && !loadingBacklinks && (
+                  <div className="flex justify-center mt-12 pb-4">
+                    <button 
+                      onClick={handleLoadMoreBacklinks} 
+                      className="inline-flex items-center gap-2 px-6 py-3 border border-slate-200 rounded-xl bg-white hover:bg-slate-50 text-[10px] font-black uppercase tracking-[0.15em] transition-all cursor-pointer shadow-sm hover:shadow active:scale-95 text-slate-600 hover:text-slate-900"
+                    >
+                      <ChevronDown size={14} className="text-slate-400" />
+                      Carregar Mais
+                    </button>
+                  </div>
+                )}
+                {loadingBacklinks && backlinksLimit > 5 && (
+                  <div className="flex justify-center mt-12 pb-4">
+                    <div className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] bg-slate-50 text-slate-400">
+                      <RefreshCcw size={14} className="animate-spin text-slate-400" />
+                      Carregando...
+                    </div>
+                  </div>
+                )}
             </div>
               </motion.div>
             )}
