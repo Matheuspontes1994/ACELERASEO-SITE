@@ -45,9 +45,31 @@
         "monthlyBacklinks": { "type": "number" },
         "active": { "type": "boolean" },
         "agencyUid": { "type": "string" },
-        "logoUrl": { "type": "string" }
+        "logoUrl": { "type": "string" },
+        "lastPaymentMonth": { "type": "string", "description": "Formato YYYY-MM" },
+        "packageValue": { "type": "number" },
+        "packageName": { "type": "string" },
+        "status": { "type": "string", "enum": ["Ativo", "Cancelado"] }
       },
       "required": ["name", "clientEmail"]
+    },
+    "payments": {
+      "title": "Payment",
+      "description": "Registros de pagamentos feitos pelos clientes",
+      "type": "object",
+      "properties": {
+        "clientId": { "type": "string" },
+        "clientName": { "type": "string" },
+        "amount": { "type": "number" },
+        "paymentDate": { "type": "string", "format": "date" },
+        "description": { "type": "string" },
+        "type": { "type": "string", "enum": ["Mensalidade", "Setup", "Serviço Avulso", "Consultoria"] },
+        "status": { "type": "string", "enum": ["confirmado", "pendente"], "description": "Status do pagamento" },
+        "paymentMonth": { "type": "string", "description": "Mês de referência (YYYY-MM)" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "agencyUid": { "type": "string" }
+      },
+      "required": ["clientId", "amount", "paymentDate"]
     },
     "backlinks": {
       "title": "Backlink",
@@ -64,6 +86,46 @@
         "agencyUid": { "type": "string" }
       },
       "required": ["title", "clientName", "targetUrl"]
+    },
+    "notifications": {
+      "title": "Notification",
+      "description": "Alertas e avisos para clientes ou agência",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "UID do destinatário" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["info", "success", "warning", "error"] },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "clientEmail": { "type": "string", "description": "Filtro adicional para clientes" },
+        "category": { "type": "string", "description": "Ex: pagamento, aprovação, relatório" }
+      },
+      "required": ["userId", "title", "message", "read"]
+    },
+    "contacts": {
+      "title": "Contact",
+      "description": "Mensagens de contato do site",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "message"]
+    },
+    "audit_leads": {
+      "title": "Audit Lead",
+      "description": "Leads gerados pela ferramenta de auditoria",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "url": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "phone", "url"]
     }
   },
   "firestore": {
@@ -79,9 +141,25 @@
       "schema": "clients",
       "description": "Coleção de clientes da agência"
     },
+    "payments": {
+      "schema": "payments",
+      "description": "Coleção de registros de pagamentos"
+    },
     "backlinks": {
       "schema": "backlinks",
       "description": "Coleção de registros de link building"
+    },
+    "notifications": {
+      "schema": "notifications",
+      "description": "Coleção de alertas e avisos"
+    },
+    "contacts": {
+      "schema": "contacts",
+      "description": "Coleção de mensagens de contato"
+    },
+    "audit_leads": {
+      "schema": "audit_leads",
+      "description": "Coleção de leads de auditoria"
     }
   }
 }

@@ -12,6 +12,8 @@ interface AuditResult {
   badPoints: { title: string; description: string; impact: 'high' | 'medium' | 'low' }[];
 }
 
+import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
+
 export default function Audit() {
   const [url, setUrl] = useState('');
   const [name, setName] = useState('');
@@ -61,15 +63,16 @@ export default function Audit() {
     setProgress(0);
     
     // Save lead to Firestore
+    const path = 'audit_leads';
     try {
-      await addDoc(collection(db, 'audit_leads'), {
+      await addDoc(collection(db, path), {
         name,
         phone: phone.replace(/\D/g, ''),
         url,
         createdAt: serverTimestamp()
       });
     } catch (err) {
-      console.error("Erro ao salvar lead", err);
+      handleFirestoreError(err, OperationType.WRITE, path);
     }
 
     // Simulate scanning progress UX

@@ -6,37 +6,138 @@ service cloud.firestore {
     function isSignedIn() { return request.auth != null; }
     function isAdmin() { 
       return isSignedIn() && (
-        request.auth.token.email == 'matheuspontes290594@gmail.com' || 
-        request.auth.token.email == 'aceleraseo@gmail.com'
-      ); 
+               request.auth.token.email == 'matheuspontes290594@gmail.com' || 
+               request.auth.token.email == 'aceleraseo@gmail.com'
+             ); 
     }
     function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
     
     // --- Validation Helpers ---
+    
     function isValidContact(data) {
-      return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+      return data.keys().hasAll(['name', 'email', 'message', 'createdAt']) &&
+             data.keys().size() >= 4 && data.keys().size() <= 8 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
              data.email is string && data.email.size() > 5 && data.email.size() <= 254 && data.email.matches('.*@.*\\..*') &&
              data.message is string && data.message.size() > 0 && data.message.size() <= 5000 &&
-             data.createdAt is timestamp;
+             data.createdAt == request.time &&
+             (data.status is string || !data.keys().contains('status')) &&
+             (data.updatedAt == request.time || !data.keys().contains('updatedAt'));
     }
     
     function isValidAuditLead(data) {
-      return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+      return data.keys().hasAll(['name', 'phone', 'url', 'createdAt']) &&
+             data.keys().size() >= 4 && data.keys().size() <= 8 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
              data.phone is string && data.phone.size() > 5 && data.phone.size() <= 20 &&
              data.url is string && data.url.size() > 5 && data.url.size() <= 2048 &&
-             data.createdAt is timestamp;
+             data.createdAt == request.time &&
+             (data.status is string || !data.keys().contains('status')) &&
+             (data.updatedAt == request.time || !data.keys().contains('updatedAt'));
     }
     
     function isValidSeoPage(data) {
-      return data.url is string && data.url.size() > 5 &&
+      return data.keys().hasAll(['url', 'title', 'createdAt', 'agencyUid']) &&
+             data.keys().size() >= 4 && data.keys().size() <= 8 &&
+             data.url is string && data.url.size() > 5 &&
              data.title is string && data.title.size() > 0 &&
-             data.createdAt is timestamp;
+             data.createdAt == request.time &&
+             data.agencyUid == request.auth.uid;
     }
 
-    function isValidStatusUpdate(incoming, existing) {
-      return incoming.diff(existing).affectedKeys().hasOnly(['status', 'clientComment', 'updatedAt']);
+    function isValidClient(data) {
+      return data.keys().hasAll(['name', 'clientEmail', 'agencyUid', 'createdAt']) &&
+             data.keys().size() >= 4 && data.keys().size() <= 15 &&
+             data.name is string && data.name.size() > 0 &&
+             data.clientEmail is string && data.clientEmail.size() > 5 &&
+             data.agencyUid == request.auth.uid &&
+             data.createdAt == request.time;
+    }
+
+    function isValidBlogPost(data) {
+      return data.keys().hasAll(['title', 'slug', 'content', 'category', 'status', 'createdAt', 'updatedAt', 'agencyUid']) &&
+             data.keys().size() >= 8 && data.keys().size() <= 25 &&
+             data.title is string && data.title.size() > 0 &&
+             data.slug is string && data.slug.size() > 0 &&
+             data.content is string &&
+             data.category is string &&
+             data.status in ['Rascunho', 'Planejado', 'Aguardando Aprovação', 'Publicado', 'Aprovado', 'Ajustes Necessários'] &&
+             data.createdAt == request.time &&
+             data.updatedAt == request.time &&
+             data.agencyUid == request.auth.uid;
+    }
+
+    function isValidBacklink(data) {
+       return data.keys().hasAll(['title', 'clientName', 'targetUrl', 'status', 'agencyUid', 'createdAt']) &&
+              data.keys().size() >= 6 && data.keys().size() <= 20 &&
+              data.title is string &&
+              data.clientName is string &&
+              data.targetUrl is string &&
+              data.status is string &&
+              data.agencyUid == request.auth.uid &&
+              data.createdAt == request.time;
+    }
+
+    function isValidPayment(data) {
+      return data.keys().hasAll(['clientId', 'amount', 'paymentDate', 'status', 'agencyUid', 'createdAt']) &&
+             data.keys().size() >= 6 && data.keys().size() <= 10 &&
+             data.clientId is string &&
+             data.amount is number &&
+             data.status in ['confirmado', 'pendente'] &&
+             data.agencyUid == request.auth.uid &&
+             data.createdAt == request.time;
+    }
+
+    function isValidNotification(data) {
+      return data.keys().hasAll(['userId', 'title', 'message', 'type', 'read', 'createdAt']) &&
+             data.keys().size() >= 6 && data.keys().size() <= 10 &&
+             data.userId is string &&
+             data.title is string &&
+             data.message is string &&
+             data.type in ['info', 'success', 'warning', 'error'] &&
+             data.read == false &&
+             data.createdAt == request.time;
+    }
+
+    function isTerminalStatus(data) {
+      return data.status in ['Publicado', 'Aprovado', 'confirmado', 'Cancelado'];
+    }
+
+    function isValidUserStatus(data) {
+      return data.keys().hasAll(['email', 'name', 'role', 'lastActiveAt', 'updatedAt']) &&
+             data.keys().size() == 5 &&
+             data.email is string &&
+             data.name is string &&
+             data.role in ['admin', 'client'] &&
+             data.lastActiveAt == request.time &&
+             data.updatedAt == request.time;
+    }
+
+    function isValidSupportTicket(data) {
+      return data.keys().hasAll(['subject', 'clientEmail', 'clientName', 'clientUid', 'status', 'createdAt', 'updatedAt', 'unreadByAdmin', 'unreadByClient', 'lastMessage']) &&
+             data.keys().size() >= 9 && data.keys().size() <= 12 &&
+             data.subject is string && data.subject.size() > 0 && data.subject.size() <= 200 &&
+             data.clientEmail is string && data.clientEmail.size() > 5 &&
+             data.clientName is string && data.clientName.size() > 0 &&
+             data.clientUid is string &&
+             data.status in ['pending', 'answered', 'closed'] &&
+             data.unreadByAdmin is bool &&
+             data.unreadByClient is bool &&
+             data.lastMessage is string && data.lastMessage.size() <= 2000 &&
+             data.createdAt == request.time &&
+             data.updatedAt == request.time;
+    }
+
+    function isValidSupportMessage(data) {
+      return data.keys().hasAll(['senderId', 'senderName', 'senderRole', 'message', 'createdAt']) &&
+             data.keys().size() == 5 &&
+             data.senderId is string &&
+             data.senderName is string &&
+             data.senderRole in ['client', 'admin'] &&
+             data.message is string && data.message.size() > 0 && data.message.size() <= 2000 &&
+             data.createdAt == request.time;
     }
 
     // --- Global Safety Net ---
@@ -56,46 +157,152 @@ service cloud.firestore {
     
     match /seo_pages/{pageId} {
       allow read: if true;
-      allow create: if isSignedIn() && incoming().createdAt == request.time;
-      allow update: if isSignedIn() && (isAdmin() || (incoming().agencyUid == existing().agencyUid));
-      allow delete: if isAdmin();
+      allow create: if isSignedIn() && isValidSeoPage(incoming());
+      allow update: if (isAdmin() || (isSignedIn() && request.auth.uid == existing().agencyUid)) && 
+                    incoming().agencyUid == existing().agencyUid &&
+                    incoming().createdAt == existing().createdAt &&
+                    incoming().updatedAt == request.time &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['url', 'title', 'description', 'customNotes', 'clientName', 'updatedAt']);
+      allow delete: if isAdmin() || (isSignedIn() && request.auth.uid == existing().agencyUid);
     }
 
     match /settings/{settingId} {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    match /blog_categories/{catId} {
+      allow read: if true;
+      allow write: if isAdmin() || (isSignedIn() && request.auth.uid == (resource == null ? incoming().agencyUid : existing().agencyUid));
+    }
     
     match /clients/{clientId} {
-      allow read: if isSignedIn() && (isAdmin() || request.auth.uid == resource.data.uid || request.auth.token.email == resource.data.clientEmail);
-      allow create: if isSignedIn() && (isAdmin() || request.auth.token.email == incoming().clientEmail);
-      allow update: if isSignedIn() && (
-        isAdmin() || 
-        (request.auth.uid == existing().uid && incoming().uid == existing().uid && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'clientEmail', 'websiteUrl', 'logoUrl', 'updatedAt'])) ||
-        (request.auth.token.email == existing().clientEmail && incoming().uid == request.auth.uid)
+      allow read: if isSignedIn() && (isAdmin() || request.auth.uid == resource.data.uid || request.auth.token.email == resource.data.clientEmail || request.auth.uid == resource.data.agencyUid);
+      allow create: if isSignedIn() && isValidClient(incoming());
+      allow update: if isAdmin() || (
+        isSignedIn() && 
+        request.auth.uid == existing().agencyUid && 
+        incoming().agencyUid == existing().agencyUid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        (
+          // Action: Full Update
+          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'clientEmail', 'websiteUrl', 'billingDay', 'contractStart', 'monthlyPosts', 'monthlyBacklinks', 'active', 'logoUrl', 'packageValue', 'packageName', 'status', 'updatedAt']) ||
+          // Action: Update Last Payment
+          incoming().diff(existing()).affectedKeys().hasOnly(['lastPaymentMonth', 'updatedAt'])
+        )
       );
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() || (isSignedIn() && request.auth.uid == existing().agencyUid);
     }
     
     match /blog_posts/{postId} {
-      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail || request.auth.uid == resource.data.uid);
-      allow create: if isAdmin();
-      allow update: if isAdmin() || (
+      allow read: if true;
+      allow create: if isAdmin() || (isSignedIn() && isValidBlogPost(incoming()));
+      allow update: if (isAdmin() || (
         isSignedIn() && 
-        (request.auth.token.email == existing().clientEmail || request.auth.uid == existing().uid) && 
-        isValidStatusUpdate(incoming(), existing())
-      );
-      allow delete: if isAdmin();
+        (request.auth.uid == existing().agencyUid) && 
+        incoming().agencyUid == existing().agencyUid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        (!isTerminalStatus(existing()) || isAdmin()) &&
+        (
+          // Action: Edit Post
+          incoming().diff(existing()).affectedKeys().hasOnly(['title', 'slug', 'description', 'content', 'category', 'coverImage', 'focusKeywords', 'anchor', 'seoTitle', 'wordCount', 'targetWords', 'imagesInfo', 'publishedUrl', 'internalLinking', 'theme', 'secondaryKeywords', 'directioning', 'status', 'publishedAt', 'clientComment', 'updatedAt']) ||
+          // Action: Client Review
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'clientComment', 'updatedAt'])
+        )
+      ));
+      allow delete: if isAdmin() || (isSignedIn() && request.auth.uid == existing().agencyUid);
+
+      match /revisions/{revId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn();
+      }
     }
     
     match /backlinks/{backlinkId} {
-      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail || request.auth.uid == resource.data.uid);
-      allow write: if isAdmin();
+      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail || request.auth.uid == resource.data.agencyUid);
+      allow create: if isSignedIn() && isValidBacklink(incoming());
+      allow update: if isAdmin() || (
+        isSignedIn() && 
+        request.auth.uid == existing().agencyUid && 
+        incoming().agencyUid == existing().agencyUid &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['title', 'clientName', 'clientEmail', 'targetMonth', 'focusKeywords', 'anchor', 'targetUrl', 'theme', 'directioning', 'content', 'status', 'publishedAt', 'publishedUrl', 'wordCount', 'targetWords', 'updatedAt'])
+      );
+      allow delete: if isAdmin() || (isSignedIn() && request.auth.uid == existing().agencyUid);
+
+      match /revisions/{revId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn();
+      }
+    }
+    
+    match /payments/{paymentId} {
+      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail || request.auth.uid == resource.data.agencyUid);
+      allow create: if isSignedIn() && isValidPayment(incoming());
+      allow update: if isAdmin() || (
+        isSignedIn() && 
+        request.auth.uid == existing().agencyUid && 
+        incoming().agencyUid == existing().agencyUid &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+      );
+      allow delete: if isAdmin();
     }
   
     match /keyword_universe/{keywordId} {
-      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail || request.auth.uid == resource.data.uid);
-      allow write: if isAdmin();
+      allow read: if isSignedIn() && (isAdmin() || request.auth.token.email == resource.data.clientEmail || request.auth.uid == resource.data.agencyUid);
+      allow write: if isAdmin() || (isSignedIn() && request.auth.uid == (resource == null ? incoming().agencyUid : existing().agencyUid));
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && (isAdmin() || request.auth.uid == resource.data.userId);
+      allow update: if isSignedIn() && (request.auth.uid == existing().userId) && 
+                    incoming().diff(existing()).affectedKeys().hasOnly(['read', 'readAt']);
+      allow create, delete: if isAdmin() || (isSignedIn() && request.auth.uid == (resource == null ? incoming().agencyUid : existing().agencyUid));
+    }
+
+    match /user_status/{userId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && request.auth.uid == userId && isValidUserStatus(incoming());
+      allow delete: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+    }
+
+    match /support_tickets/{ticketId} {
+      allow read: if isSignedIn() && (
+        isAdmin() || 
+        request.auth.uid == resource.data.clientUid || 
+        request.auth.token.email == resource.data.clientEmail
+      );
+      allow create: if isSignedIn() && (
+        isAdmin() || 
+        request.auth.uid == incoming().clientUid || 
+        request.auth.token.email == incoming().clientEmail
+      ) && isValidSupportTicket(incoming());
+      allow update: if isSignedIn() && (
+        isAdmin() || 
+        request.auth.uid == existing().clientUid || 
+        request.auth.token.email == existing().clientEmail
+      ) && incoming().clientUid == existing().clientUid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt', 'unreadByAdmin', 'unreadByClient', 'lastMessage']) ||
+          isAdmin()
+        );
+      allow delete: if isAdmin();
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn() && (
+          isAdmin() || 
+          get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.clientUid == request.auth.uid ||
+          get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.clientEmail == request.auth.token.email
+        );
+        allow create: if isSignedIn() && (
+          isAdmin() || 
+          get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.clientUid == request.auth.uid ||
+          get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.clientEmail == request.auth.token.email
+        ) && isValidSupportMessage(incoming()) && incoming().senderId == request.auth.uid;
+      }
     }
   }
 }

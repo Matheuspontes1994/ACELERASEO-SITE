@@ -222,7 +222,7 @@ export default function SeoLocalPage({ city, state, slug }: SeoLocalProps) {
       <section id="modulos" className="py-24 bg-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className="max-w-3xl mb-20 mx-auto text-center">
-            <h2 className="text-3xl lg:text-5xl font-extrabold text-slate-900 font-display tracking-tight mb-6">
+            <h2 className="text-3xl lg:text-5xl font-black text-slate-900 font-display tracking-tight mb-6 uppercase">
               Como Fazemos do Google o <span className="text-brand-600">Melhor Vendedor</span> em {city}
             </h2>
             <p className="text-xl text-slate-600 font-light leading-relaxed">
@@ -269,12 +269,12 @@ export default function SeoLocalPage({ city, state, slug }: SeoLocalProps) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-brand-200 transition-all group"
+                className="p-8 rounded-[2rem] bg-slate-50 border border-slate-100 hover:border-brand-200 transition-all group"
               >
                 <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform">
                   {item.icon}
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-4">{item.title}</h3>
+                <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight">{item.title}</h3>
                 <p className="text-slate-600 leading-relaxed font-light">{item.desc}</p>
               </motion.div>
             ))}

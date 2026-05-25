@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Helmet } from 'react-helmet-async';
 import YoastTrafficLight from '../components/YoastTrafficLight';
+import { useSettings } from '../contexts/SettingsContext';
 import { 
   Rocket,
   Check,
@@ -13,6 +14,7 @@ import {
   CheckCircle2, 
   CheckCircle,
   Calendar,
+  RefreshCcw,
   Plus,
   Trash2,
   Send,
@@ -38,7 +40,6 @@ import {
   AlertCircle,
   Zap,
   LogOut,
-  RefreshCcw,
   Key,
   DollarSign,
   Wallet,
@@ -46,15 +47,18 @@ import {
   Bell,
   ChevronRight,
   Menu,
+  MessageSquareText,
   X
 } from 'lucide-react';
-import { sendPasswordResetEmail } from 'firebase/auth';
+import { sendPasswordResetEmail, signOut } from 'firebase/auth';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
 import { Link, useNavigate } from 'react-router-dom';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy, limit, where, startAfter } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { collection, getDocs, addDoc, updateDoc, setDoc, deleteDoc, doc, serverTimestamp, query, orderBy, limit, where, startAfter, onSnapshot } from 'firebase/firestore';
+import { ref, deleteObject } from 'firebase/storage';
+import { auth, db, storage } from '../firebase';
+import { updateUserActiveStatus } from '../utils/userStatus';
 import Toast, { ToastContainer, ToastType } from '../components/Toast';
 
 // Helper types for Toast
@@ -129,6 +133,7 @@ import { HubClients } from '../components/HubClients';
 import { PostFormModal } from '../components/PostFormModal';
 import { BacklinkFormModal } from '../components/BacklinkFormModal';
 import { KeywordFormModal } from '../components/KeywordFormModal';
+import { PaymentModal } from '../components/PaymentModal';
 import SettingsGlobal from '../components/SettingsGlobal';
 import { FileUploader } from '../components/FileUploader';
 
@@ -145,28 +150,28 @@ const Breadcrumbs = ({ workspace, activeTab }: { workspace: string, activeTab: s
 );
 
 const BentoCard = ({ title, value, icon: Icon, percentage, total, color = 'brand', subtext }: any) => (
-  <div className="p-6 bg-white rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md hover:translate-y-[-2px] transition-all duration-500 group relative overflow-hidden">
+  <div className="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md hover:translate-y-[-2px] transition-all duration-500 group relative overflow-hidden">
     <div className="absolute -right-12 -top-12 w-24 h-24 bg-slate-50 rounded-full opacity-30 group-hover:scale-110 transition-transform duration-1000" />
     
     <div className="flex items-start justify-between mb-8 relative z-10">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:rotate-12 shadow-sm ${color === 'brand' ? 'bg-brand-600 text-white' : 'bg-brand-100 text-brand-600'}`}>
+      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:rotate-12 shadow-sm ${color === 'brand' ? 'bg-brand-600 text-white' : 'bg-brand-100 text-brand-600'}`}>
         <Icon size={18} />
       </div>
       <div className="text-right">
-        <div className="text-[9px] font-bold uppercase tracking-[0.15em] text-slate-300 leading-none mb-2">{title}</div>
+        <div className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 leading-none mb-2">{title}</div>
         <div className="flex items-center gap-1.5 justify-end">
-           <span className="text-2xl font-bold text-slate-900 tracking-tight leading-none">{value}</span>
-           <span className="text-[10px] font-bold text-slate-200 tracking-wider leading-none">/ {total}</span>
+           <span className="text-2xl font-black text-slate-900 tracking-tight leading-none">{value}</span>
+           <span className="text-[10px] font-black text-slate-200 tracking-wider leading-none">/ {total}</span>
         </div>
       </div>
     </div>
     
     <div className="mb-5 relative z-10">
        <div className="flex items-baseline gap-1">
-         <span className="text-3xl font-bold text-slate-900 tracking-tight leading-none">{percentage}</span>
-         <span className="text-xs font-bold text-slate-200 leading-none">%</span>
+         <span className="text-3xl font-black text-slate-900 tracking-tight leading-none">{percentage}</span>
+         <span className="text-xs font-black text-slate-200 leading-none">%</span>
        </div>
-       {subtext && <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.1em] mt-2 flex items-center gap-2">
+       {subtext && <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-3 flex items-center gap-2">
          <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-sm"></div>
          {subtext}
        </div>}
@@ -183,7 +188,10 @@ const BentoCard = ({ title, value, icon: Icon, percentage, total, color = 'brand
   </div>
 );
 
+import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
+
 export default function Dashboard() {
+  const { logoUrl } = useSettings();
   const navigate = useNavigate();
   const userEmail = auth.currentUser?.email || '';
 
@@ -191,17 +199,179 @@ export default function Dashboard() {
     const user = auth.currentUser;
     if (user && user.email !== 'matheuspontes290594@gmail.com' && user.email !== 'aceleraseo@gmail.com') {
        navigate('/portal-cliente', { replace: true });
+       return;
+    }
+
+    if (user) {
+      updateUserActiveStatus('admin', user.displayName || undefined, user.email || undefined);
+      const interval = setInterval(() => {
+        updateUserActiveStatus('admin', user.displayName || undefined, user.email || undefined);
+      }, 180000);
+
+      fetchAdminTickets();
+
+      return () => clearInterval(interval);
     }
   }, [navigate]);
 
   const [sidebarWorkspace, setSidebarWorkspace] = useState<'clientes' | 'agencia'>('clientes');
   const [copiedClientId, setCopiedClientId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('Visão Geral');
+  const [globalPayments, setGlobalPayments] = useState<any[]>([]);
+  const [loadingGlobalPayments, setLoadingGlobalPayments] = useState(false);
   const [filterClient, setFilterClient] = useState('');
   const [subTabCrm, setSubTabCrm] = useState('Clientes Ativos');
   const [siteUrl, setSiteUrl] = useState('');
   const [lastLoadTimes, setLastLoadTimes] = useState<Record<string, number>>({});
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  // Support and Online status
+  const [adminTickets, setAdminTickets] = useState<any[]>([]);
+  const [selectedAdminTicket, setSelectedAdminTicket] = useState<any>(null);
+  const [adminTicketMessages, setAdminTicketMessages] = useState<any[]>([]);
+  const [adminReplyText, setAdminReplyText] = useState('');
+  const [loadingAdminTickets, setLoadingAdminTickets] = useState(false);
+  const [sendingAdminReply, setSendingAdminReply] = useState(false);
+  const [pendingTicketsCount, setPendingTicketsCount] = useState(0);
+
+  const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
+  const [checkingOnline, setCheckingOnline] = useState(false);
+
+  const fetchAdminTickets = async () => {
+    setLoadingAdminTickets(true);
+    try {
+      const q = query(
+        collection(db, 'support_tickets')
+      );
+      const snap = await getDocs(q);
+      const list = snap.docs.map(d => ({ id: d.id, ...d.data() as any }));
+      // Sort by updatedAt desc
+      list.sort((a, b) => {
+        const timeA = a.updatedAt?.toMillis ? a.updatedAt.toMillis() : (a.updatedAt instanceof Date ? a.updatedAt.getTime() : 0);
+        const timeB = b.updatedAt?.toMillis ? b.updatedAt.toMillis() : (b.updatedAt instanceof Date ? b.updatedAt.getTime() : 0);
+        return timeB - timeA;
+      });
+      setAdminTickets(list);
+      const pending = list.filter((t: any) => t.unreadByAdmin).length;
+      setPendingTicketsCount(pending);
+    } catch (err) {
+      console.error("Erro ao buscar chamados (admin):", err);
+    } finally {
+      setLoadingAdminTickets(false);
+    }
+  };
+
+  const checkOnlineUsers = async () => {
+    setCheckingOnline(true);
+    try {
+      // Fetch user statuses updated in the last 24 hours (or general fetch since list is usually small)
+      const q = query(
+        collection(db, 'user_status'),
+        orderBy('lastActive', 'desc'),
+        limit(50)
+      );
+      const snap = await getDocs(q);
+      const now = Date.now();
+      const list = snap.docs.map(d => {
+        const data = d.data();
+        const lastActiveMs = data.lastActive?.toMillis ? data.lastActive.toMillis() : (data.lastActive instanceof Date ? data.lastActive.getTime() : 0);
+        const isOnline = now - lastActiveMs < 300000; // 5 minutes window
+        return {
+          id: d.id,
+          ...data,
+          isOnline
+        };
+      });
+      setOnlineUsers(list);
+      addToast('Status carregado com sucesso!', 'success');
+    } catch (err) {
+      console.error("Erro ao consultar usuários online:", err);
+      addToast('Erro ao carregar lista de usuários.', 'error');
+    } finally {
+      setCheckingOnline(false);
+    }
+  };
+
+  const handleAdminSelectTicket = async (ticket: any) => {
+    setSelectedAdminTicket(ticket);
+    if (ticket.unreadByAdmin) {
+      try {
+        await updateDoc(doc(db, 'support_tickets', ticket.id), {
+          unreadByAdmin: false,
+          updatedAt: serverTimestamp()
+        });
+        setAdminTickets(prev => prev.map(t => t.id === ticket.id ? { ...t, unreadByAdmin: false } : t));
+        setPendingTicketsCount(prev => Math.max(0, prev - 1));
+      } catch (err) {
+        console.error("Erro ao marcar como lido pelo admin:", err);
+      }
+    }
+  };
+
+  const handleSendAdminReply = async () => {
+    if (!adminReplyText.trim() || !selectedAdminTicket || !auth.currentUser) return;
+    setSendingAdminReply(true);
+    try {
+      const messageData = {
+        senderId: auth.currentUser.uid,
+        senderName: 'Atendimento Acelera SEO',
+        senderRole: 'admin',
+        message: adminReplyText,
+        createdAt: serverTimestamp()
+      };
+
+      const messageRef = doc(collection(db, 'support_tickets', selectedAdminTicket.id, 'messages'));
+      await setDoc(messageRef, messageData);
+
+      await updateDoc(doc(db, 'support_tickets', selectedAdminTicket.id), {
+        unreadByClient: true,
+        unreadByAdmin: false,
+        lastMessage: adminReplyText.substring(0, 150),
+        status: 'answered',
+        updatedAt: serverTimestamp()
+      });
+
+      setAdminReplyText('');
+      fetchAdminTickets();
+    } catch (err) {
+      console.error("Erro ao responder chamado:", err);
+      addToast('Erro ao enviar resposta.', 'error');
+    } finally {
+      setSendingAdminReply(false);
+    }
+  };
+
+  const fetchAgencyNotifications = async (userId: string) => {
+    const path = 'notifications';
+    try {
+      const q = query(
+        collection(db, path),
+        where('read', '==', false),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc'),
+        limit(20)
+      );
+
+      const snapshot = await getDocs(q);
+      const newNotifications = snapshot.docs.map(d => ({ id: d.id, ...(d.data() as any) }));
+      setNotifications(newNotifications);
+      setUnreadCount(snapshot.size);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const markNotificationAsRead = async (id: string) => {
+    try {
+      await updateDoc(doc(db, 'notifications', id), { read: true, readAt: serverTimestamp() });
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const shouldReload = (key: string) => {
     const now = Date.now();
@@ -378,6 +548,7 @@ export default function Dashboard() {
     e.preventDefault();
     if (isSaving) return;
     setIsSaving(true);
+    const path = 'blog_categories';
     try {
       const { id, ...data } = categoryForm;
       const slug = data.slug || data.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
@@ -385,16 +556,17 @@ export default function Dashboard() {
       const payload = {
         ...data,
         slug,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
+        agencyUid: auth.currentUser?.uid
       };
 
       if (id) {
         const oldCategory = categories.find(c => c.id === id);
-        await updateDoc(doc(db, 'blog_categories', id), payload);
+        await updateDoc(doc(db, path, id), payload);
         
         // If name changed, update all posts belonging to this category
         if (oldCategory && oldCategory.name !== data.name) {
-          const postsQ = query(collection(db, 'blog_posts'), where('category', '==', oldCategory.name));
+          const postsQ = query(collection(db, 'blog_posts'), where('category', '==', oldCategory.name), where('agencyUid', '==', auth.currentUser?.uid));
           const postsSnap = await getDocs(postsQ);
           const updatePromises = postsSnap.docs.map(postDoc => 
             updateDoc(postDoc.ref, { category: data.name })
@@ -402,7 +574,7 @@ export default function Dashboard() {
           await Promise.all(updatePromises);
         }
       } else {
-        await addDoc(collection(db, 'blog_categories'), {
+        await addDoc(collection(db, path), {
           ...payload,
           createdAt: serverTimestamp()
         });
@@ -411,8 +583,7 @@ export default function Dashboard() {
       loadCategories();
       addToast("Categoria salva com sucesso!", "success");
     } catch (err) {
-      console.error(err);
-      addToast("Erro ao salvar categoria.", "error");
+      handleFirestoreError(err, OperationType.WRITE, path);
     } finally {
       setIsSaving(false);
     }
@@ -491,15 +662,17 @@ export default function Dashboard() {
   const toggleLeadStatus = async (collectionName: string, id: string, currentStatus: string) => {
     try {
       const newStatus = currentStatus === 'tratado' ? 'pendente' : 'tratado';
-      await updateDoc(doc(db, collectionName, id), { status: newStatus });
+      await updateDoc(doc(db, collectionName, id), { 
+        status: newStatus,
+        updatedAt: serverTimestamp()
+      });
       if (collectionName === 'audit_leads') {
         setAuditLeads(prev => prev.map(lead => lead.id === id ? { ...lead, status: newStatus } : lead));
       } else {
         setContactLeads(prev => prev.map(lead => lead.id === id ? { ...lead, status: newStatus } : lead));
       }
     } catch (err) {
-      console.error("Erro ao atualizar status", err);
-      addToast("Erro ao atualizar status. Você precisa estar autenticado.", "error");
+      handleFirestoreError(err, OperationType.WRITE, collectionName);
     }
   };
 
@@ -539,6 +712,19 @@ export default function Dashboard() {
   // Hub Clients Settings
   const [selectedHubClient, setSelectedHubClient] = useState('');
   const [selectedCycle, setSelectedCycle] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
+  
+  const formatCycleDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    try {
+      const [year, month] = dateStr.split('-');
+      const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+      const monthIdx = parseInt(month) - 1;
+      return monthIdx >= 0 && monthIdx < 12 ? `${months[monthIdx]}/${year}` : dateStr;
+    } catch {
+      return dateStr;
+    }
+  };
+
   const [keywordsUniverse, setKeywordsUniverse] = useState<any[]>([]);
   const [loadingKeywords, setLoadingKeywords] = useState(false);
   const [showKeywordForm, setShowKeywordForm] = useState(false);
@@ -604,46 +790,50 @@ export default function Dashboard() {
     e.preventDefault();
     if (isSaving) return;
     setIsSaving(true);
+    const path = 'clients';
     try {
       if (clientForm.id) {
-        await updateDoc(doc(db, 'clients', clientForm.id), {
-          ...clientForm,
-          monthlyPosts: Number(clientForm.monthlyPosts),
-          monthlyBacklinks: Number(clientForm.monthlyBacklinks),
-          initialDevHours: Number(clientForm.initialDevHours),
-          monthlyDevHours: Number(clientForm.monthlyDevHours),
-          billingDay: Number(clientForm.billingDay),
-          approvalDeadlineDays: Number(clientForm.approvalDeadlineDays),
+        const { id, ...dataToSave } = clientForm;
+        await updateDoc(doc(db, path, id), {
+          ...dataToSave,
+          monthlyPosts: Number(clientForm.monthlyPosts || 0),
+          monthlyBacklinks: Number(clientForm.monthlyBacklinks || 0),
+          initialDevHours: Number(clientForm.initialDevHours || 0),
+          monthlyDevHours: Number(clientForm.monthlyDevHours || 0),
+          billingDay: Number(clientForm.billingDay || 10),
+          approvalDeadlineDays: Number(clientForm.approvalDeadlineDays || 5),
           extraPosts: Number(clientForm.extraPosts || 0),
           extraBacklinks: Number(clientForm.extraBacklinks || 0),
           extraDevHours: Number(clientForm.extraDevHours || 0),
-          packageValue: Number(clientForm.packageValue || 0),
+          packageName: String(clientForm.packageName || ''),
+          packageValue: Number(String(clientForm.packageValue).replace(',', '.') || 0),
           updatedAt: serverTimestamp()
         });
         addToast("Cliente atualizado!", "success");
       } else {
-        await addDoc(collection(db, 'clients'), {
-          ...clientForm,
-          monthlyPosts: Number(clientForm.monthlyPosts),
-          monthlyBacklinks: Number(clientForm.monthlyBacklinks),
-          initialDevHours: Number(clientForm.initialDevHours),
-          monthlyDevHours: Number(clientForm.monthlyDevHours),
-          billingDay: Number(clientForm.billingDay),
-          approvalDeadlineDays: Number(clientForm.approvalDeadlineDays),
+        const { id, ...dataToSave } = clientForm;
+        await addDoc(collection(db, path), {
+          ...dataToSave,
+          monthlyPosts: Number(clientForm.monthlyPosts || 0),
+          monthlyBacklinks: Number(clientForm.monthlyBacklinks || 0),
+          initialDevHours: Number(clientForm.initialDevHours || 0),
+          monthlyDevHours: Number(clientForm.monthlyDevHours || 0),
+          billingDay: Number(clientForm.billingDay || 10),
+          approvalDeadlineDays: Number(clientForm.approvalDeadlineDays || 5),
           extraPosts: Number(clientForm.extraPosts || 0),
           extraBacklinks: Number(clientForm.extraBacklinks || 0),
           extraDevHours: Number(clientForm.extraDevHours || 0),
-          packageValue: Number(clientForm.packageValue || 0),
+          packageName: String(clientForm.packageName || ''),
+          packageValue: Number(String(clientForm.packageValue).replace(',', '.') || 0),
           createdAt: serverTimestamp(),
           agencyUid: auth.currentUser?.uid || ''
         });
         addToast("Cliente cadastrado!", "success");
       }
       setShowClientForm(false);
-      loadClients();
+      loadClients(true);
     } catch (err) {
-      console.error(err);
-      addToast("Erro ao salvar cliente.", "error");
+      handleFirestoreError(err, OperationType.WRITE, path);
     } finally {
       setIsSaving(false);
     }
@@ -750,41 +940,205 @@ export default function Dashboard() {
     setTimeout(() => setCopiedClientId(null), 2000);
   };
 
-  const handleTogglePayment = async (client: any) => {
-    const now = new Date();
-    const currentCycle = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const isPaid = client.lastPaymentMonth === currentCycle;
-    
+  const [selectedClientForPayments, setSelectedClientForPayments] = useState<any>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [payments, setPayments] = useState<any[]>([]);
+  const [loadingPayments, setLoadingPayments] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({
+    amount: 0,
+    paymentDate: new Date().toISOString().split('T')[0],
+    paymentMonth: new Date().toISOString().slice(0, 7),
+    description: 'Mensalidade SEO',
+    type: 'Mensalidade'
+  });
+
+  const loadGlobalPayments = async () => {
+    if (!auth.currentUser) return;
+    setLoadingGlobalPayments(true);
     try {
-      await updateDoc(doc(db, 'clients', client.id), {
-        lastPaymentMonth: isPaid ? '' : currentCycle,
-        updatedAt: serverTimestamp()
-      });
-    } catch (error) {
-      console.error("Erro ao atualizar pagamento:", error);
+      const q = query(
+        collection(db, 'payments'),
+        where('agencyUid', '==', auth.currentUser.uid),
+        orderBy('paymentDate', 'desc'),
+        limit(100)
+      );
+      const snapshot = await getDocs(q);
+      setGlobalPayments(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+    } catch (err) {
+      console.error("Erro ao carregar pagamentos globais", err);
+    } finally {
+      setLoadingGlobalPayments(false);
     }
   };
 
+  useEffect(() => {
+    if (activeTab === 'Financeiro') {
+      loadGlobalPayments();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (selectedClientForPayments) {
+      loadPayments(selectedClientForPayments.id);
+      setPaymentForm(prev => ({
+        ...prev,
+        amount: Number(selectedClientForPayments.packageValue || 0)
+      }));
+    }
+  }, [selectedClientForPayments?.id]);
+
+  const handleConfirmPayment = async (payment: any) => {
+    const path = 'payments';
+    try {
+      await updateDoc(doc(db, path, payment.id), {
+        status: 'confirmado',
+        updatedAt: serverTimestamp(),
+        agencyUid: auth.currentUser?.uid
+      });
+      
+      const client = clients.find(c => c.id === payment.clientId);
+      if (client) {
+        if (payment.paymentMonth >= (client.lastPaymentMonth || '')) {
+          await updateDoc(doc(db, 'clients', client.id), {
+            lastPaymentMonth: payment.paymentMonth,
+            updatedAt: serverTimestamp(),
+            agencyUid: auth.currentUser?.uid
+          });
+        }
+      }
+      
+      addToast("Pagamento confirmado!", "success");
+      loadGlobalPayments();
+      if (selectedClientForPayments?.id === payment.clientId) {
+        loadPayments(payment.clientId);
+      }
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+    }
+  };
+
+  const loadPayments = async (clientId: string) => {
+    setLoadingPayments(true);
+    try {
+      const q = query(
+        collection(db, 'payments'), 
+        where('clientId', '==', clientId),
+        orderBy('paymentDate', 'desc')
+      );
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+      setPayments(data);
+    } catch (err) {
+      console.error("Erro ao carregar pagamentos", err);
+    } finally {
+      setLoadingPayments(false);
+    }
+  };
+
+  const handleAddPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedClientForPayments || !auth.currentUser) return;
+
+    const path = 'payments';
+    try {
+      const paymentData = {
+        ...paymentForm,
+        clientId: selectedClientForPayments.id,
+        clientName: selectedClientForPayments.name,
+        clientEmail: selectedClientForPayments.clientEmail || '',
+        amount: Number(paymentForm.amount),
+        agencyUid: auth.currentUser.uid,
+        status: 'confirmado',
+        createdAt: serverTimestamp()
+      };
+
+      await addDoc(collection(db, path), paymentData);
+
+      // Update client's lastPaymentMonth if this is the newest payment month
+      const currentLastPayment = selectedClientForPayments.lastPaymentMonth || '';
+      if (paymentForm.paymentMonth >= currentLastPayment) {
+        await updateDoc(doc(db, 'clients', selectedClientForPayments.id), {
+          lastPaymentMonth: paymentForm.paymentMonth,
+          updatedAt: serverTimestamp(),
+          agencyUid: auth.currentUser.uid
+        });
+      }
+
+      addToast("Pagamento registrado!", "success");
+      loadPayments(selectedClientForPayments.id);
+      loadClients(); // Refresh client list to update status
+      setPaymentForm({
+        amount: 0,
+        paymentDate: new Date().toISOString().split('T')[0],
+        paymentMonth: new Date().toISOString().slice(0, 7),
+        description: 'Mensalidade SEO',
+        type: 'Mensalidade'
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+    }
+  };
+
+  const handleDeletePayment = async (payment: any) => {
+    if (!window.confirm("Excluir este registro de pagamento?")) return;
+    try {
+      await deleteDoc(doc(db, 'payments', payment.id));
+      addToast("Pagamento removido", "success");
+      loadPayments(selectedClientForPayments.id);
+      // Note: we don't automatically roll back lastPaymentMonth on client for simplicity 
+      // unless we want to find the next most recent payment.
+    } catch (err) {
+      addToast("Erro ao remover pagamento", "error");
+    }
+  };
+
+  const handleTogglePayment = (client: any) => {
+    setSelectedClientForPayments(client);
+    setPaymentForm(prev => ({
+      ...prev,
+      amount: Number(client.packageValue || 0)
+    }));
+    loadPayments(client.id);
+    setShowPaymentModal(true);
+  };
+
   const getPaymentStatus = (client: any) => {
+    if (client.status === 'Cancelado' || client.active === false) {
+      return { label: 'Cancelado', color: 'text-slate-500 border-slate-200', text: 'text-slate-500', bg: 'bg-slate-50', icon: X };
+    }
+
     const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth() + 1;
-    const currentDay = now.getDate();
-    const currentCycle = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-    
-    // Se já pagou o ciclo atual
-    if (client.lastPaymentMonth === currentCycle) {
-      return { label: 'Pago', color: 'text-emerald-700 border-emerald-200', text: 'text-emerald-700', bg: 'bg-emerald-50', icon: CheckCircle };
+    const billingDay = Number(client.billingDay || 10);
+    const currentMonthYear = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const today = now.getDate();
+
+    // Check if paid in current cycle
+    const isPaidCurrentCycle = client.lastPaymentMonth === currentMonthYear;
+
+    if (isPaidCurrentCycle) {
+      return { label: 'Ativo', color: 'text-emerald-700 border-emerald-200', text: 'text-emerald-700', bg: 'bg-emerald-50', icon: CheckCircle };
     }
-    
-    // Se passou do dia de faturamento e não consta pagamento
-    const billingDay = parseInt(client.billingDay || '10');
-    if (currentDay > billingDay) {
-      return { label: 'Atrasado', color: 'text-rose-700 border-rose-200', text: 'text-rose-700', bg: 'bg-rose-50', icon: AlertCircle };
+
+    if (today > billingDay) {
+      return { label: 'Em atraso', color: 'text-rose-700 border-rose-200', text: 'text-rose-700', bg: 'bg-rose-50', icon: AlertCircle };
     }
-    
-    // Ainda dentro do prazo, aguardando
-    return { label: 'Aguardando', color: 'text-amber-700 border-amber-200', text: 'text-amber-700', bg: 'bg-amber-50', icon: Clock };
+
+    if (today === billingDay) {
+      return { label: 'Vencimento Hoje', color: 'text-amber-700 border-amber-200', text: 'text-amber-700', bg: 'bg-amber-50', icon: Activity };
+    }
+
+    // Vencimento Próximo: 5 days before billingDay
+    let daysToBilling = billingDay - today;
+    if (daysToBilling < 0) {
+      const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, billingDay);
+      daysToBilling = Math.ceil((nextMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    if (daysToBilling > 0 && daysToBilling <= 5) {
+      return { label: 'Vencimento Próximo', color: 'text-orange-600 border-orange-200', text: 'text-orange-600', bg: 'bg-orange-50', icon: Clock };
+    }
+
+    return { label: 'Ativo', color: 'text-emerald-700 border-emerald-200', text: 'text-emerald-700', bg: 'bg-emerald-50', icon: CheckCircle };
   };
 
   const handleResetPassword = async (email: string) => {
@@ -813,6 +1167,37 @@ export default function Dashboard() {
        // Logic to bind UID if needed
     }
   }, [auth.currentUser]);
+  React.useEffect(() => {
+    if (auth.currentUser) {
+      fetchAgencyNotifications(auth.currentUser.uid);
+    }
+  }, [auth.currentUser]);
+
+  // Real-time listener for the selected ticket's messages (admin)
+  React.useEffect(() => {
+    if (!selectedAdminTicket?.id) {
+      setAdminTicketMessages([]);
+      return;
+    }
+
+    const q = query(
+      collection(db, 'support_tickets', selectedAdminTicket.id, 'messages'),
+      orderBy('createdAt', 'asc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snap) => {
+      const msgs = snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setAdminTicketMessages(msgs);
+    }, (err) => {
+      console.error("Erro no canal de mensagens admin em tempo real:", err);
+    });
+
+    return () => unsubscribe();
+  }, [selectedAdminTicket?.id]);
+
   const [reviewingPost, setReviewingPost] = useState<any>(null);
 
   React.useEffect(() => {
@@ -829,6 +1214,9 @@ export default function Dashboard() {
       shouldMarkLoaded = true;
     } else if (activeTab === 'Clientes & CRM') {
       loadClients();
+      shouldMarkLoaded = true;
+    } else if (activeTab === 'Suporte Técnico Admin') {
+      fetchAdminTickets();
       shouldMarkLoaded = true;
     } else if (activeTab === 'Conteúdo Interno (Acelera)' || activeTab === 'Hub de Clientes' || activeTab === 'Planejamento' || activeTab === 'Artigos e Conteúdos' || activeTab === 'Backlinks' || activeTab === 'Aprovações Pendentes' || activeTab === 'Visão Geral') {
       loadBlogPosts();
@@ -881,6 +1269,7 @@ export default function Dashboard() {
     e.preventDefault();
     if (isSaving) return;
     setIsSaving(true);
+    const path = 'keyword_universe';
     try {
       const { id, ...saveData } = keywordForm;
       const dataToSave = {
@@ -894,15 +1283,15 @@ export default function Dashboard() {
         clientName: saveData.clientName || '',
         clientEmail: saveData.clientEmail || '',
         status: saveData.status || 'Disponível',
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
+        agencyUid: auth.currentUser?.uid
       };
       if (id) {
-        await updateDoc(doc(db, 'keyword_universe', id), dataToSave);
+        await updateDoc(doc(db, path, id), dataToSave);
       } else {
-        await addDoc(collection(db, 'keyword_universe'), {
+        await addDoc(collection(db, path), {
           ...dataToSave,
-          createdAt: serverTimestamp(),
-          agencyUid: auth.currentUser?.uid || ''
+          createdAt: serverTimestamp()
         });
       }
       setShowKeywordForm(false);
@@ -923,21 +1312,20 @@ export default function Dashboard() {
       });
       loadKeywordsUniverse();
       addToast(id ? "Palavra-chave atualizada" : "Palavra-chave registrada", "success");
-    } catch (e) {
-      console.error(e);
-      addToast("Erro ao salvar palavra-chave", "error");
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDeleteKeyword = async (id: string) => {
+    const path = 'keyword_universe';
     try {
-      await deleteDoc(doc(db, 'keyword_universe', id));
+      await deleteDoc(doc(db, path, id));
       loadKeywordsUniverse();
-    } catch (e) {
-      console.error(e);
-      addToast("Erro ao excluir palavra-chave.", "error");
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, path);
     }
   };
 
@@ -1075,18 +1463,20 @@ export default function Dashboard() {
   const handleSaveDraft = async () => {
     if (isSaving) return;
     setIsSaving(true);
+    const path = 'blog_posts';
     try {
       const { id, ...saveData } = postForm;
       const dataToSave = {
         ...saveData,
         targetWords: saveData.targetWords || '',
         status: 'Rascunho',
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
+        agencyUid: auth.currentUser?.uid // Integridade de Identidade
       };
       if (id) {
-        await updateDoc(doc(db, 'blog_posts', id), dataToSave);
+        await updateDoc(doc(db, path, id), dataToSave);
       } else {
-        await addDoc(collection(db, 'blog_posts'), {
+        await addDoc(collection(db, path), {
           ...dataToSave,
           createdAt: serverTimestamp()
         });
@@ -1095,7 +1485,7 @@ export default function Dashboard() {
       setPostForm({ id: '', title: '', clientName: '', clientEmail: '', targetMonth: '', slug: '', description: '', content: '', coverImage: '', category: '', focusKeywords: '', anchor: '', seoTitle: '', wordCount: '', targetWords: '', imagesInfo: '', status: 'Planejado', publishedAt: '', publishedUrl: '', internalLinking: '', theme: '', secondaryKeywords: '', directioning: '', clientComment: '' });
       loadBlogPosts();
     } catch (err) {
-      console.error(err);
+      handleFirestoreError(err, OperationType.WRITE, path);
     } finally {
       setIsSaving(false);
     }
@@ -1105,9 +1495,10 @@ export default function Dashboard() {
     e.preventDefault();
     if (isSaving) return;
     setIsSaving(true);
+    const path = 'blog_posts';
     try {
       if (postForm.id) {
-        await updateDoc(doc(db, 'blog_posts', postForm.id), {
+        await updateDoc(doc(db, path, postForm.id), {
           title: postForm.title || '',
           clientName: postForm.clientName || '',
           clientEmail: postForm.clientEmail || '',
@@ -1131,10 +1522,11 @@ export default function Dashboard() {
           status: postForm.status || 'Rascunho',
           clientComment: (postForm.status === 'Aguardando Aprovação' || postForm.status === 'Publicado') ? "" : postForm.clientComment || "",
           publishedAt: postForm.publishedAt || '',
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
+          agencyUid: auth.currentUser?.uid
         });
       } else {
-        await addDoc(collection(db, 'blog_posts'), {
+        await addDoc(collection(db, path), {
           title: postForm.title || '',
           clientName: postForm.clientName || '',
           clientEmail: postForm.clientEmail || '',
@@ -1166,8 +1558,7 @@ export default function Dashboard() {
       setPostForm({ id: '', title: '', clientName: '', clientEmail: '', targetMonth: '', slug: '', description: '', content: '', coverImage: '', category: '', focusKeywords: '', anchor: '', seoTitle: '', wordCount: '', targetWords: '', imagesInfo: '', status: 'Planejado', publishedAt: '', publishedUrl: '', internalLinking: '', theme: '', secondaryKeywords: '', directioning: '', clientComment: '' });
       loadBlogPosts();
     } catch (error) {
-      console.error("Erro ao salvar post", error);
-      addToast("Erro ao salvar artigo. Verifique as permissões.", "error");
+      handleFirestoreError(error, OperationType.WRITE, path);
     } finally {
       setIsSaving(false);
     }
@@ -1186,6 +1577,24 @@ export default function Dashboard() {
       }
 
       await updateDoc(doc(db, 'blog_posts', id), updateData);
+
+      // Notificar o cliente se estiver aguardando aprovação
+      if (newStatus === 'Aguardando Aprovação') {
+        const post = blogPosts.find(p => p.id === id);
+        if (post) {
+          const client = clients.find((c: any) => c.clientEmail === post.clientEmail);
+          await addDoc(collection(db, 'notifications'), {
+            userId: client?.uid || '', // UID do cliente se disponível
+            clientEmail: post.clientEmail,
+            title: 'Conteúdo para Aprovação',
+            message: `O artigo "${post.title}" está pronto e aguardando sua revisão e aprovação.`,
+            type: 'warning',
+            category: 'aprovação',
+            read: false,
+            createdAt: serverTimestamp()
+          });
+        }
+      }
 
       // Registrar histórico de revisão
       await addDoc(collection(db, 'blog_posts', id, 'revisions'), {
@@ -1208,6 +1617,25 @@ export default function Dashboard() {
         status: newStatus,
         updatedAt: serverTimestamp()
       });
+
+      // Notificar o cliente se estiver agendado/publicado
+      if (newStatus === 'Publicado') {
+        const link = backlinks.find(b => b.id === id);
+        if (link) {
+          const client = clients.find((c: any) => c.name === link.clientName);
+          await addDoc(collection(db, 'notifications'), {
+            userId: client?.uid || '',
+            clientEmail: client?.clientEmail || '',
+            title: 'Backlink Publicado!',
+            message: `O link para "${link.anchor}" foi publicado com sucesso. Confira em seu painel.`,
+            type: 'success',
+            category: 'tráfego',
+            read: false,
+            createdAt: serverTimestamp()
+          });
+        }
+      }
+
       loadBacklinks();
     } catch (error) {
       console.error("Erro ao atualizar status do backlink:", error);
@@ -1216,22 +1644,20 @@ export default function Dashboard() {
 
   const handleDeletePost = async (id: string, coverImageUrl?: string) => {
     if(!id) return;
+    const path = 'blog_posts';
     try {
       if (coverImageUrl && coverImageUrl.includes('firebasestorage')) {
         try {
-          const { ref, deleteObject } = await import('firebase/storage');
-          const { storage } = await import('../firebase');
           const fileRef = ref(storage, coverImageUrl);
           await deleteObject(fileRef);
         } catch (storageErr) {
           console.error("Erro ao excluir imagem do storage", storageErr);
         }
       }
-      await deleteDoc(doc(db, 'blog_posts', id));
+      await deleteDoc(doc(db, path, id));
       loadBlogPosts();
     } catch (error) {
-       console.error("Erro ao excluir", error);
-       addToast("Erro ao excluir artigo.", "error");
+      handleFirestoreError(error, OperationType.DELETE, path);
     }
   };
 
@@ -1294,9 +1720,10 @@ export default function Dashboard() {
     e.preventDefault();
     if (isSaving) return;
     setIsSaving(true);
+    const path = 'backlinks';
     try {
       if (backlinkForm.id) {
-        await updateDoc(doc(db, 'backlinks', backlinkForm.id), {
+        await updateDoc(doc(db, path, backlinkForm.id), {
           title: backlinkForm.title || '',
           clientName: backlinkForm.clientName || '',
           clientEmail: backlinkForm.clientEmail || '',
@@ -1312,10 +1739,11 @@ export default function Dashboard() {
           publishedUrl: backlinkForm.publishedUrl || '',
           wordCount: backlinkForm.wordCount || '',
           targetWords: backlinkForm.targetWords || '',
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
+          agencyUid: auth.currentUser?.uid
         });
       } else {
-        await addDoc(collection(db, 'backlinks'), {
+        await addDoc(collection(db, path), {
           title: backlinkForm.title || '',
           clientName: backlinkForm.clientName || '',
           clientEmail: backlinkForm.clientEmail || '',
@@ -1340,20 +1768,19 @@ export default function Dashboard() {
       setBacklinkForm({ id: '', title: '', clientName: '', clientEmail: '', targetMonth: '', focusKeywords: '', anchor: '', targetUrl: '', theme: '', directioning: '', content: '', status: 'Aguardando Produção', publishedAt: '', publishedUrl: '', wordCount: '', targetWords: '' });
       loadBacklinks();
     } catch (error) {
-      console.error("Erro ao salvar backlink", error);
-      addToast("Erro ao salvar backlink. Verifique as permissões.", "error");
+      handleFirestoreError(error, OperationType.WRITE, path);
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDeleteBacklink = async (id: string) => {
+    const path = 'backlinks';
     try {
-      await deleteDoc(doc(db, 'backlinks', id));
+      await deleteDoc(doc(db, path, id));
       loadBacklinks();
     } catch (error) {
-      console.error("Erro ao excluir backlink", error);
-      addToast("Erro ao excluir backlink.", "error");
+      handleFirestoreError(error, OperationType.DELETE, path);
     }
   };
 
@@ -1379,7 +1806,7 @@ export default function Dashboard() {
          setContactLeads(leads);
       }
     } catch (error) {
-      console.error("Erro ao carregar contatos", error);
+      handleFirestoreError(error, OperationType.GET, 'contacts');
     } finally {
       setContactLoadingMore(false);
     }
@@ -1408,7 +1835,7 @@ export default function Dashboard() {
          setAuditLeads(leads);
       }
     } catch (error) {
-      console.error("Erro ao carregar leads", error);
+      handleFirestoreError(error, OperationType.GET, 'audit_leads');
     } finally {
       setLoadingLeads(false);
       setAuditLoadingMore(false);
@@ -1443,18 +1870,20 @@ export default function Dashboard() {
     e.preventDefault();
     if (isSaving) return;
     setIsSaving(true);
+    const path = 'seo_pages';
     try {
       if (seoForm.id) {
-        await updateDoc(doc(db, 'seo_pages', seoForm.id), {
+        await updateDoc(doc(db, path, seoForm.id), {
           url: seoForm.url || '',
           title: seoForm.title || '',
           description: seoForm.description || '',
           customNotes: seoForm.customNotes || '',
           clientName: selectedHubClient || '',
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
+          agencyUid: auth.currentUser?.uid
         });
       } else {
-        await addDoc(collection(db, 'seo_pages'), {
+        await addDoc(collection(db, path), {
           url: seoForm.url || '',
           title: seoForm.title || '',
           description: seoForm.description || '',
@@ -1469,8 +1898,7 @@ export default function Dashboard() {
       setSeoForm({ id: '', url: '', title: '', description: '', customNotes: '' });
       loadSeoPages();
     } catch (error) {
-      console.error("Erro ao salvar", error);
-      addToast("Erro ao salvar dados de SEO.", "error");
+      handleFirestoreError(error, OperationType.WRITE, path);
     } finally {
       setIsSaving(false);
     }
@@ -1496,25 +1924,29 @@ export default function Dashboard() {
       </Helmet>
 
       {/* Mobile Header */}
-      <header className="md:hidden sticky top-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 p-4 z-50 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
-            <TrendingUp size={18} />
+      <header className="md:hidden sticky top-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 py-4 z-50 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center border border-slate-100 shadow-sm overflow-hidden shrink-0">
+            <img src={logoUrl} alt="Acelera SEO" className="w-full h-full object-contain p-1" />
           </div>
-          <span className="text-[14px] font-black tracking-tighter text-slate-900 uppercase">
-            Acelera<span className="text-brand-600">SEO</span>
-          </span>
-        </div>
+          <div className="flex flex-col">
+            <span className="text-[14px] font-black tracking-tighter text-slate-900 uppercase leading-none mb-0.5">
+              Acelera<span className="text-brand-600">SEO</span>
+            </span>
+            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">Admin Central</span>
+          </div>
+        </Link>
         <div className="flex items-center gap-2">
           <button 
             onClick={() => navigate('/portal-cliente')}
-            className="px-3 py-2 text-[9px] font-black uppercase tracking-widest text-slate-500 bg-slate-50 border border-slate-100 rounded-lg hover:text-brand-600 transition-colors"
+            className="p-2.5 text-slate-500 bg-white border border-slate-200 rounded-xl hover:text-brand-600 shadow-sm transition-all active:scale-95"
+            title="Ver Portal do Cliente"
           >
-            Portal
+            <Users size={18} />
           </button>
           <button 
             onClick={() => setShowMobileMenu(true)}
-            className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-600 active:scale-95 transition-all"
+            className="p-2.5 bg-brand-600 text-white rounded-xl shadow-lg shadow-brand-500/20 active:scale-95 transition-all"
           >
             <Menu size={22} />
           </button>
@@ -1542,8 +1974,8 @@ export default function Dashboard() {
         {/* Header/Logo */}
         <div className="p-8 pb-6 flex items-center justify-between">
           <Link to="/" className="flex items-center group gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-xl shadow-brand-500/20 group-hover:scale-105 transition-transform">
-              <TrendingUp size={24} />
+            <div className="w-11 h-11 rounded-xl bg-white border border-slate-100 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform overflow-hidden">
+              <img src={logoUrl} alt="Acelera SEO" className="w-full h-full object-contain p-1.5" />
             </div>
             <div>
               <span className="text-xl font-black tracking-tighter text-slate-900 block leading-tight">ACELERA<span className="text-brand-600">SEO</span></span>
@@ -1581,45 +2013,48 @@ export default function Dashboard() {
         </div>
 
         {/* Navigation Area */}
-        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto no-scrollbar pb-10">
+        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto overflow-x-visible no-scrollbar pb-10">
           {/* Contextual Filters for Clients Workspace */}
           {sidebarWorkspace === 'clientes' && (
-            <div className="space-y-6 mb-8">
-              <div>
-                <p className="px-4 mb-3 text-[9px] font-black uppercase tracking-[0.3em] text-slate-300">Unidade de Performance</p>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <Users size={14} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 px-2">
+              <div className="min-w-0">
+                <p className="px-1.5 mb-1 text-[7px] font-black uppercase tracking-[0.15em] text-slate-400/50 truncate">Unidade Performance</p>
+                <div className="relative group/client">
+                  <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/client:text-brand-600 transition-colors">
+                    <Users size={12} />
                   </div>
                   <select
                     value={selectedHubClient}
                     onChange={(e) => {
                       setSelectedHubClient(e.target.value);
                     }}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-10 pr-10 py-3.5 text-[11px] font-bold text-slate-900 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none appearance-none transition-all cursor-pointer shadow-sm hover:bg-white"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-8 pr-5 py-2 text-[9px] font-bold text-slate-900 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none appearance-none transition-all cursor-pointer shadow-sm hover:bg-white truncate"
                   >
-                    <option value="">Atendimento Geral</option>
+                    <option value="">Geral</option>
                     {clientsList.filter(c => c !== 'Agência').map(client => (
                       <option key={client} value={client}>{client}</option>
                     ))}
                   </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-transform">
-                    <ChevronDown size={14} />
+                  <div className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-transform group-hover/client:translate-x-0.5">
+                    <ChevronDown size={10} />
                   </div>
                 </div>
               </div>
 
-              <div>
-                <p className="px-4 mb-3 text-[9px] font-black uppercase tracking-[0.3em] text-slate-300">Ciclo Operacional</p>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <Calendar size={14} />
+              <div className="min-w-0">
+                <p className="px-1.5 mb-1 text-[7px] font-black uppercase tracking-[0.15em] text-slate-400/50 truncate">Ciclo Operacional</p>
+                <div className="relative group/cycle">
+                  <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/cycle:text-brand-600 transition-colors pointer-events-none z-10">
+                    <Calendar size={12} />
+                  </div>
+                  <div className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-8 pr-2 py-2 text-[9px] font-bold text-slate-900 shadow-sm hover:bg-white transition-all flex items-center h-[34px] min-h-[34px] truncate">
+                    <span className="uppercase text-[8px] sm:text-[9px]">{formatCycleDate(selectedCycle)}</span>
                   </div>
                   <input 
                     type="month"
                     value={selectedCycle}
                     onChange={(e) => setSelectedCycle(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-10 pr-6 py-3.5 text-[11px] font-bold text-slate-900 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all cursor-pointer shadow-sm hover:bg-white"
+                    className="month-picker-overlay z-20"
                   />
                 </div>
               </div>
@@ -1630,7 +2065,7 @@ export default function Dashboard() {
           <div className="space-y-8">
             {sidebarWorkspace === 'clientes' && (
               <div>
-                <p className="px-5 mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Painéis de Controle</p>
+                <p className="px-5 mb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400/40">Painéis de Controle</p>
                 <div className="space-y-1">
                   {[
                     { label: 'Visão Geral', icon: Activity, id: 'Visão Geral' },
@@ -1642,7 +2077,7 @@ export default function Dashboard() {
                       className={`w-full flex items-center justify-between px-6 py-3.5 rounded-2xl transition-all duration-300 text-[13px] font-bold group ${activeTab === item.id ? 'bg-brand-600 text-white shadow-xl shadow-brand-500/20' : 'text-slate-500 hover:text-brand-600 hover:bg-brand-50'}`}
                     >
                       <div className="flex items-center gap-4">
-                        <item.icon size={18} className={activeTab === item.id ? 'text-white' : 'text-slate-400 group-hover:text-brand-500'} />
+                        <item.icon size={20} strokeWidth={2.5} className={activeTab === item.id ? 'text-white' : 'text-slate-400 group-hover:text-brand-500'} />
                         <span className="whitespace-nowrap">{item.label}</span>
                       </div>
                       {activeTab === item.id && (
@@ -1652,7 +2087,7 @@ export default function Dashboard() {
                   ))}
                 </div>
 
-                <p className="px-5 mt-6 mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Fluxo de Performance</p>
+                <p className="px-5 mt-6 mb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400/40">Fluxo de Performance</p>
                 <div className="space-y-1">
                   {[
                     { label: 'Planejamento', icon: Calendar, id: 'Planejamento' },
@@ -1667,7 +2102,7 @@ export default function Dashboard() {
                       className={`w-full flex items-center justify-between px-6 py-3.5 rounded-2xl transition-all duration-300 text-[13px] font-bold group ${activeTab === item.id ? 'bg-brand-600 text-white shadow-xl shadow-brand-500/20' : 'text-slate-500 hover:text-brand-600 hover:bg-brand-50'}`}
                     >
                       <div className="flex items-center gap-4">
-                        <item.icon size={18} className={activeTab === item.id ? 'text-white' : 'text-slate-400 group-hover:text-brand-500'} />
+                        <item.icon size={20} strokeWidth={2.5} className={activeTab === item.id ? 'text-white' : 'text-slate-400 group-hover:text-brand-500'} />
                         <span className="whitespace-nowrap">{item.label}</span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1686,7 +2121,7 @@ export default function Dashboard() {
 
                 {selectedHubClient && (
                   <div className="mt-6">
-                    <p className="px-5 mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Gestão Operacional</p>
+                    <p className="px-5 mb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400/40">Gestão Operacional</p>
                     <button
                       onClick={() => { 
                         const client = clients.find(c => c.name === selectedHubClient);
@@ -1703,7 +2138,7 @@ export default function Dashboard() {
                       }}
                       className={`w-full flex items-center gap-4 px-6 py-3.5 rounded-2xl transition-all duration-300 text-[13px] font-bold group ${activeTab === 'Configurações Unidade' ? 'bg-brand-600 text-white shadow-xl shadow-brand-500/20' : 'text-slate-500 hover:text-brand-600 hover:bg-brand-50'}`}
                     >
-                      <Settings size={18} className={activeTab === 'Configurações Unidade' ? 'text-white' : 'text-slate-400 group-hover:text-brand-500'} />
+                      <Settings size={20} strokeWidth={2.5} className={activeTab === 'Configurações Unidade' ? 'text-white' : 'text-slate-400 group-hover:text-brand-500'} />
                       <span className="whitespace-nowrap">Ajustes Unidade</span>
                     </button>
                   </div>
@@ -1714,26 +2149,40 @@ export default function Dashboard() {
             {sidebarWorkspace === 'agencia' && (
               <div className="space-y-8">
                 <div>
-                  <p className="px-5 mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Estratégico</p>
+                  <p className="px-5 mb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400/40">Estratégico</p>
                   <div className="space-y-1">
                     {[
                       { label: 'Agency Growth', icon: Zap, id: 'Conteúdo Interno (Acelera)' },
                       { label: 'Clientes & CRM', icon: Users, id: 'Clientes & CRM' },
+                      { label: 'Saúde Financeira', icon: DollarSign, id: 'Financeiro' },
+                      { label: 'Suporte Técnico', icon: MessageSquareText, id: 'Suporte Técnico Admin', badge: pendingTicketsCount },
                     ].map(item => (
                       <button
                         key={item.id}
                         onClick={() => { setActiveTab(item.id); if (window.innerWidth < 768) setShowMobileMenu(false); }}
-                        className={`w-full flex items-center gap-4 px-6 py-3.5 rounded-2xl transition-all duration-300 text-[13px] font-bold group ${activeTab === item.id ? 'bg-brand-600 text-white shadow-xl shadow-brand-500/20' : 'text-slate-500 hover:text-brand-600 hover:bg-brand-50'}`}
+                        className={`w-full flex items-center justify-between px-6 py-3.5 rounded-2xl transition-all duration-300 text-[13px] font-bold group ${activeTab === item.id ? 'bg-brand-600 text-white shadow-xl shadow-brand-500/20' : 'text-slate-500 hover:text-brand-600 hover:bg-brand-50'}`}
                       >
-                        <item.icon size={18} className={activeTab === item.id ? 'text-white' : 'text-slate-400 group-hover:text-brand-500'} />
-                        <span className="whitespace-nowrap">{item.label}</span>
+                        <div className="flex items-center gap-4">
+                          <item.icon size={20} strokeWidth={2.5} className={activeTab === item.id ? 'text-white' : 'text-slate-400 group-hover:text-brand-500'} />
+                          <span className="whitespace-nowrap">{item.label}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {item.badge !== undefined && item.badge > 0 && (
+                            <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === item.id ? 'bg-white/20 text-white' : 'bg-brand-50 text-brand-600 shadow-sm'}`}>
+                              {item.badge}
+                            </span>
+                          )}
+                          {activeTab === item.id && (
+                            <div className="w-1.5 h-1.5 rounded-full bg-white shadow-sm" />
+                          )}
+                        </div>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <p className="px-5 mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Configurações</p>
+                  <p className="px-5 mb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400/40">Configurações</p>
                   <div className="space-y-1">
                     {[
                       { label: 'Taxonomia', icon: Layers, id: 'Categorias' },
@@ -1744,7 +2193,7 @@ export default function Dashboard() {
                         onClick={() => { setActiveTab(item.id); if (window.innerWidth < 768) setShowMobileMenu(false); }}
                         className={`w-full flex items-center gap-4 px-6 py-3.5 rounded-2xl transition-all duration-300 text-[13px] font-bold group ${activeTab === item.id ? 'bg-brand-600 text-white shadow-xl shadow-brand-500/20' : 'text-slate-500 hover:text-brand-600 hover:bg-brand-50'}`}
                       >
-                        <item.icon size={18} className={activeTab === item.id ? 'text-white' : 'text-slate-400 group-hover:text-brand-500'} />
+                        <item.icon size={20} strokeWidth={2.5} className={activeTab === item.id ? 'text-white' : 'text-slate-400 group-hover:text-brand-500'} />
                         <span className="whitespace-nowrap">{item.label}</span>
                       </button>
                     ))}
@@ -1771,7 +2220,6 @@ export default function Dashboard() {
 
           <button 
             onClick={async () => {
-              const { signOut } = await import('firebase/auth');
               await signOut(auth);
               navigate('/');
             }}
@@ -1814,9 +2262,86 @@ export default function Dashboard() {
               </div>
 
               <div className="flex items-center gap-2">
-                <button className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all">
-                  <Bell size={16} />
-                </button>
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all border ${
+                      showNotifications ? 'bg-brand-600 text-white border-brand-500' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100 border-transparent'
+                    }`}
+                  >
+                    <Bell size={16} />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[8px] font-black rounded-full border-2 border-white flex items-center justify-center animate-bounce">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  <AnimatePresence>
+                    {showNotifications && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute right-0 mt-4 w-80 md:w-96 bg-white rounded-[28px] shadow-2xl border border-slate-100 overflow-hidden z-[100]"
+                      >
+                        <div className="p-5 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+                          <h3 className="text-xs font-black text-slate-900 uppercase tracking-tight">Notificações da Agência</h3>
+                          {unreadCount > 0 && (
+                            <button 
+                              onClick={async () => {
+                                const unread = notifications.filter(n => !n.read);
+                                for(const n of unread) await markNotificationAsRead(n.id);
+                              }}
+                              className="text-[9px] font-black text-brand-600 uppercase tracking-widest hover:text-brand-700 underline underline-offset-4"
+                            >
+                              Visto
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="max-h-[350px] overflow-y-auto no-scrollbar">
+                          {notifications.length === 0 ? (
+                            <div className="p-10 text-center">
+                              <Bell size={24} className="mx-auto mb-3 text-slate-200" />
+                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-center">Sem novas notificações</p>
+                            </div>
+                          ) : (
+                            <div className="divide-y divide-slate-50">
+                              {notifications.map((notif) => (
+                                <div 
+                                  key={notif.id}
+                                  onClick={() => !notif.read && markNotificationAsRead(notif.id)}
+                                  className={`p-4 hover:bg-slate-50 transition-colors cursor-pointer relative ${!notif.read ? 'bg-brand-50/20' : 'opacity-60'}`}
+                                >
+                                  {!notif.read && <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-500 rounded-r-full" />}
+                                  <div className="flex gap-3">
+                                     <div className={`w-8 h-8 rounded-lg shrink-0 flex items-center justify-center ${
+                                       notif.type === 'success' ? 'bg-emerald-100 text-emerald-600' :
+                                       notif.type === 'warning' ? 'bg-amber-100 text-amber-600' :
+                                       'bg-brand-100 text-brand-600'
+                                     }`}>
+                                       {notif.category === 'pagamento' ? <DollarSign size={14} /> : <Zap size={14} />}
+                                     </div>
+                                     <div className="flex-1 min-w-0">
+                                        <div className="flex justify-between items-start mb-0.5">
+                                          <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-tight truncate">{notif.title}</h4>
+                                          <span className="text-[7px] font-bold text-slate-400 whitespace-nowrap ml-2">
+                                            {notif.createdAt?.toDate ? notif.createdAt.toDate().toLocaleDateString('pt-BR') : 'Agora'}
+                                          </span>
+                                        </div>
+                                        <p className="text-[10px] leading-tight text-slate-500 line-clamp-2">{notif.message}</p>
+                                     </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
                 <button 
                   onClick={() => navigate('/portal-cliente')} 
                   className="bg-white border border-slate-100 text-slate-900 px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm"
@@ -1972,7 +2497,7 @@ export default function Dashboard() {
                 <div className="md:hidden space-y-4">
                    {loadingCategories ? (
                       Array.from({ length: 3 }).map((_, i) => (
-                        <div key={`skel-cat-mob-${i}`} className="bg-white p-6 rounded-3xl border border-slate-100 space-y-4">
+                        <div key={`skel-cat-mob-${i}`} className="bg-white p-6 rounded-[2rem] border border-slate-100 space-y-4">
                           <Skeleton variant="rectangular" className="h-6 w-3/4 rounded-lg" />
                           <Skeleton variant="text" className="w-full" />
                           <div className="flex justify-between items-center pt-4">
@@ -1982,9 +2507,9 @@ export default function Dashboard() {
                         </div>
                       ))
                    ) : categories.length === 0 ? (
-                      <div className="p-12 text-center text-slate-300 uppercase text-[10px] font-bold tracking-widest bg-slate-50 rounded-3xl border border-dashed border-slate-200">Sem categorias</div>
+                      <div className="p-12 text-center text-slate-300 uppercase text-[10px] font-black tracking-widest bg-slate-50 rounded-[2rem] border border-dashed border-slate-200">Sem categorias</div>
                    ) : categories.map((cat) => (
-                      <div key={cat.id} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4 group">
+                      <div key={cat.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4 group">
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-3">
                              <div className={`w-3 h-3 rounded-full ${cat.isProtected ? 'bg-brand-500' : 'bg-slate-100'}`}></div>
@@ -2495,68 +3020,75 @@ export default function Dashboard() {
                         <tr key={client.id} className="hover:bg-slate-50/50 transition-all group">
                           <td className="px-8 py-6">
                             <div className="flex items-center gap-4">
-                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 transition-all ${client.logoUrl ? "bg-white border border-slate-100" : "bg-slate-100"}`}>
+                              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0 transition-all shadow-sm ${client.logoUrl ? "bg-white border border-slate-100" : "bg-slate-100 ring-4 ring-slate-50"}`}>
                                 {client.logoUrl ? (
-                                  <img src={client.logoUrl} alt={client.name} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                                  <img src={client.logoUrl} alt={client.name} className="w-full h-full object-contain p-1" referrerPolicy="no-referrer" />
                                 ) : (
-                                  <TrendingUp className="text-slate-300" size={20} />
+                                  <TrendingUp className="text-slate-300" size={24} />
                                 )}
                               </div>
                               <div>
-                                <span className="text-lg font-bold text-slate-900 block leading-tight tracking-tight group-hover:text-brand-600 transition-colors uppercase">{client.name}</span>
-                                <span className="text-[10px] font-medium text-slate-300 block font-mono mt-1 group-hover:text-slate-400 transition-colors">{client.websiteUrl || 'Sem domínio associado'}</span>
+                                <span className="text-base font-black text-slate-900 block leading-tight tracking-tight group-hover:text-brand-600 transition-colors uppercase">{client.name}</span>
+                                <span className="text-[10px] font-bold text-slate-400 block font-mono mt-1 group-hover:text-slate-500 transition-colors opacity-60 uppercase tracking-tighter">{client.websiteUrl || 'Sem domínio associado'}</span>
                               </div>
                             </div>
                           </td>
                           <td className="px-8 py-6 text-center">
                             {client.uid ? (
-                              <div className="inline-flex items-center gap-2 text-emerald-500 bg-emerald-50 border border-emerald-100/50 rounded-lg px-3 py-1.5 hover:scale-105 transition-transform duration-300">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm"></div>
-                                <span className="text-[8px] font-bold uppercase tracking-wider leading-none">Portal Ativado</span>
+                              <div className="inline-flex items-center gap-2 text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2 hover:scale-105 transition-transform duration-300 shadow-sm">
+                                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                                <span className="text-[9px] font-black uppercase tracking-widest leading-none">Portal Ativo</span>
                               </div>
                             ) : (
-                              <div className="inline-flex items-center gap-2 text-slate-300 bg-slate-50 border border-slate-100 rounded-lg px-3 py-1.5">
-                                <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>
-                                <span className="text-[8px] font-bold uppercase tracking-wider leading-none">Aguardando</span>
+                              <div className="inline-flex items-center gap-2 text-slate-400 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 opacity-60">
+                                <div className="w-2 h-2 rounded-full bg-slate-200"></div>
+                                <span className="text-[9px] font-black uppercase tracking-widest leading-none">Aguardando</span>
                               </div>
                             )}
                           </td>
-                          <td className="px-8 py-6 text-sm">
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-center gap-3">
-                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Dia {client.billingDay}</span>
-                                {(() => {
-                                  const status = getPaymentStatus(client);
-                                  const Icon = status.icon;
-                                  return (
-                                    <button 
-                                       onClick={() => handleTogglePayment(client)} 
-                                       className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[8px] font-black uppercase transition-all shadow-sm border ${status.color} hover:shadow-md active:scale-95 ${status.bg}`}
-                                    >
-                                       <Icon size={10} /> {status.label}
-                                    </button>
-                                  );
-                                })()}
+                          <td className="px-8 py-6">
+                            <div className="bg-slate-50/50 border border-slate-100 rounded-[20px] p-4 flex items-center justify-between gap-6 group-hover:bg-white group-hover:shadow-sm transition-all">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em] border border-slate-200 rounded px-1.5 py-0.5 bg-white">Dia {client.billingDay}</span>
+                                  {(() => {
+                                    const status = getPaymentStatus(client);
+                                    const Icon = status.icon;
+                                    return (
+                                      <button 
+                                         onClick={() => handleTogglePayment(client)} 
+                                         className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[8px] font-black uppercase transition-all border ${status.color} ${status.bg} shadow-sm hover:scale-105`}
+                                         title="Gerenciar Pagamentos"
+                                      >
+                                         <Icon size={8} /> {status.label}
+                                      </button>
+                                    );
+                                  })()}
+                                </div>
+                                <p className="text-[10px] font-black text-slate-900 uppercase tracking-tighter truncate max-w-[200px]">{client.packageName || 'Plano Customizado'}</p>
                               </div>
-                              <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest leading-none">{client.packageName || 'Plano Custom'}</p>
+                              <div className="text-right border-l border-slate-100 pl-6 ml-auto">
+                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-0.5 leading-none">Investimento</p>
+                                <p className="text-sm font-black text-brand-600 tracking-tighter">R$ {(Number(client.packageValue) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                              </div>
                             </div>
                           </td>
                           <td className="px-8 py-6 text-right">
-                             <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0">
+                             <div className="flex justify-end gap-2 group-hover:translate-x-0 translate-x-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
                                 <button
                                   onClick={() => {
-                                    setClientForm({ ...client, currentCycleDate: client.currentCycleDate || new Date().toISOString().slice(0, 7), onDemandItems: client.onDemandItems || [] });
+                                    setClientForm({ ...client, currentCycleDate: client.currentCycleDate || new Date().toISOString().slice(0, 7), onDemandItems: client.onDemandItems || [], packageValue: String(client.packageValue || '0') });
                                     setShowClientForm(true);
                                   }}
-                                  className="p-3 bg-white border border-slate-100 rounded-xl text-slate-300 hover:text-slate-900 shadow-sm transition-all active:scale-95"
+                                  className="w-10 h-10 flex items-center justify-center bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-brand-600 hover:border-brand-200 shadow-sm transition-all active:scale-95"
                                 >
-                                  <Edit3 size={15} />
+                                  <Edit3 size={16} />
                                 </button>
                                 <button
-                                  onClick={() => handleDeleteClient(client)}
-                                  className="p-3 bg-white border border-slate-100 rounded-xl text-slate-300 hover:text-rose-500 shadow-sm transition-all active:scale-95"
+                                  onClick={() => handleDeleteClient(client.id)}
+                                  className="w-10 h-10 flex items-center justify-center bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-rose-500 hover:border-rose-200 shadow-sm transition-all active:scale-95"
                                 >
-                                  <Trash2 size={15} />
+                                  <Trash2 size={16} />
                                 </button>
                              </div>
                           </td>
@@ -2568,57 +3100,70 @@ export default function Dashboard() {
                 <div className="md:hidden space-y-4">
                   {loadingClients ? (
                      Array.from({ length: 3 }).map((_, i) => (
-                       <div key={`skel-cl-mob-${i}`} className="bg-white p-6 rounded-3xl border border-slate-100 space-y-4">
+                       <div key={`skel-cl-mob-${i}`} className="bg-white p-6 rounded-[32px] border border-slate-100 space-y-4">
                          <div className="flex items-center gap-4">
-                           <Skeleton variant="circular" className="w-12 h-12" />
+                           <Skeleton variant="circular" className="w-14 h-14" />
                            <div className="flex-1 space-y-2">
-                             <Skeleton variant="rectangular" className="h-5 w-3/4" />
+                             <Skeleton variant="rectangular" className="h-6 w-3/4 rounded-lg" />
                              <Skeleton variant="text" className="w-1/2" />
                            </div>
                          </div>
                        </div>
                      ))
                   ) : clients.filter(c => !selectedHubClient || c.name === selectedHubClient).length === 0 ? (
-                    <div className="p-12 text-center text-slate-300 uppercase text-[10px] font-bold tracking-widest bg-slate-50 rounded-3xl border border-dashed border-slate-200">Sem clientes ativos</div>
+                    <div className="p-16 text-center text-slate-300 uppercase text-[10px] font-black tracking-[0.2em] bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-100">Sem clientes ativos em sua base</div>
                   ) : clients.filter(c => !selectedHubClient || c.name === selectedHubClient).map(client => (
-                    <div key={client.id} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5">
-                       <div className="flex items-center gap-4 border-b border-slate-50 pb-4">
-                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden border ${client.logoUrl ? "bg-white border-slate-100" : "bg-slate-50 border-transparent"}`}>
-                            {client.logoUrl ? <img src={client.logoUrl} className="w-full h-full object-contain" /> : <TrendingUp size={20} className="text-slate-200" />}
+                    <div key={client.id} className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm space-y-6 relative overflow-hidden group active:scale-[0.98] transition-all">
+                       <div className="flex items-center justify-between pb-4 border-b border-slate-50">
+                          <div className="flex items-center gap-4">
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden border-2 shadow-sm ${client.logoUrl ? "bg-white border-slate-50" : "bg-slate-50 border-transparent text-slate-200"}`}>
+                              {client.logoUrl ? <img src={client.logoUrl} className="w-full h-full object-contain p-1" /> : <TrendingUp size={24} />}
+                            </div>
+                            <div>
+                               <h4 className="text-xl font-black text-slate-900 uppercase tracking-tighter leading-none">{client.name}</h4>
+                               <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{client.packageName || 'Plano Custom'}</p>
+                            </div>
                           </div>
-                          <div className="flex-1">
-                             <h4 className="text-lg font-black text-slate-900 uppercase tracking-tighter leading-none">{client.name}</h4>
-                             <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest truncate">{client.packageName || 'Plano Custom'}</p>
-                          </div>
-                          <div className="flex gap-2">
-                             <button onClick={() => { setClientForm({ ...client, currentCycleDate: client.currentCycleDate || new Date().toISOString().slice(0, 7), onDemandItems: client.onDemandItems || [] }); setShowClientForm(true); }} className="p-3 bg-slate-50 text-slate-400 rounded-xl"><Edit3 size={16} /></button>
-                          </div>
+                          <button onClick={() => { setClientForm({ ...client, currentCycleDate: client.currentCycleDate || new Date().toISOString().slice(0, 7), onDemandItems: client.onDemandItems || [], packageValue: String(client.packageValue || '0') }); setShowClientForm(true); }} className="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-brand-50 hover:text-brand-600 transition-all">
+                            <Edit3 size={18} />
+                          </button>
                        </div>
                        
                        <div className="grid grid-cols-2 gap-4">
-                          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col items-center">
-                             <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest mb-1">Status Portal</p>
-                             {client.uid ? (
-                               <span className="text-[9px] font-black text-emerald-500 uppercase">Ativado</span>
-                             ) : (
-                               <span className="text-[9px] font-black text-slate-300 uppercase italic">Aguardando</span>
-                             )}
+                          <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 flex flex-col items-center text-center">
+                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 border-b border-slate-200 pb-1 w-full">Investimento</p>
+                             <span className="text-sm font-black text-slate-900">R$ {(client.packageValue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                           </div>
-                          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col items-center">
-                             <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest mb-1">Pagamento</p>
-                             {(() => {
-                               const status = getPaymentStatus(client);
-                               return <span className={`text-[9px] font-black uppercase ${status.text}`}>{status.label}</span>
-                             })()}
+                          <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 flex flex-col items-center text-center">
+                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 border-b border-slate-200 pb-1 w-full">Faturamento</p>
+                             <span className="text-sm font-black text-slate-900">Dia {client.billingDay}</span>
                           </div>
                        </div>
                        
-                       <div className="flex justify-between items-center bg-slate-900 p-4 rounded-2xl text-white">
-                          <div className="flex flex-col">
-                             <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest">Faturamento</span>
-                             <span className="text-xs font-bold uppercase tracking-tighter">Todo dia {client.billingDay}</span>
+                       <div className="grid grid-cols-2 gap-3">
+                          <div className={`p-4 rounded-2xl flex flex-col items-center justify-center gap-1 border transition-all ${client.uid ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>
+                              <p className="text-[7px] font-black uppercase tracking-[0.2em] opacity-60">Status Portal</p>
+                              <span className="text-[10px] font-black uppercase tracking-tight">{client.uid ? 'Ativado' : 'Inativo'}</span>
                           </div>
-                          <button onClick={() => navigate('/portal-cliente')} className="bg-white/10 hover:bg-white/20 text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-all">Ver Visualização</button>
+                          <button 
+                            onClick={() => handleTogglePayment(client)}
+                            className={(() => {
+                              const status = getPaymentStatus(client);
+                              return `p-4 rounded-2xl flex flex-col items-center justify-center gap-1 border transition-all ${status.bg} border-current/10 ${status.color}`;
+                            })()}
+                          >
+                              <p className="text-[7px] font-black uppercase tracking-[0.2em] opacity-60">Status Pagamento</p>
+                              {(() => {
+                                const status = getPaymentStatus(client);
+                                return <span className="text-[10px] font-black uppercase tracking-tight">{status.label}</span>
+                              })()}
+                          </button>
+                       </div>
+                       
+                       <div className="pt-2">
+                         <button onClick={() => navigate('/portal-cliente')} className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-brand-600 transition-all flex items-center justify-center gap-3 shadow-lg shadow-slate-900/10 active:scale-95">
+                           Acessar Portal <CheckCircle2 size={16} />
+                         </button>
                        </div>
                     </div>
                   ))}
@@ -2827,7 +3372,7 @@ export default function Dashboard() {
             <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-6 lg:p-12 overflow-hidden">
               
               {/* Filter Bar */}
-              <div className="flex flex-col md:flex-row items-center gap-4 mb-12 p-6 bg-slate-50/50 rounded-3xl border border-slate-100">
+              <div className="flex flex-col md:flex-row items-center gap-4 mb-12 p-6 bg-slate-50/50 rounded-[2rem] border border-slate-100">
                 <div className="relative flex-1 w-full group">
                   <Search size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-500 transition-colors" />
                   <input 
@@ -3065,19 +3610,20 @@ export default function Dashboard() {
             </div>
           </motion.div>         ) : activeTab === 'Monitoramento de Rankings' ? (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 pb-20">
-            <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-6 lg:p-10">
+            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 lg:p-12 overflow-hidden">
                <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-10 mb-12">
                  <div>
-                    <div className="flex items-center gap-4">
-                      <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Performance Orgânica</h2>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3 uppercase">
+                      <div className="w-1.5 h-8 bg-brand-600 rounded-full" />
+                      Performance <span className="text-brand-500">Orgânica</span>
                       <button 
                         onClick={() => loadSeoPages(true)} 
-                        className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-200 hover:text-slate-900 group"
+                        className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-200 hover:text-slate-900 group ml-2"
                       >
                         <RefreshCcw size={16} className={`${loadingSeo ? 'animate-spin' : ''} group-hover:rotate-180 transition-transform duration-500`} />
                       </button>
-                    </div>
-                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.15em] mt-2">Rastreamento de Keywords & Vitalidade Técnica</p>
+                    </h2>
+                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mt-3">Rastreamento de Keywords & Vitalidade Técnica</p>
                  </div>
                  <div className="flex flex-wrap items-center gap-4">
                     <div className="relative group">
@@ -3155,7 +3701,7 @@ export default function Dashboard() {
                   ) : (
                    <table className="w-full text-left">
                      <thead>
-                       <tr className="bg-slate-50/50 text-[9px] font-bold uppercase tracking-[0.15em] text-slate-400 border-b border-slate-100">
+                       <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                          <td className="px-8 py-5">Palavra-chave / Ativo Digital</td>
                          <td className="px-8 py-5 text-center">Status & Vitalidade</td>
                          <td className="px-8 py-5 text-right">Controle</td>
@@ -3165,7 +3711,7 @@ export default function Dashboard() {
                        {filteredSeoPages.map(page => (
                          <tr key={page.id} className="group hover:bg-slate-50/30 transition-all">
                            <td className="px-8 py-6">
-                             <span className="text-lg font-bold text-slate-900 block leading-tight tracking-tight mb-1 group-hover:text-brand-600 transition-colors uppercase">{page.title}</span>
+                             <span className="text-lg font-black text-slate-900 block leading-tight tracking-tight mb-1 group-hover:text-brand-600 transition-colors uppercase">{page.title}</span>
                              <div className="flex items-center gap-2">
                                <div className="w-1 h-1 rounded-full bg-slate-300 group-hover:bg-brand-500 transition-colors"></div>
                                <span className="text-[10px] font-medium text-slate-400 block font-mono truncate max-w-sm">{page.url}</span>
@@ -3212,6 +3758,211 @@ export default function Dashboard() {
                </div>
             </div>
           </motion.div>
+        ) : activeTab === 'Financeiro' ? (
+          <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="space-y-10 pb-20">
+             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-1.5 h-6 bg-brand-600 rounded-full"></div>
+                    <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight uppercase">Saúde Financeira</h2>
+                  </div>
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-[0.15em]">Painel Consolidado de Recebíveis</p>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  {globalPayments.some(p => p.status === 'pendente') && (
+                    <div className="bg-amber-50 px-6 py-4 rounded-2xl border border-amber-100 shadow-sm flex items-center gap-4 animate-in fade-in zoom-in duration-500">
+                      <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center relative">
+                        <AlertCircle size={20} />
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full border-2 border-white animate-pulse" />
+                      </div>
+                      <div>
+                        <p className="text-[8px] font-black text-amber-600 uppercase tracking-widest mb-0.5">Confirmações Pendentes</p>
+                        <p className="text-xs font-black text-amber-900 tracking-tight">
+                          {globalPayments.filter(p => p.status === 'pendente').length} Aguardando
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+                    <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+                      <DollarSign size={20} />
+                    </div>
+                    <div>
+                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Total Recebido (Mês)</p>
+                      <p className="text-xs font-black text-slate-900 tracking-tight">
+                        R$ {globalPayments
+                          .filter(p => p.status !== 'pendente' && p.paymentMonth === new Date().toISOString().slice(0, 7))
+                          .reduce((acc, curr) => acc + (curr.amount || 0), 0)
+                          .toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => {
+                      if (clients.length > 0) {
+                        setSelectedClientForPayments(clients[0]);
+                        setShowPaymentModal(true);
+                      }
+                    }}
+                    className="p-4 bg-slate-900 text-white rounded-2xl hover:bg-brand-600 transition-all shadow-lg active:scale-95"
+                    title="Novo Pagamento"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
+             </div>
+
+             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+               <div className="lg:col-span-3 bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                  <div className="p-8 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
+                    <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Fluxo de Caixa (Lançamentos Recentes)</h3>
+                    <button onClick={loadGlobalPayments} className="p-2 text-slate-400 hover:text-brand-600 transition-colors"><RefreshCcw size={14} className={loadingGlobalPayments ? 'animate-spin' : ''} /></button>
+                  </div>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-slate-50">
+                          <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Cliente</th>
+                          <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Data</th>
+                          <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Mês Ref.</th>
+                          <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Tipo</th>
+                          <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Valor</th>
+                          <th className="px-8 py-4 text-center"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {loadingGlobalPayments ? (
+                          <tr><td colSpan={6} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-slate-200" /></td></tr>
+                        ) : globalPayments.length === 0 ? (
+                          <tr><td colSpan={6} className="py-20 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest">Nenhum registro encontrado</td></tr>
+                        ) : globalPayments.map(payment => (
+                          <tr key={payment.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group">
+                            <td className="px-8 py-6">
+                              <p className="text-xs font-black text-slate-900 tracking-tight">{payment.clientName}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-[9px] text-slate-400 font-medium">{payment.description}</p>
+                                {clients.find(c => c.id === payment.clientId)?.packageValue && (
+                                  <>
+                                    <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
+                                    <span className="text-[8px] font-black text-brand-500 uppercase tracking-widest">Ref. R$ {Number(clients.find(c => c.id === payment.clientId).packageValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-8 py-6 text-xs font-bold text-slate-500">{new Date(payment.paymentDate + 'T12:00:00').toLocaleDateString('pt-BR')}</td>
+                            <td className="px-8 py-6">
+                              <span className="text-[10px] font-black text-brand-600 bg-brand-50 px-2 py-1 rounded-lg">{payment.paymentMonth}</span>
+                            </td>
+                            <td className="px-8 py-6">
+                               <span className={`text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-widest ${
+                                 payment.status === 'pendente' ? 'bg-amber-100 text-amber-600 border border-amber-200 animate-pulse' :
+                                 payment.type === 'Mensalidade' ? 'bg-emerald-100 text-emerald-600' : 
+                                 payment.type === 'Setup' ? 'bg-indigo-100 text-indigo-600' :
+                                 'bg-amber-100 text-amber-600'
+                               }`}>
+                                 {payment.status === 'pendente' ? 'Aguardando Aprovação' : (payment.type || 'Lançamento')}
+                               </span>
+                            </td>
+                            <td className="px-8 py-6 text-right">
+                              <p className="text-xs font-black text-slate-900 tracking-tighter">R$ {payment.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                            </td>
+                            <td className="px-8 py-6 text-center">
+                               <div className="flex items-center justify-center gap-2">
+                                 {payment.status === 'pendente' ? (
+                                   <button 
+                                     onClick={() => handleConfirmPayment(payment)}
+                                     className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-lg transition-all shadow-sm"
+                                     title="Confirmar Recebimento"
+                                   >
+                                     <Check size={14} />
+                                   </button>
+                                 ) : (
+                                   <div className="p-2 text-emerald-400 opacity-20">
+                                     <CheckCircle2 size={14} />
+                                   </div>
+                                 )}
+                                 <button 
+                                   onClick={() => handleDeletePayment(payment)}
+                                   className="p-2 text-slate-200 hover:text-rose-500 hover:bg-white rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                                 >
+                                   <Trash2 size={14} />
+                                 </button>
+                               </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+               </div>
+
+               <div className="space-y-8">
+                  <div className="bg-slate-900 rounded-[40px] p-8 text-white relative overflow-hidden group">
+                     <div className="absolute right-0 bottom-0 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                        <TrendingUp size={120} />
+                     </div>
+                     <h4 className="text-[9px] font-black text-brand-400 uppercase tracking-widest mb-8">Performance Comercial</h4>
+                     <div className="space-y-6 relative z-10">
+                        <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">MRR Atual (Mensalidade)</p>
+                          <p className="text-xl font-black tracking-tight">
+                            R$ {clients
+                              .filter(c => (c.status === 'Ativo' || c.active !== false) && c.name !== 'Agência')
+                              .reduce((acc, curr) => acc + (Number(curr.packageValue) || 0), 0)
+                              .toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Churn Rate (Cancelados)</p>
+                          <p className="text-lg font-black text-rose-400">
+                            {clients.filter(c => c.status === 'Cancelado').length} <span className="text-[10px] font-bold text-slate-500 ml-1 uppercase">Unidades</span>
+                          </p>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm">
+                     <h4 className="text-[9px] font-black text-slate-900 uppercase tracking-widest mb-6">Próximos Vencimentos</h4>
+                     <div className="space-y-4">
+                        {clients
+                          .filter(c => c.name !== 'Agência' && c.active !== false && c.status !== 'Cancelado')
+                          .filter(c => {
+                             const status = getPaymentStatus(c);
+                             return status.label === 'Vencimento Próximo' || status.label === 'Vencimento Hoje' || status.label === 'Em atraso';
+                          })
+                          .slice(0, 5)
+                          .map(client => {
+                            const status = getPaymentStatus(client);
+                            return (
+                              <div key={client.id} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50">
+                                 <div>
+                                   <p className="text-[10px] font-black text-slate-900 tracking-tight whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">{client.name}</p>
+                                   <p className={`text-[8px] font-black uppercase ${status.text}`}>{status.label}</p>
+                                 </div>
+                                 <button 
+                                   onClick={() => handleTogglePayment(client)}
+                                   className="p-2 bg-white text-slate-400 hover:text-brand-600 rounded-xl transition-all shadow-sm"
+                                 >
+                                   <ArrowRight size={14} />
+                                 </button>
+                              </div>
+                            );
+                          })}
+                        {clients.filter(c => c.name !== 'Agência' && c.active !== false && c.status !== 'Cancelado' && ['Vencimento Próximo', 'Vencimento Hoje', 'Em atraso'].includes(getPaymentStatus(c).label)).length === 0 && (
+                          <div className="py-6 text-center">
+                            <CheckCircle size={24} className="mx-auto text-emerald-100 mb-2" />
+                            <p className="text-[9px] font-black text-slate-300 uppercase">Tudo em dia</p>
+                          </div>
+                        )}
+                     </div>
+                  </div>
+               </div>
+             </div>
+          </motion.div>
         ) : activeTab === 'Configurações' ? (
           <SettingsGlobal />
         ) : activeTab === 'Artigos e Conteúdos' ? (
@@ -3220,7 +3971,7 @@ export default function Dashboard() {
                <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-8 mb-12">
                  <div>
                     <div className="flex items-center gap-4">
-                      <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Central de Conteúdo</h2>
+                      <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase">Central de Conteúdo</h2>
                       <button 
                         onClick={() => loadBlogPosts(true)} 
                         className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-200 hover:text-slate-900 group"
@@ -3228,7 +3979,7 @@ export default function Dashboard() {
                         <RefreshCcw size={16} className={`${loadingPosts ? 'animate-spin' : ''} group-hover:rotate-180 transition-transform duration-500`} />
                       </button>
                     </div>
-                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.15em] mt-2">Gestão de Produção & Pipeline Editorial</p>
+                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.15em] mt-2">Gestão de Produção & Pipeline Editorial</p>
                  </div>
                  
                  <div className="flex flex-wrap items-center gap-4">
@@ -3285,7 +4036,7 @@ export default function Dashboard() {
                             <div className="flex items-center gap-3">
                               <div className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-brand-500 transition-colors"></div>
                               <div className="flex flex-col">
-                                <span className="text-lg font-bold text-slate-900 block leading-tight tracking-tight mb-1 group-hover:text-brand-600 transition-colors uppercase max-w-[500px] truncate">{post.title}</span>
+                                <span className="text-lg font-black text-slate-900 block leading-tight tracking-tight mb-1 group-hover:text-brand-600 transition-colors uppercase max-w-[500px] truncate">{post.title}</span>
                                 {post.status === 'Planejado' && (
                                   <button 
                                     onClick={() => { setPostForm({ clientComment: '', ...post }); setShowPostForm(true); }}
@@ -3358,7 +4109,7 @@ export default function Dashboard() {
                <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-8 mb-12">
                  <div>
                     <div className="flex items-center gap-4">
-                      <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Monitoramento de Links</h2>
+                      <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase">Monitoramento de Links</h2>
                       <button 
                         onClick={() => loadBacklinks(true)} 
                         className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-200 hover:text-slate-900 group"
@@ -3366,7 +4117,7 @@ export default function Dashboard() {
                         <RefreshCcw size={16} className={`${loadingBacklinks ? 'animate-spin' : ''} group-hover:rotate-180 transition-transform duration-500`} />
                       </button>
                     </div>
-                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.15em] mt-2">Autoridade de Domínio & Growth Off-Page</p>
+                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.15em] mt-2">Autoridade de Domínio & Growth Off-Page</p>
                  </div>
                  
                  <div className="flex flex-wrap items-center gap-4">
@@ -3452,7 +4203,7 @@ export default function Dashboard() {
                <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-8 mb-12">
                  <div>
                     <div className="flex items-center gap-4">
-                      <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Planejamento de Pautas</h2>
+                      <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase">Planejamento de Pautas</h2>
                       <button 
                         onClick={() => loadKeywordsUniverse(true)} 
                         className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-200 hover:text-slate-900 group"
@@ -3460,7 +4211,7 @@ export default function Dashboard() {
                         <RefreshCcw size={16} className={`${loadingKeywords ? 'animate-spin' : ''} group-hover:rotate-180 transition-transform duration-500`} />
                       </button>
                     </div>
-                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.15em] mt-2">Definição estratégica de temas para o ciclo {selectedCycle}</p>
+                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.15em] mt-2">Definição estratégica de temas para o ciclo {selectedCycle}</p>
                  </div>
                  
                  <div className="flex items-center gap-4">
@@ -3656,6 +4407,348 @@ export default function Dashboard() {
                </form>
             </div>
           </motion.div>
+        ) : activeTab === 'Suporte Técnico Admin' ? (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 pb-20 text-left">
+            {/* Header / Submenu */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm animate-fadeIn">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Suporte Técnico & Atendimento</h2>
+                <p className="text-slate-400 text-xs mt-1 font-mono uppercase tracking-widest font-bold">Controle de chamados em tempo real e usuários ativos no site</p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={checkOnlineUsers}
+                  disabled={checkingOnline}
+                  className="flex items-center gap-2 px-5 py-3.5 bg-brand-50 hover:bg-brand-100 disabled:bg-slate-50 text-brand-600 disabled:text-slate-400 font-black text-xs uppercase tracking-wider rounded-xl transition cursor-pointer select-none"
+                >
+                  <Users size={14} />
+                  {checkingOnline ? 'Consultando...' : 'Consultar Usuários Online'}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+              {/* Left Column: Tickets & Online users */}
+              <div className="xl:col-span-4 space-y-6">
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 mb-3">Chamados de Suporte ({adminTickets.length})</p>
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 no-scrollbar">
+                    {loadingAdminTickets ? (
+                      <div className="p-12 text-center text-slate-400 text-xs">Carregando chamados...</div>
+                    ) : adminTickets.length === 0 ? (
+                      <div className="bg-white border border-slate-100 rounded-3xl p-12 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">Nenhum chamado aberto.</div>
+                    ) : (
+                      adminTickets.map((t: any) => {
+                        const isSelected = selectedAdminTicket?.id === t.id;
+                        return (
+                          <button
+                            key={t.id}
+                            onClick={() => handleAdminSelectTicket(t)}
+                            className={`w-full text-left p-6 rounded-[2rem] border transition-all relative ${
+                              isSelected 
+                                ? 'bg-slate-900 border-slate-900 text-white shadow-xl shadow-slate-900/10' 
+                                : 'bg-white border-slate-100 text-slate-800 hover:border-slate-200 hover:bg-slate-50/50'
+                            }`}
+                          >
+                            {t.unreadByAdmin && (
+                              <span className="absolute top-4 right-4 w-3.5 h-3.5 bg-brand-500 border-2 border-white rounded-full animate-pulse" />
+                            )}
+                            <div className="pr-4">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className={`text-[8px] uppercase font-black px-2 py-0.5 rounded-md ${
+                                  t.status === 'pending' 
+                                    ? 'bg-amber-100 text-amber-700 font-semibold' 
+                                    : t.status === 'answered' 
+                                      ? 'bg-emerald-100 text-emerald-700 font-semibold' 
+                                      : 'bg-slate-100 text-slate-500 font-semibold'
+                                }`}>
+                                  {t.status === 'pending' 
+                                    ? 'Pendente' 
+                                    : t.status === 'answered' 
+                                      ? 'Respondido' 
+                                      : 'Fechado'}
+                                </span>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider truncate max-w-[120px]">
+                                  {t.clientName}
+                                </span>
+                              </div>
+                              <h4 className="text-sm font-black truncate uppercase tracking-tight">{t.subject}</h4>
+                              <p className={`text-xs mt-1 line-clamp-1 ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
+                                {t.lastMessage}
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                {/* Online Users Section */}
+                <div>
+                  <div className="flex justify-between items-center mb-3 px-2">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Usuários Online ({onlineUsers.filter(u => u.isOnline).length})</p>
+                    <span className="text-[8px] font-bold text-slate-300 uppercase tracking-wider font-mono">Últimas 24h</span>
+                  </div>
+
+                  <div className="bg-white border border-slate-100 rounded-[2rem] p-6 space-y-4 shadow-sm max-h-[350px] overflow-y-auto no-scrollbar">
+                    {onlineUsers.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Nenhuma consulta realizada</p>
+                        <p className="text-[9px] text-slate-400/80 mt-1">Clique no botão "Consultar Usuários Online" para puxar as presenças ativas.</p>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-slate-100">
+                        {onlineUsers.map((u: any) => (
+                          <div key={u.id} className="py-3 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
+                            <div className="min-w-0 flex-1 text-left">
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <span className={`inline-block w-2.5 h-2.5 rounded-full shadow ${u.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
+                                <span className="text-xs font-black text-slate-800 truncate uppercase mt-0.5">{u.name || u.email?.split('@')[0] || 'Usuário'}</span>
+                              </div>
+                              <p className="text-[10px] text-slate-450 font-medium truncate lowercase">{u.email || 'Sem e-mail'}</p>
+                              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-wide">
+                                Role: {u.role === 'admin' ? 'Administrador' : 'Cliente'} • {u.lastActive?.toDate ? `Ativo às ${u.lastActive.toDate().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}` : 'Sem registro'}
+                              </p>
+                            </div>
+
+                            {u.role !== 'admin' && (
+                              <button
+                                onClick={() => {
+                                  // Find if there is an existing ticket or open empty chat for user status
+                                  const existingTicket = adminTickets.find((t: any) => t.clientUid === u.id);
+                                  if (existingTicket) {
+                                    handleAdminSelectTicket(existingTicket);
+                                    addToast(`Abrindo canal existente para ${u.name}!`, 'success');
+                                  } else {
+                                    // Set up subject for virtual quick chat
+                                    setSelectedAdminTicket({
+                                      id: `temp-${u.id}`,
+                                      clientUid: u.id,
+                                      clientName: u.name || 'Cliente',
+                                      clientEmail: u.email || '',
+                                      subject: 'Suporte Técnico Direto',
+                                      status: 'pending',
+                                      isTemporary: true
+                                    });
+                                    addToast('Iniciando conversa direta!', 'info');
+                                  }
+                                }}
+                                className="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 hover:text-brand-600 hover:border-brand-100 rounded-lg text-[9px] font-black uppercase tracking-wider transition shrink-0 select-none cursor-pointer"
+                              >
+                                Conversar
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Active Conversation */}
+              <div className="xl:col-span-8 bg-white border border-slate-100 rounded-[2rem] shadow-sm flex flex-col h-[580px] overflow-hidden">
+                {selectedAdminTicket ? (
+                  <>
+                    {/* Header */}
+                    <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                      <div className="min-w-0 text-left">
+                        <span className="text-[8px] font-black text-brand-600 uppercase tracking-widest font-mono">Conversando com {selectedAdminTicket.clientName}</span>
+                        <h4 className="text-base font-black text-slate-800 uppercase tracking-tight truncate leading-snug">{selectedAdminTicket.subject}</h4>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 font-mono">
+                          ID: {selectedAdminTicket.isTemporary ? 'TEMPORÁRIO' : `#${selectedAdminTicket.id.substring(0, 8)}`} • Email: {selectedAdminTicket.clientEmail}
+                        </p>
+                      </div>
+
+                      {selectedAdminTicket.status !== 'closed' && !selectedAdminTicket.isTemporary && (
+                        <button
+                          onClick={async () => {
+                            try {
+                              await updateDoc(doc(db, 'support_tickets', selectedAdminTicket.id), {
+                                status: 'closed',
+                                updatedAt: serverTimestamp()
+                              });
+                              addToast('Chamado finalizado!', 'success');
+                              setSelectedAdminTicket(prev => ({...prev, status: 'closed'}));
+                              fetchAdminTickets();
+                            } catch (err) {
+                              console.error(err);
+                            }
+                          }}
+                          className="px-4 py-2 bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-800 font-black rounded-lg text-[9px] uppercase tracking-wider transition cursor-pointer"
+                        >
+                          Resolver Chamado
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Messages feed */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/20">
+                      {selectedAdminTicket.isTemporary ? (
+                        <div className="text-center py-20 px-8 text-slate-400 space-y-2">
+                          <MessageSquareText size={28} className="mx-auto text-slate-300 animate-bounce" />
+                          <p className="text-[11px] font-black uppercase tracking-wider">Novo Canal Direto</p>
+                          <p className="text-[10px] leading-relaxed max-w-md mx-auto font-medium">Este cliente ainda não abriu problemas específicos, mas você pode iniciar uma conversa enviando uma mensagem. Isso criará um chamado formalizado automaticamente.</p>
+                        </div>
+                      ) : adminTicketMessages.length === 0 ? (
+                        <div className="text-center py-12 text-slate-300 text-xs uppercase tracking-widest font-bold">Sem mensagens iniciadas...</div>
+                      ) : (
+                        adminTicketMessages.map((m: any) => {
+                          const isSenderAdmin = m.senderRole === 'admin';
+                          return (
+                            <div
+                              key={m.id}
+                              className={`flex flex-col max-w-[80%] ${isSenderAdmin ? 'ml-auto items-end' : 'mr-auto items-start'}`}
+                            >
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">
+                                {m.senderName} ({isSenderAdmin ? 'Você' : 'Cliente'})
+                              </span>
+                              <div className={`p-4 rounded-3xl text-sm ${
+                                isSenderAdmin 
+                                  ? 'bg-brand-600 text-white rounded-tr-none text-left' 
+                                  : 'bg-white border border-slate-105 text-slate-800 rounded-tl-none font-medium'
+                              }`}>
+                                <p className="leading-relaxed whitespace-pre-line font-medium">{m.message}</p>
+                              </div>
+                              <span className="text-[8px] font-mono text-slate-400 mt-1 px-1">
+                                {m.createdAt?.toDate ? m.createdAt.toDate().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) : 'Agora'}
+                              </span>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Footer Input Bar */}
+                    {selectedAdminTicket.status === 'closed' ? (
+                      <div className="p-6 border-t border-slate-100 bg-slate-50/50 text-center font-black text-[10px] uppercase text-slate-400 tracking-wider">
+                        Este chamado foi marcado como encerrado.
+                      </div>
+                    ) : (
+                      <div className="p-4 border-t border-slate-100 bg-white flex gap-3 items-center">
+                        <textarea
+                          rows={1}
+                          value={adminReplyText}
+                          onChange={e => setAdminReplyText(e.target.value)}
+                          onKeyDown={async e => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              if (selectedAdminTicket.isTemporary) {
+                                setSendingAdminReply(true);
+                                try {
+                                  const ticketRef = doc(collection(db, 'support_tickets'));
+                                  await setDoc(ticketRef, {
+                                    subject: 'Suporte Técnico Direto',
+                                    clientEmail: selectedAdminTicket.clientEmail,
+                                    clientName: selectedAdminTicket.clientName,
+                                    clientUid: selectedAdminTicket.clientUid,
+                                    status: 'pending',
+                                    createdAt: serverTimestamp(),
+                                    updatedAt: serverTimestamp(),
+                                    unreadByAdmin: false,
+                                    unreadByClient: true,
+                                    lastMessage: adminReplyText.substring(0, 150)
+                                  });
+
+                                  await setDoc(doc(collection(db, 'support_tickets', ticketRef.id, 'messages')), {
+                                    senderId: auth.currentUser?.uid,
+                                    senderName: 'Atendimento Acelera SEO',
+                                    senderRole: 'admin',
+                                    message: adminReplyText,
+                                    createdAt: serverTimestamp()
+                                  });
+
+                                  setAdminReplyText('');
+                                  addToast('Chamado inicial criado!', 'success');
+                                  fetchAdminTickets();
+                                  setSelectedAdminTicket({
+                                    id: ticketRef.id,
+                                    clientEmail: selectedAdminTicket.clientEmail,
+                                    clientName: selectedAdminTicket.clientName,
+                                    clientUid: selectedAdminTicket.clientUid,
+                                    subject: 'Suporte Técnico Direto',
+                                    status: 'pending'
+                                  });
+                                } catch (err) {
+                                  console.error(err);
+                                } finally {
+                                  setSendingAdminReply(false);
+                                }
+                              } else {
+                                handleSendAdminReply();
+                              }
+                            }
+                          }}
+                          placeholder="Escreva sua resposta de suporte..."
+                          className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-xs font-bold outline-none focus:ring-2 focus:ring-brand-500/10 focus:border-brand-500 max-h-24 resize-none"
+                        />
+                        <button
+                          disabled={sendingAdminReply || !adminReplyText.trim()}
+                          onClick={async () => {
+                            if (selectedAdminTicket.isTemporary) {
+                              setSendingAdminReply(true);
+                              try {
+                                const ticketRef = doc(collection(db, 'support_tickets'));
+                                await setDoc(ticketRef, {
+                                  subject: 'Suporte Técnico Direto',
+                                  clientEmail: selectedAdminTicket.clientEmail,
+                                  clientName: selectedAdminTicket.clientName,
+                                  clientUid: selectedAdminTicket.clientUid,
+                                  status: 'pending',
+                                  createdAt: serverTimestamp(),
+                                  updatedAt: serverTimestamp(),
+                                  unreadByAdmin: false,
+                                  unreadByClient: true,
+                                  lastMessage: adminReplyText.substring(0, 150)
+                                });
+
+                                await setDoc(doc(collection(db, 'support_tickets', ticketRef.id, 'messages')), {
+                                  senderId: auth.currentUser?.uid,
+                                  senderName: 'Atendimento Acelera SEO',
+                                  senderRole: 'admin',
+                                  message: adminReplyText,
+                                  createdAt: serverTimestamp()
+                                });
+
+                                setAdminReplyText('');
+                                addToast('Chamado inicial criado!', 'success');
+                                fetchAdminTickets();
+                                setSelectedAdminTicket({
+                                  id: ticketRef.id,
+                                  clientEmail: selectedAdminTicket.clientEmail,
+                                  clientName: selectedAdminTicket.clientName,
+                                  clientUid: selectedAdminTicket.clientUid,
+                                  subject: 'Suporte Técnico Direto',
+                                  status: 'pending'
+                                });
+                              } catch (err) {
+                                console.error(err);
+                              } finally {
+                                setSendingAdminReply(false);
+                              }
+                            } else {
+                              handleSendAdminReply();
+                            }
+                          }}
+                          className="p-4 bg-brand-600 hover:bg-brand-700 disabled:bg-slate-100 disabled:text-slate-300 text-white rounded-2xl transition shadow-lg active:scale-95 cursor-pointer"
+                        >
+                          <ArrowRight size={18} />
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-slate-400">
+                    <MessageSquareText size={32} className="stroke-[1.5] text-slate-200 mb-3" />
+                    <p className="text-xs uppercase font-black tracking-widest text-slate-450">Nenhum chamado selecionado</p>
+                    <p className="text-[11px] text-slate-400 mt-1 max-w-sm font-medium">Consulte as conversas de suporte abertas pelos clientes ou ative a verificação de usuários online.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
         ) : activeTab === 'Configurações' ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
              <SettingsGlobal />
@@ -3695,6 +4788,21 @@ export default function Dashboard() {
       handleSaveKeyword={handleSaveKeyword}
       clientsList={clientsList}
     />
+
+    <PaymentModal 
+      showPaymentModal={showPaymentModal}
+      setShowPaymentModal={setShowPaymentModal}
+      selectedClientForPayments={selectedClientForPayments}
+      setSelectedClientForPayments={setSelectedClientForPayments}
+      payments={payments}
+      loadingPayments={loadingPayments}
+      paymentForm={paymentForm}
+      setPaymentForm={setPaymentForm}
+      handleAddPayment={handleAddPayment}
+      handleDeletePayment={handleDeletePayment}
+      clients={clients}
+    />
+
     <ToastContainer toasts={toasts} removeToast={removeToast} />
   </div>
 );

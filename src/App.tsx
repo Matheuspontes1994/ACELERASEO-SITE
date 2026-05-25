@@ -6,7 +6,7 @@
 import { 
   Activity
 } from 'lucide-react';
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -14,29 +14,28 @@ import { logger } from './lib/logger';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
-const Home = lazy(() => import('./pages/Home'));
-const AuditPage = lazy(() => import('./pages/Audit'));
-const BlogPage = lazy(() => import('./pages/Blog'));
-const BlogPost = lazy(() => import('./pages/BlogPost'));
-const ServicesPage = lazy(() => import('./pages/Services'));
-const AboutPage = lazy(() => import('./pages/About'));
-const ContactPage = lazy(() => import('./pages/Contact'));
-const SeoEcommercePage = lazy(() => import('./pages/SeoEcommerce'));
-// const ConsultoriaSeoPage = lazy(() => import('./pages/ConsultoriaSeo'));
-const LinkBuildingPage = lazy(() => import('./pages/LinkBuilding'));
-const EspecialistaSeoPage = lazy(() => import('./pages/EspecialistaSeo'));
-const SeoLocalPage = lazy(() => import('./pages/SeoLocal'));
+import Home from './pages/Home';
+import AuditPage from './pages/Audit';
+import BlogPage from './pages/Blog';
+import BlogPost from './pages/BlogPost';
+import ServicesPage from './pages/Services';
+import AboutPage from './pages/About';
+import ContactPage from './pages/Contact';
+import SeoEcommercePage from './pages/SeoEcommerce';
+import LinkBuildingPage from './pages/LinkBuilding';
+import EspecialistaSeoPage from './pages/EspecialistaSeo';
+import SeoLocalPage from './pages/SeoLocal';
+import ConsultoriaSeoPage from './pages/ConsultoriaSeo';
+import ClientDashboard from './pages/ClientDashboard';
+import DashboardPage from './pages/Dashboard';
+import LoginPage from './pages/Login';
+import RegisterPage from './pages/Register';
 import { SettingsProvider } from './contexts/SettingsContext';
 import AuthRoute from './components/AuthRoute';
 import { GlobalSeo } from './components/SeoHeader';
 import Skeleton from './components/ui/Skeleton';
 import ScrollToTop from './components/ScrollToTop';
 import { JsonLd } from './components/JsonLd';
-import ConsultoriaSeoPage from './pages/ConsultoriaSeo';
-import ClientDashboard from './pages/ClientDashboard';
-import DashboardPage from './pages/Dashboard';
-import LoginPage from './pages/Login';
-import RegisterPage from './pages/Register';
 
 // --- SEO Structured Data ---
 const structuredData = {

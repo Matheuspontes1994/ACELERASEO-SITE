@@ -69,15 +69,15 @@ export function HubClients({
       className="space-y-12 pb-32"
     >
       {!selectedHubClient ? (
-        <div className="bg-white border border-slate-100 p-20 rounded-[40px] shadow-sm text-center relative overflow-hidden">
+        <div className="bg-white border border-slate-100 p-20 rounded-[2rem] shadow-sm text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none text-slate-900">
             <Users size={320} />
           </div>
           <div className="relative z-10 max-w-lg mx-auto">
-             <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-200 mx-auto mb-8 shadow-sm">
+             <div className="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-200 mx-auto mb-8 shadow-sm">
                 <Search size={32} />
              </div>
-             <h2 className="text-3xl font-bold text-slate-900 tracking-tight leading-tight mb-4">
+             <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-tight mb-4 uppercase">
                Selecione uma <span className="text-brand-600">Unidade de Performance</span>
              </h2>
              <p className="text-slate-400 font-medium text-lg leading-relaxed mb-8">
@@ -90,7 +90,7 @@ export function HubClients({
           </div>
         </div>
       ) : (
-        <div className="bg-white border border-slate-100 p-8 lg:p-12 rounded-[40px] shadow-sm">
+        <div className="bg-white border border-slate-100 p-8 lg:p-12 rounded-[2rem] shadow-sm">
           <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-10 mb-16 pb-10 border-b border-slate-50">
             <div className="relative group/switcher">
               <div className="flex items-center gap-3 mb-4 text-brand-600">
@@ -125,43 +125,42 @@ export function HubClients({
             {/* Resumo do Cliente */}
             {selectedHubClientData && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm group hover:shadow-xl transition-all flex flex-col justify-center min-h-[140px]">
+                <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm group hover:shadow-xl transition-all flex flex-col justify-center min-h-[140px]">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 leading-tight">Investimento Mensal</p>
                   <h4 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-brand-600 transition-colors tracking-tight break-words" title={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedHubClientData.packageValue || 0)}>
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedHubClientData.packageValue || 0)}
                   </h4>
                 </div>
-                <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm group hover:shadow-xl transition-all flex flex-col justify-center min-h-[140px]">
+                <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm group hover:shadow-xl transition-all flex flex-col justify-center min-h-[140px]">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 leading-tight">Posts Contratados</p>
                   <h4 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-emerald-500 transition-colors tracking-tight leading-tight">
-                    {selectedHubClientData.monthlyPosts || 0} <span className="text-[10px] text-slate-400 block sm:inline font-bold whitespace-nowrap">pautas/mês</span>
+                    {selectedHubClientData.monthlyPosts || 0} <span className="text-[10px] text-slate-400 block sm:inline font-black uppercase tracking-wide whitespace-nowrap">pautas/mês</span>
                   </h4>
                 </div>
-                <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm group hover:shadow-xl transition-all flex flex-col justify-center min-h-[140px]">
+                <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm group hover:shadow-xl transition-all flex flex-col justify-center min-h-[140px]">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 leading-tight">Links Estratégicos</p>
                   <h4 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-amber-500 transition-colors tracking-tight leading-tight">
-                    {selectedHubClientData.monthlyBacklinks || 0} <span className="text-[10px] text-slate-400 block sm:inline font-bold whitespace-nowrap">backlinks/mês</span>
+                    {selectedHubClientData.monthlyBacklinks || 0} <span className="text-[10px] text-slate-400 block sm:inline font-black uppercase tracking-wide whitespace-nowrap">backlinks/mês</span>
                   </h4>
                 </div>
-                <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm group hover:shadow-xl transition-all flex flex-col justify-center min-h-[140px]">
+                <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm group hover:shadow-xl transition-all flex flex-col justify-center min-h-[140px]">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 leading-tight">SLA Aprovação</p>
                   <h4 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-blue-500 transition-colors tracking-tight leading-tight">
-                    {selectedHubClientData.approvalDeadlineDays || 5} <span className="text-[10px] text-slate-400 block sm:inline font-bold whitespace-nowrap">dias úteis</span>
+                    {selectedHubClientData.approvalDeadlineDays || 5} <span className="text-[10px] text-slate-400 block sm:inline font-black uppercase tracking-wide whitespace-nowrap">dias úteis</span>
                   </h4>
                 </div>
               </div>
             )}
 
             {/* Universo de Palavras */}
-            <div className="bg-slate-50/50 border border-slate-100 p-8 lg:p-12 rounded-[32px]">
+            <div className="bg-slate-50/50 border border-slate-100 p-8 lg:p-12 rounded-[2rem]">
               <div className="flex flex-col md:flex-row justify-between md:items-center gap-10 mb-12">
                 <div>
-                  <h3 className="text-2xl font-bold text-slate-900 tracking-tight mb-2">
-                    Universo de Keywords
+                  <h3 className="text-3xl font-black text-slate-900 tracking-tight mb-2 flex items-center gap-3 uppercase">
+                    <div className="w-1.5 h-8 bg-brand-600 rounded-full" />
+                    Universo de <span className="text-brand-500">Keywords</span>
                   </h3>
-                  <p className="text-slate-400 font-medium tracking-tight text-base">
-                    Inteligência de mercado e mapeamento de janelas de oportunidade.
-                  </p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-3">Inteligência de mercado e mapeamento de janelas de oportunidade.</p>
                 </div>
                 <button
                   onClick={() => {
@@ -181,7 +180,7 @@ export function HubClients({
                     });
                     setShowKeywordForm(true);
                   }}
-                  className="bg-white border border-slate-200 text-slate-900 text-[10px] font-bold uppercase tracking-[0.15em] px-8 py-4 rounded-xl hover:bg-slate-900 hover:text-white transition-all shadow-sm"
+                  className="bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em] px-10 py-5 rounded-2xl hover:bg-brand-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95"
                 >
                    Injetar Inteligência SEO
                 </button>
@@ -191,12 +190,12 @@ export function HubClients({
                 <HorizontalScroll>
                   <table className="w-full text-left min-w-[800px]">
                     <thead>
-                      <tr className="bg-slate-50/80 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                        <th className="py-6 px-8">Ciclo / Ref.</th>
+                      <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                        <th className="py-6 px-8">Ciclo Ref.</th>
                         <th className="py-6 px-8">Keyword Estratégica</th>
-                        <th className="py-6 px-8 text-center text-slate-300">Inteligência de Volume</th>
-                        <th className="py-6 px-8 text-center text-slate-300">Status</th>
-                        <th className="py-6 px-8 text-right">Acionáveis</th>
+                        <th className="py-6 px-8 text-center">Volume & Dificuldade</th>
+                        <th className="py-6 px-8 text-center">Status Ativo</th>
+                        <th className="py-6 px-8 text-right">Controle</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 bg-slate-50/20">
@@ -324,20 +323,20 @@ export function HubClients({
             </div>
 
             {/* Grid de Produção */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-20">
               {/* Artigos */}
-              <div className="bg-slate-50/70 border border-slate-100 p-8 lg:p-12 rounded-[32px]">
+              <div className="bg-slate-50/70 border border-slate-100 p-8 lg:p-12 rounded-[2rem]">
                 <div className="flex items-center gap-5 mb-10">
                   <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-slate-900 shadow-sm border border-slate-100 transition-transform duration-500">
                     <FileText size={24} />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
+                    <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
                       Célula de Conteúdo
                     </h3>
-                    <div className="flex items-center gap-2 text-brand-600 mt-1">
+                    <div className="flex items-center gap-2 text-brand-600 mt-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></div>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.1em]">Ativos de Atração & Autoridade</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.1em]">Ativos de Atração & Autoridade</span>
                     </div>
                   </div>
                 </div>
@@ -412,18 +411,18 @@ export function HubClients({
               </div>
 
               {/* Backlinks */}
-              <div className="bg-slate-50/70 border border-slate-100 p-8 lg:p-12 rounded-[32px]">
+              <div className="bg-slate-50/70 border border-slate-100 p-8 lg:p-12 rounded-[2rem]">
                 <div className="flex items-center gap-5 mb-10">
                   <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-slate-900 shadow-sm border border-slate-100 transition-transform duration-500">
                     <ArrowUpRight size={24} />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
+                    <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
                       Célula de Autoridade
                     </h3>
-                    <div className="flex items-center gap-2 text-violet-600 mt-1">
+                    <div className="flex items-center gap-2 text-violet-600 mt-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse"></div>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.1em]">Links Estratégicos & Mentions</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.1em]">Links Estratégicos & Mentions</span>
                     </div>
                   </div>
                 </div>

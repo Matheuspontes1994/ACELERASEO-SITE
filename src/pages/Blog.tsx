@@ -141,7 +141,7 @@ export default function Blog() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-brand-200 transition-all group flex flex-col"
+                className="bg-white rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-xl hover:border-brand-200 transition-all group flex flex-col"
               >
                 <Link to={`/blog/${post.slug || 'o-que-e-seo-tecnico-2026'}`} className="flex flex-col h-full cursor-pointer outline-none">
                   <div className="w-full aspect-[1024/565] overflow-hidden rounded-t-3xl relative">
@@ -188,7 +188,7 @@ export default function Blog() {
             ))}
           </div>
 
-          <div className="bg-slate-900 rounded-3xl sm:rounded-[3rem] text-center text-white relative overflow-hidden border border-slate-800 shadow-2xl p-10 sm:p-16 md:p-20">
+          <div className="bg-slate-900 rounded-[2rem] sm:rounded-[3rem] text-center text-white relative overflow-hidden border border-slate-800 shadow-2xl p-10 sm:p-16 md:p-20">
              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-brand-900/40 via-slate-900 to-slate-900"></div>
              <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
                <h3 className="text-3xl sm:text-4xl md:text-5xl leading-[1.15] md:leading-[1.1] text-balance font-extrabold font-display tracking-tight mb-8">Chega de tentar decifrar o Google sozinho.</h3>

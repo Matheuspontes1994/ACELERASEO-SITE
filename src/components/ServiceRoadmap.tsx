@@ -42,7 +42,7 @@ export const ServiceRoadmap: React.FC<ServiceRoadmapProps> = ({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-3xl md:text-5xl font-extrabold text-slate-900 font-display tracking-tight mb-6"
+            className="text-3xl md:text-5xl font-black text-slate-900 font-display tracking-tight mb-6"
           >
             {title}
           </motion.h2>
@@ -72,7 +72,7 @@ export const ServiceRoadmap: React.FC<ServiceRoadmapProps> = ({
                 className="relative flex items-start gap-6 md:gap-12 group"
               >
                 {/* Step indicator */}
-                <div className="relative z-10 shrink-0 hidden md:flex items-center justify-center w-18 h-18 rounded-3xl bg-white border-2 border-brand-100 shadow-sm text-brand-600 group-hover:bg-brand-600 group-hover:text-white group-hover:border-brand-600 group-hover:shadow-brand-200/50 transition-all duration-300">
+                <div className="relative z-10 shrink-0 hidden md:flex items-center justify-center w-18 h-18 rounded-[2rem] bg-white border-2 border-brand-100 shadow-sm text-brand-600 group-hover:bg-brand-600 group-hover:text-white group-hover:border-brand-600 group-hover:shadow-brand-200/50 transition-all duration-300">
                    {step.icon ? (
                      <div className="scale-125">{step.icon}</div>
                    ) : (
@@ -91,7 +91,7 @@ export const ServiceRoadmap: React.FC<ServiceRoadmapProps> = ({
                     {String(index + 1).padStart(2, '0')}
                   </div>
                   
-                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 group-hover:text-brand-600 transition-colors">
+                  <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-4 group-hover:text-brand-600 transition-colors uppercase tracking-tight">
                     {step.title}
                   </h3>
                   <div className="text-slate-500 leading-relaxed font-light text-base md:text-lg">

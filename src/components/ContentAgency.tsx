@@ -14,12 +14,14 @@ export function ContentAgency({
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10 pb-20">
-      <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-6 lg:p-10">
+      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 lg:p-10">
         <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-8 mb-12">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight uppercase leading-none">Blog Acelera</h2>
-            <div className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] mt-3 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-brand-500"></div>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase leading-none flex items-center gap-3">
+              <div className="w-1.5 h-8 bg-brand-600 rounded-full" />
+              Blog <span className="text-brand-500">Acelera</span>
+            </h2>
+            <div className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mt-4 flex items-center gap-2">
               Gestão de autoridade e conteúdo proprietário
             </div>
           </div>
@@ -27,14 +29,8 @@ export function ContentAgency({
             <button onClick={() => {
               setPostForm({ id: '', title: '', clientName: 'Agência', clientEmail: '', targetMonth: '', slug: '', description: '', content: '', coverImage: '', category: 'Geral', focusKeywords: '', anchor: '', seoTitle: '', wordCount: '', targetWords: '', imagesInfo: '', status: 'Rascunho', publishedAt: '', publishedUrl: '', internalLinking: '', theme: '', secondaryKeywords: '', directioning: '' });
               setShowPostForm(true);
-            }} className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-[0.1em] rounded-xl hover:bg-slate-800 transition-all px-8 py-4 shadow-xl shadow-slate-200 active:scale-95">
+            }} className="bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-brand-600 transition-all px-10 py-5 shadow-xl shadow-slate-900/10 active:scale-95">
               Novo Artigo Proprietário
-            </button>
-            <button onClick={() => {
-              setBacklinkForm({ id: '', title: '', clientName: 'Agência', clientEmail: '', targetMonth: '', focusKeywords: '', anchor: '', targetUrl: '', theme: '', directioning: '', content: '', status: 'Rascunho', publishedAt: '', publishedUrl: '', wordCount: '', targetWords: '' });
-              setShowBacklinkForm(true);
-            }} className="bg-white border border-slate-100 text-slate-900 text-[10px] font-bold uppercase tracking-[0.1em] rounded-xl hover:bg-slate-50 transition-all px-8 py-4 shadow-sm active:scale-95">
-              Backlink Off-page
             </button>
           </div>
         </div>

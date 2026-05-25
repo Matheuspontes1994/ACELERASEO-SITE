@@ -6,6 +6,8 @@ import { MapPin, Mail, Phone, Clock, Send, ArrowRight, Loader2, CheckCircle2 } f
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 
+import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
+
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
@@ -19,16 +21,16 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('loading');
+    const path = 'contacts';
     try {
-      await addDoc(collection(db, 'contacts'), {
+      await addDoc(collection(db, path), {
         ...formData,
         createdAt: serverTimestamp()
       });
       setStatus('success');
       setFormData({ name: '', email: '', whatsapp: '', company: '', message: '' });
     } catch (error) {
-      console.error("Error submitting contact form: ", error);
-      setStatus('error');
+      handleFirestoreError(error, OperationType.WRITE, path);
     }
   };
 

@@ -62,7 +62,7 @@ export const Navbar = () => {
                 onError={(e) => (e.target as HTMLImageElement).src = getDefaultLogo()} 
                 fetchPriority="high"
               />
-              <span className="text-xl font-display font-bold tracking-tight text-slate-800">
+              <span className="text-xl font-display font-black tracking-tight text-slate-800 uppercase">
                 Acelera <span className="text-brand-600 font-light">SEO</span>
               </span>
             </RouterLink>
@@ -75,7 +75,7 @@ export const Navbar = () => {
               <button className="text-sm font-medium text-slate-500 hover:text-brand-600 transition-colors flex items-center focus:outline-none gap-1">
                 Soluções <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
               </button>
-              <div className="absolute top-[85%] left-1/2 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-64 bg-white shadow-2xl rounded-3xl border border-slate-100 overflow-hidden z-50 p-2">
+              <div className="absolute top-[85%] left-1/2 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-64 bg-white shadow-2xl rounded-[2rem] border border-slate-100 overflow-hidden z-50 p-2">
                 <div className="flex flex-col">
                   {[
                     { name: 'SEO para E-commerce', path: '/seo-ecommerce' },
@@ -92,7 +92,7 @@ export const Navbar = () => {
                     </RouterLink>
                   ))}
                   <div className="mt-2 pt-2 border-t border-slate-50">
-                    <RouterLink to="/servicos" className="block text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-xl transition-colors text-center px-4 py-3">
+                    <RouterLink to="/servicos" className="block text-xs font-black text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-xl transition-colors text-center uppercase tracking-widest px-4 py-3">
                       Ver todas as soluções
                     </RouterLink>
                   </div>
