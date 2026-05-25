@@ -20,7 +20,8 @@ import {
   ExternalLink,
   AlertCircle,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  MessageSquare
 } from 'lucide-react';
 
 interface SystemAspect {
@@ -149,11 +150,13 @@ export default function SettingsGlobal() {
   const [defaultTitle, setDefaultTitle] = useState('');
   const [defaultDescription, setDefaultDescription] = useState('');
   const [defaultKeywords, setDefaultKeywords] = useState('');
+  const [whatsappContactTemplate, setWhatsappContactTemplate] = useState('');
+  const [whatsappAuditTemplate, setWhatsappAuditTemplate] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [activeSubTab, setActiveSubTab] = useState<'visual' | 'seo' | 'images'>('visual');
+  const [activeSubTab, setActiveSubTab] = useState<'visual' | 'seo' | 'images' | 'whatsapp'>('visual');
   const [seoSectionTab, setSeoSectionTab] = useState<'geral' | 'paginas'>('geral');
 
   // Page specific SEO states
@@ -258,6 +261,11 @@ export default function SettingsGlobal() {
           if (data.defaultTitle) setDefaultTitle(data.defaultTitle);
           if (data.defaultDescription) setDefaultDescription(data.defaultDescription);
           if (data.defaultKeywords) setDefaultKeywords(data.defaultKeywords);
+          setWhatsappContactTemplate(data.whatsappContactTemplate || 'Olá {nome}! Recebemos seu contato no site da Acelera SEO sobre a empresa {empresa}. Como podemos te ajudar?');
+          setWhatsappAuditTemplate(data.whatsappAuditTemplate || 'Olá {nome}! Vi que você realizou uma auditoria de SEO automática no site {site}. Vamos agendar uma apresentação gratuita do relatório técnico?');
+        } else {
+          setWhatsappContactTemplate('Olá {nome}! Recebemos seu contato no site da Acelera SEO sobre a empresa {empresa}. Como podemos te ajudar?');
+          setWhatsappAuditTemplate('Olá {nome}! Vi que você realizou uma auditoria de SEO automática no site {site}. Vamos agendar uma apresentação gratuita do relatório técnico?');
         }
 
         const imgRef = doc(db, 'settings', 'layout_images');
@@ -382,6 +390,8 @@ export default function SettingsGlobal() {
         defaultTitle: defaultTitle,
         defaultDescription: defaultDescription,
         defaultKeywords: defaultKeywords,
+        whatsappContactTemplate: whatsappContactTemplate,
+        whatsappAuditTemplate: whatsappAuditTemplate,
         updatedAt: new Date()
       }, { merge: true });
       
@@ -507,6 +517,16 @@ export default function SettingsGlobal() {
           >
             Imagens do Layout
             {activeSubTab === 'images' && (
+              <motion.div layoutId="subtab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600" />
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('whatsapp')}
+            className={`pb-4 text-xs font-black uppercase tracking-widest transition-all relative shrink-0 ${activeSubTab === 'whatsapp' ? 'text-brand-600' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            Modelos WhatsApp
+            {activeSubTab === 'whatsapp' && (
               <motion.div layoutId="subtab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600" />
             )}
           </button>
@@ -1133,6 +1153,90 @@ export default function SettingsGlobal() {
               </motion.div>
             );
           })()}
+
+          {activeSubTab === 'whatsapp' && (
+            <form onSubmit={handleSave} className="space-y-10">
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }} 
+                animate={{ opacity: 1, x: 0 }} 
+                className="space-y-8 max-w-4xl"
+              >
+                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 flex gap-4 items-start">
+                  <AlertCircle className="text-brand-500 shrink-0 mt-0.5" size={18} />
+                  <div className="space-y-1">
+                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Modelos de Abordagem Comercial</h4>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      Defina as mensagens padrão que serão enviadas aos seus leads diretamente para o WhatsApp. Ao clicar no ícone do WhatsApp no CRM de Leads, a mensagem será aberta no WhatsApp Web ou aplicativo contendo todas as variáveis substituídas.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50/50 rounded-2xl p-5 border border-slate-100/65 space-y-2">
+                  <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-wider">Variáveis Disponíveis para Substituição</h4>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                    <div className="bg-white p-3 rounded-xl border border-slate-100 text-center font-mono">
+                      <strong className="text-brand-600 font-bold block mb-1 text-[11px]">{`{nome}`}</strong>
+                      <span className="text-[9px] text-slate-500 font-sans">Nome do lead</span>
+                    </div>
+                    <div className="bg-white p-3 rounded-xl border border-slate-100 text-center font-mono">
+                      <strong className="text-brand-600 font-bold block mb-1 text-[11px]">{`{telefone}`}</strong>
+                      <span className="text-[9px] text-slate-500 font-sans">Celular do cliente</span>
+                    </div>
+                    <div className="bg-white p-3 rounded-xl border border-slate-100 text-center font-mono">
+                      <strong className="text-brand-600 font-bold block mb-1 text-[11px]">{`{empresa}`} / {`{site}`}</strong>
+                      <span className="text-[9px] text-slate-500 font-sans">Empresa ou URL</span>
+                    </div>
+                    <div className="bg-white p-3 rounded-xl border border-slate-100 text-center font-mono">
+                      <strong className="text-brand-600 font-bold block mb-1 text-[11px]">{`{mensagem}`}</strong>
+                      <span className="text-[9px] text-slate-500 font-sans">Texto enviado</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CONTATO FORM TEMPLATE */}
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Mensagem para Leads de Contato</label>
+                  <textarea 
+                    rows={5}
+                    value={whatsappContactTemplate}
+                    onChange={e => setWhatsappContactTemplate(e.target.value)}
+                    placeholder="Olá {nome}! Recebemos seu contato no site da Acelera SEO sobre a empresa {empresa}. Como podemos te ajudar?"
+                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 text-xs font-semibold rounded-xl focus:ring-2 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all text-slate-800 leading-relaxed resize-y"
+                  />
+                  <p className="text-[9px] text-slate-400 ml-1">Variáveis que serão substituídas: <strong>{`{nome}`}</strong>, <strong>{`{empresa}`}</strong>, <strong>{`{telefone}`}</strong>, <strong>{`{mensagem}`}</strong>.</p>
+                </div>
+
+                {/* AUDITORIA FORM TEMPLATE */}
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Mensagem para Leads de Auditoria de SEO</label>
+                  <textarea 
+                    rows={5}
+                    value={whatsappAuditTemplate}
+                    onChange={e => setWhatsappAuditTemplate(e.target.value)}
+                    placeholder="Olá {nome}! Vi que você realizou uma auditoria de SEO automática no site {site}. Vamos agendar uma apresentação gratuita do relatório técnico?"
+                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 text-xs font-semibold rounded-xl focus:ring-2 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all text-slate-800 leading-relaxed resize-y"
+                  />
+                  <p className="text-[9px] text-slate-400 ml-1">Variáveis que serão substituídas: <strong>{`{nome}`}</strong>, <strong>{`{site}`}</strong>, <strong>{`{telefone}`}</strong>.</p>
+                </div>
+              </motion.div>
+
+              <div className="flex flex-col sm:flex-row items-center justify-between pt-8 border-t border-slate-100 gap-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm animate-pulse"></div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sincronização Ativa & Propagação de Mensagens</p>
+                </div>
+                
+                <button 
+                  type="submit" 
+                  disabled={saving}
+                  className="w-full sm:w-auto px-10 py-4 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-brand-600 transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2.5"
+                >
+                  {saving ? <Loader2 size={14} className="animate-spin" /> : 
+                   success ? <CheckCircle2 size={14} className="text-white" /> : 'Confirmar Ajustes'}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
 
         {/* DIALOG SHEET / MODAL FOR ADDING AND EDITING PAGE-LEVEL SEO */}

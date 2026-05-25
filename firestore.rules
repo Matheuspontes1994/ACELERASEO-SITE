@@ -180,16 +180,30 @@ service cloud.firestore {
       allow read: if isSignedIn() && (isAdmin() || request.auth.uid == resource.data.uid || request.auth.token.email == resource.data.clientEmail || request.auth.uid == resource.data.agencyUid);
       allow create: if isSignedIn() && isValidClient(incoming());
       allow update: if isAdmin() || (
-        isSignedIn() && 
-        request.auth.uid == existing().agencyUid && 
-        incoming().agencyUid == existing().agencyUid &&
-        incoming().createdAt == existing().createdAt &&
-        incoming().updatedAt == request.time &&
-        (
-          // Action: Full Update
-          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'clientEmail', 'websiteUrl', 'billingDay', 'contractStart', 'monthlyPosts', 'monthlyBacklinks', 'active', 'logoUrl', 'packageValue', 'packageName', 'status', 'updatedAt']) ||
-          // Action: Update Last Payment
-          incoming().diff(existing()).affectedKeys().hasOnly(['lastPaymentMonth', 'updatedAt'])
+        isSignedIn() && (
+          // Action 1: Agency/Admin update
+          (
+            request.auth.uid == existing().agencyUid && 
+            incoming().agencyUid == existing().agencyUid &&
+            incoming().createdAt == existing().createdAt &&
+            incoming().updatedAt == request.time &&
+            (
+              // Action: Full Update
+              incoming().diff(existing()).affectedKeys().hasOnly(['name', 'clientEmail', 'websiteUrl', 'billingDay', 'contractStart', 'monthlyPosts', 'monthlyBacklinks', 'active', 'logoUrl', 'packageValue', 'packageName', 'status', 'updatedAt']) ||
+              // Action: Update Last Payment
+              incoming().diff(existing()).affectedKeys().hasOnly(['lastPaymentMonth', 'updatedAt'])
+            )
+          ) ||
+          // Action 2: Client linking their UID during registration
+          (
+            request.auth.token.email == existing().clientEmail &&
+            (!existing().keys().contains('uid') || existing().uid == null || existing().uid == "" || existing().uid == request.auth.uid) &&
+            incoming().uid == request.auth.uid &&
+            incoming().agencyUid == existing().agencyUid &&
+            incoming().createdAt == existing().createdAt &&
+            incoming().updatedAt == request.time &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['uid', 'name', 'clientEmail', 'websiteUrl', 'updatedAt'])
+          )
         )
       );
       allow delete: if isAdmin() || (isSignedIn() && request.auth.uid == existing().agencyUid);

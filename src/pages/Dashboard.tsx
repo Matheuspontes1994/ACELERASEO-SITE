@@ -55,7 +55,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
 import { Link, useNavigate } from 'react-router-dom';
-import { collection, getDocs, addDoc, updateDoc, setDoc, deleteDoc, doc, serverTimestamp, query, orderBy, limit, where, startAfter, onSnapshot } from 'firebase/firestore';
+import { collection, getDocs, getDoc, addDoc, updateDoc, setDoc, deleteDoc, doc, serverTimestamp, query, orderBy, limit, where, startAfter, onSnapshot } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 import { auth, db, storage } from '../firebase';
 import { updateUserActiveStatus } from '../utils/userStatus';
@@ -516,6 +516,8 @@ export default function Dashboard() {
   const [auditLeads, setAuditLeads] = useState<any[]>([]);
   const [contactLeads, setContactLeads] = useState<any[]>([]);
   const [loadingLeads, setLoadingLeads] = useState(false);
+  const [whatsappContactTemplate, setWhatsappContactTemplate] = useState('');
+  const [whatsappAuditTemplate, setWhatsappAuditTemplate] = useState('');
   
   const [auditFilter, setAuditFilter] = useState('Todos');
   const [contactFilter, setContactFilter] = useState('Todos');
@@ -986,6 +988,65 @@ export default function Dashboard() {
     } finally {
       setLoadingGlobalPayments(false);
     }
+  };
+
+  useEffect(() => {
+    const loadWhatsappTemplates = async () => {
+      try {
+        const docRef = doc(db, 'settings', 'general');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setWhatsappContactTemplate(data.whatsappContactTemplate || '');
+          setWhatsappAuditTemplate(data.whatsappAuditTemplate || '');
+        }
+      } catch (err) {
+        console.error("Erro ao carregar templates do whatsapp no dashboard:", err);
+      }
+    };
+    loadWhatsappTemplates();
+  }, []);
+
+  const getWhatsappLink = (lead: any, type: 'audit' | 'contact') => {
+    // Obter celular bruto
+    let rawPhone = type === 'audit' ? lead.phone : lead.whatsapp;
+    if (!rawPhone) return '';
+
+    // Limpar caracteres, manter apenas números
+    let cleanPhone = rawPhone.replace(/\D/g, '');
+
+    // Se for telefone brasileiro sem código do país (9 ou 10 ou 11 dígitos), insere 55
+    if (cleanPhone.length === 11 || cleanPhone.length === 10 || (cleanPhone.length === 9 && cleanPhone.startsWith('9'))) {
+      cleanPhone = '55' + cleanPhone;
+    }
+
+    // Seleciona o template configurado
+    let template = type === 'audit' ? whatsappAuditTemplate : whatsappContactTemplate;
+
+    // Se vazio, aplica backups elegantes
+    if (!template) {
+      if (type === 'contact') {
+        template = 'Olá {nome}! Recebemos seu contato no site da Acelera SEO sobre a empresa {empresa}. Como podemos te ajudar?';
+      } else {
+        template = 'Olá {nome}! Vi que você realizou uma auditoria de SEO automática no site {site}. Vamos agendar uma apresentação gratuita do relatório técnico?';
+      }
+    }
+
+    // Substituir as variáveis coringas (Case Insensitive)
+    let text = template;
+    text = text.replace(/\{nome\}/gi, lead.name || '');
+    
+    if (type === 'contact') {
+      text = text.replace(/\{empresa\}/gi, lead.company || '');
+      text = text.replace(/\{telefone\}/gi, lead.whatsapp || '');
+      text = text.replace(/\{whatsapp\}/gi, lead.whatsapp || '');
+      text = text.replace(/\{mensagem\}/gi, lead.message || '');
+    } else {
+      text = text.replace(/\{site\}/gi, lead.url || '');
+      text = text.replace(/\{telefone\}/gi, lead.phone || '');
+    }
+
+    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
   };
 
   useEffect(() => {
