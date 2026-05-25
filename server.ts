@@ -267,11 +267,18 @@ Regras de Resposta:
       }
 
       const { GoogleGenAI } = await import("@google/genai");
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const ai = new GoogleGenAI({ 
+        apiKey: process.env.GEMINI_API_KEY,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build',
+          }
+        }
+      });
       
-      // Using gemini-3.1-flash-lite-preview for maximum cost efficiency as requested (Flash/Lite version)
+      // Using stable gemini-3.1-flash-lite for maximum cost efficiency and speed
       const genResponse = await ai.models.generateContent({
-        model: "gemini-3.1-flash-lite-preview",
+        model: "gemini-3.1-flash-lite",
         contents: [{ parts: [{ text: prompt }] }],
         config: {
           temperature: 0.1,

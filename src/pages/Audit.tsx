@@ -62,23 +62,21 @@ export default function Audit() {
     setStatus('scanning');
     setProgress(0);
     
-    // Save lead to Firestore
-    const path = 'audit_leads';
-    try {
-      await addDoc(collection(db, path), {
-        name,
-        phone: phone.replace(/\D/g, ''),
-        url,
-        createdAt: serverTimestamp()
-      });
-    } catch (err) {
-      handleFirestoreError(err, OperationType.WRITE, path);
-    }
-
     // Simulate scanning progress UX
     const interval = setInterval(() => {
       setProgress(p => (p >= 90 ? 90 : p + Math.floor(Math.random() * 8)));
     }, 500);
+
+    // Save lead to Firestore in the background so it doesn't block
+    const path = 'audit_leads';
+    addDoc(collection(db, path), {
+      name,
+      phone: phone.replace(/\D/g, ''),
+      url,
+      createdAt: serverTimestamp()
+    }).catch(err => {
+      console.error("[Firestore Lead Save Async Error]:", err);
+    });
 
     try {
       const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
