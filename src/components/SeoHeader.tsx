@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
 import { useLocation } from 'react-router-dom';
 import { useSettings } from '../contexts/SettingsContext';
 
@@ -17,8 +15,14 @@ export function GlobalSeo() {
     setSeoData(null); // Reset when path changes to show defaults briefly or avoid stale
 
     async function fetchMetadata() {
-      if (!db) return;
       try {
+        const [{ db }, { collection, query, where, getDocs }] = await Promise.all([
+          import('../firebase'),
+          import('firebase/firestore')
+        ]);
+        
+        if (!db || !isMounted) return;
+
         const q = query(collection(db, 'seo_pages'), where('url', '==', currentPath));
         const snapshot = await getDocs(q);
         

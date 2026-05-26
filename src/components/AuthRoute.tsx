@@ -1,27 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebase';
 import { Loader2 } from 'lucide-react';
 
 export default function AuthRoute({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(auth.currentUser);
+  const [user, setUser] = useState<any>(null);
   const location = useLocation();
 
   useEffect(() => {
-    // Check if we already have a user synchronously (sometimes available on reload if already initialized)
-    if (auth.currentUser) {
-      setUser(auth.currentUser);
-      setLoading(false);
-    }
+    let active = true;
+    let unsubscribe: () => void = () => {};
 
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
+    Promise.all([
+      import('../firebase'),
+      import('firebase/auth')
+    ]).then(([{ auth }, { onAuthStateChanged }]) => {
+      if (!active) return;
+
+      if (auth.currentUser) {
+        setUser(auth.currentUser);
+        setLoading(false);
+      }
+
+      unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        if (!active) return;
+        setUser(currentUser);
+        setLoading(false);
+      });
+    }).catch(err => {
+      console.error("Error loading auth:", err);
+      if (active) {
+        setLoading(false);
+      }
     });
 
-    return () => unsubscribe();
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, []);
 
   if (loading) {

@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase';
 
 const defaultLogo = '/logo.png';
 
@@ -110,81 +108,96 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-    if (!db) return;
-    try {
-      // 1. Snapshot for general settings
-      const unsubGeneral = onSnapshot(doc(db, 'settings', 'general'), (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.logoUrl) {
-            setLogoUrl(data.logoUrl);
-            setCachedSetting('logoUrl', data.logoUrl);
-          }
-          const fav = data.faviconUrl || data.logoUrl || defaultLogo;
-          setFaviconUrl(fav);
-          setCachedSetting('faviconUrl', fav);
-          
-          if (data.defaultTitle) {
-            setDefaultTitle(data.defaultTitle);
-            setCachedSetting('defaultTitle', data.defaultTitle);
-          }
-          if (data.defaultDescription) {
-            setDefaultDescription(data.defaultDescription);
-            setCachedSetting('defaultDescription', data.defaultDescription);
-          }
-          if (data.defaultKeywords) {
-            setDefaultKeywords(data.defaultKeywords);
-            setCachedSetting('defaultKeywords', data.defaultKeywords);
-          }
+    let active = true;
+    let unsubGeneral: () => void = () => {};
+    let unsubImages: () => void = () => {};
 
-          // Dynamic DOM injection of the favicon URL
-          if (fav) {
-            let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
-            if (!link) {
-              link = document.createElement('link');
-              link.rel = 'icon';
-              document.getElementsByTagName('head')[0].appendChild(link);
+    Promise.all([
+      import('../firebase'),
+      import('firebase/firestore')
+    ]).then(([{ db }, { doc, onSnapshot }]) => {
+      if (!active || !db) return;
+
+      try {
+        // 1. Snapshot for general settings
+        unsubGeneral = onSnapshot(doc(db, 'settings', 'general'), (docSnap) => {
+          if (!active) return;
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (data.logoUrl) {
+              setLogoUrl(data.logoUrl);
+              setCachedSetting('logoUrl', data.logoUrl);
             }
-            link.href = fav;
-          }
-        }
-      }, (err) => {
-        console.error("Settings onSnapshot error:", err);
-      });
-
-      // 2. Snapshot for layout images
-      const unsubImages = onSnapshot(doc(db, 'settings', 'layout_images'), (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data().images as Record<string, { url: string; alt: string; title: string }> || {};
-          // Merge with defaults to ensure missing ones are preserved
-          const merged = { ...defaultLayoutImages };
-          Object.keys(data).forEach(key => {
-            if (data[key]) {
-              merged[key] = {
-                url: data[key].url || defaultLayoutImages[key]?.url || '',
-                alt: data[key].alt || defaultLayoutImages[key]?.alt || '',
-                title: data[key].title || defaultLayoutImages[key]?.title || ''
-              };
+            const fav = data.faviconUrl || data.logoUrl || defaultLogo;
+            setFaviconUrl(fav);
+            setCachedSetting('faviconUrl', fav);
+            
+            if (data.defaultTitle) {
+              setDefaultTitle(data.defaultTitle);
+              setCachedSetting('defaultTitle', data.defaultTitle);
             }
-          });
-          setLayoutImages(merged);
-          try {
-            localStorage.setItem('acelera_seo_setting_layout_images', JSON.stringify(merged));
-          } catch (e) {
-            // ignore
-          }
-        }
-      }, (err) => {
-        console.error("Layout images onSnapshot error:", err);
-      });
+            if (data.defaultDescription) {
+              setDefaultDescription(data.defaultDescription);
+              setCachedSetting('defaultDescription', data.defaultDescription);
+            }
+            if (data.defaultKeywords) {
+              setDefaultKeywords(data.defaultKeywords);
+              setCachedSetting('defaultKeywords', data.defaultKeywords);
+            }
 
-      return () => {
-        unsubGeneral();
-        unsubImages();
-      };
-    } catch (err) {
-      console.error("Failed to setup settings snapshots:", err);
-    }
+            // Dynamic DOM injection of the favicon URL
+            if (fav) {
+              let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+              if (!link) {
+                link = document.createElement('link');
+                link.rel = 'icon';
+                document.getElementsByTagName('head')[0].appendChild(link);
+              }
+              link.href = fav;
+            }
+          }
+        }, (err) => {
+          console.error("Settings onSnapshot error:", err);
+        });
+
+        // 2. Snapshot for layout images
+        unsubImages = onSnapshot(doc(db, 'settings', 'layout_images'), (docSnap) => {
+          if (!active) return;
+          if (docSnap.exists()) {
+            const data = docSnap.data().images as Record<string, { url: string; alt: string; title: string }> || {};
+            // Merge with defaults to ensure missing ones are preserved
+            const merged = { ...defaultLayoutImages };
+            Object.keys(data).forEach(key => {
+              if (data[key]) {
+                merged[key] = {
+                  url: data[key].url || defaultLayoutImages[key]?.url || '',
+                  alt: data[key].alt || defaultLayoutImages[key]?.alt || '',
+                  title: data[key].title || defaultLayoutImages[key]?.title || ''
+                };
+              }
+            });
+            setLayoutImages(merged);
+            try {
+              localStorage.setItem('acelera_seo_setting_layout_images', JSON.stringify(merged));
+            } catch (e) {
+              // ignore
+            }
+          }
+        }, (err) => {
+          console.error("Layout images onSnapshot error:", err);
+        });
+      } catch (err) {
+        console.error("Failed to setup settings snapshots:", err);
+      }
+    }).catch(err => {
+      console.error("Error dynamically loading Firebase", err);
+    });
+
+    return () => {
+      active = false;
+      unsubGeneral();
+      unsubImages();
+    };
   }, []);
 
   return (

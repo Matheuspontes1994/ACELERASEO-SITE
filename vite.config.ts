@@ -13,12 +13,18 @@ export default defineConfig(({mode}) => {
     build: {
       outDir: 'dist',
       emptyOutDir: true,
+      sourcemap: true,
       rollupOptions: {
         output: {
           manualChunks: {
-            'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+            'firebase-app': ['firebase/app'],
+            'firebase-auth': ['firebase/auth'],
+            'firebase-firestore': ['firebase/firestore'],
+            'firebase-storage': ['firebase/storage'],
             'vendor-react': ['react', 'react-dom', 'react-router-dom'],
             'vendor-charts': ['recharts'],
+            'vendor-motion': ['motion'],
+            'vendor-editors': ['@uiw/react-md-editor', 'react-quill-new', 'react-markdown', 'rehype-raw', 'axios'],
           }
         }
       }

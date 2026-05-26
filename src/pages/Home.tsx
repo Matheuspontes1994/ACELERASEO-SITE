@@ -78,7 +78,7 @@ const Hero = () => {
             <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-brand-100/20 via-transparent to-brand-50/10 -z-10 group-hover/card:opacity-70 transition-opacity duration-500"></div>
 
             <div className="flex justify-between items-center mb-10">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Acelera SEO em Foco</h3>
+              <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Acelera SEO em Foco</h2>
               <div className="flex gap-2">
                 <div className="w-2 h-2 bg-brand-200 rounded-full animate-pulse"></div>
                 <div className="w-2 h-2 bg-brand-100 rounded-full"></div>
@@ -92,7 +92,7 @@ const Hero = () => {
                   <Activity size={28} className="text-brand-600" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-slate-900 font-display tracking-tight">Performance Máxima</h4>
+                  <h3 className="text-xl font-bold text-slate-900 font-display tracking-tight">Performance Máxima</h3>
                   <p className="text-sm font-semibold text-slate-500">Otimização técnica extrema.</p>
                 </div>
               </div>
@@ -102,7 +102,7 @@ const Hero = () => {
                   <Search size={28} className="text-brand-600" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-slate-900 font-display tracking-tight">Inteligência de Busca</h4>
+                  <h3 className="text-xl font-bold text-slate-900 font-display tracking-tight">Inteligência de Busca</h3>
                   <p className="text-sm font-semibold text-slate-500">Decodificamos o algoritmo.</p>
                 </div>
               </div>
@@ -112,7 +112,7 @@ const Hero = () => {
                   <ShieldCheck size={28} className="text-brand-600" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-slate-900 font-display tracking-tight">SEO Seguro</h4>
+                  <h3 className="text-xl font-bold text-slate-900 font-display tracking-tight">SEO Seguro</h3>
                   <p className="text-sm font-semibold text-slate-500">Metodologias 100% White-Hat.</p>
                 </div>
               </div>
@@ -207,7 +207,7 @@ const ObjectivesSection = () => {
               </div>
               <h3 className="font-bold text-slate-800 text-base lg:text-lg font-display uppercase tracking-tight leading-snug text-center group-hover:text-brand-600 transition-colors">
                 {o.title}
-                <span className="block text-brand-600 font-medium mt-1 uppercase text-xs opacity-80">{o.subtitle}</span>
+                <span className="block text-brand-700 font-semibold mt-1 uppercase text-[11px]">{o.subtitle}</span>
               </h3>
             </motion.div>
           ))}
@@ -360,7 +360,7 @@ const AuditSection = () => {
                 to={isValid ? `/auditoria?url=${encodeURIComponent(domain)}` : "#"}
                 onClick={(e) => { if(!isValid) e.preventDefault(); }}
                 className={`w-full sm:w-auto font-bold rounded-lg transition-all shadow-sm text-sm flex items-center justify-center text-center whitespace-nowrap px-6 py-2 ${
-                  isValid ? 'bg-slate-900 text-white hover:bg-brand-600' : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                  isValid ? 'bg-slate-900 text-white hover:bg-brand-600' : 'bg-slate-200 text-slate-600 cursor-not-allowed'
                 }`}
               >
                 Gerar Diagnóstico
