@@ -2,7 +2,6 @@ import React, { useRef, useMemo, lazy, Suspense } from 'react';
 import { motion } from 'motion/react';
 import Skeleton from './ui/Skeleton';
 const ReactQuill = lazy(() => import('react-quill-new'));
-import 'react-quill-new/dist/quill.snow.css';
 import { storage } from '../firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import YoastTrafficLight from './YoastTrafficLight';
@@ -18,11 +17,14 @@ export function PostFormModal({
   const internalIsSaving = useRef(false);
 
   React.useEffect(() => {
-    if (showPostForm && postForm.content) {
-      const val = postForm.content;
-      const stripped = val.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ');
-      const words = stripped.trim().split(/\s+/).filter(Boolean).length;
-      setPostForm((prev: any) => ({ ...prev, wordCount: `${words} palavras` }));
+    if (showPostForm) {
+      import('react-quill-new/dist/quill.snow.css');
+      if (postForm.content) {
+        const val = postForm.content;
+        const stripped = val.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ');
+        const words = stripped.trim().split(/\s+/).filter(Boolean).length;
+        setPostForm((prev: any) => ({ ...prev, wordCount: `${words} palavras` }));
+      }
     }
   }, [showPostForm]);
 

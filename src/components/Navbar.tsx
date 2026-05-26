@@ -58,7 +58,7 @@ export const Navbar = () => {
               <img 
                 src={logoUrl} 
                 alt="Acelera SEO Logo" 
-                width="36"
+                width="144"
                 height="36"
                 className="h-9 w-36 object-contain group-hover:scale-105 transition-transform" 
                 onError={(e) => (e.target as HTMLImageElement).src = getDefaultLogo()} 
@@ -147,7 +147,7 @@ export const Navbar = () => {
           >
             <div className="flex justify-between items-center h-[80px] border-b border-slate-100 px-6">
               <RouterLink to="/" className="flex items-center gap-3" onClick={() => setMobileMenuOpen(false)}>
-                <img src={logoUrl} alt="Acelera SEO Logo" width="40" height="40" className="h-10 w-40 object-contain" />
+                <img src={logoUrl} alt="Acelera SEO Logo" width="160" height="40" className="h-10 w-40 object-contain" />
                 <span className="text-2xl font-display font-bold text-slate-900">Acelera<span className="text-brand-600 font-light">SEO</span></span>
               </RouterLink>
               <button 

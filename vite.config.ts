@@ -19,12 +19,14 @@ export default defineConfig(({mode}) => {
           manualChunks: {
             'firebase-app': ['firebase/app'],
             'firebase-auth': ['firebase/auth'],
-            'firebase-firestore': ['firebase/firestore'],
+            'firebase-firestore': ['firebase/firestore', path.resolve(__dirname, 'src/lib/firestore-errors.ts')],
             'firebase-storage': ['firebase/storage'],
             'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-            'vendor-charts': ['recharts'],
             'vendor-motion': ['motion'],
-            'vendor-editors': ['@uiw/react-md-editor', 'react-quill-new', 'react-markdown', 'rehype-raw', 'axios'],
+            'vendor-recharts': ['recharts'],
+            'vendor-quill': ['react-quill-new'],
+            'vendor-md-editor': ['@uiw/react-md-editor'],
+            'vendor-markdown': ['react-markdown'],
           }
         }
       }

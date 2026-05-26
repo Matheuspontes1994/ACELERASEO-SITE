@@ -14,8 +14,14 @@ import { logger } from './lib/logger';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
-import Home from './pages/Home';
+import { SettingsProvider, useSettings } from './contexts/SettingsContext';
+import AuthRoute from './components/AuthRoute';
+import { GlobalSeo } from './components/SeoHeader';
+import Skeleton from './components/ui/Skeleton';
+import ScrollToTop from './components/ScrollToTop';
+import { JsonLd } from './components/JsonLd';
 
+const Home = lazy(() => import('./pages/Home'));
 const AuditPage = lazy(() => import('./pages/Audit'));
 const BlogPage = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
@@ -31,12 +37,6 @@ const ClientDashboard = lazy(() => import('./pages/ClientDashboard'));
 const DashboardPage = lazy(() => import('./pages/Dashboard'));
 const LoginPage = lazy(() => import('./pages/Login'));
 const RegisterPage = lazy(() => import('./pages/Register'));
-import { SettingsProvider, useSettings } from './contexts/SettingsContext';
-import AuthRoute from './components/AuthRoute';
-import { GlobalSeo } from './components/SeoHeader';
-import Skeleton from './components/ui/Skeleton';
-import ScrollToTop from './components/ScrollToTop';
-import { JsonLd } from './components/JsonLd';
 
 // --- SEO Structured Data ---
 const structuredData = {

@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
+import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { 
   BarChart3, 
   Search, 
@@ -19,36 +19,15 @@ import { Tooltip } from '../components/Tooltip';
 import { ServiceFAQ } from '../components/ServiceFAQ';
 
 const Hero = () => {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    const { clientX, clientY } = e;
-    const { innerWidth, innerHeight } = window;
-    const x = (clientX / innerWidth) - 0.5;
-    const y = (clientY / innerHeight) - 0.5;
-    mouseX.set(x);
-    mouseY.set(y);
-  }, [mouseX, mouseY]);
-
-  const springX = useSpring(mouseX, { stiffness: 50, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 50, damping: 20 });
-
   return (
     <section 
-      onMouseMove={handleMouseMove}
       className="relative overflow-hidden border-b border-slate-200/50 bg-slate-50/50 pt-24 md:pt-32 pb-20 md:pb-32"
     >
       <div className="tech-grid" />
       <div className="hero-glow" />
       
       <div className="max-w-7xl mx-auto grid lg:grid-cols-12 items-center w-full relative z-10 px-6 gap-8 lg:gap-12">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left"
-        >
+        <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
           <div className="inline-flex items-center w-fit max-w-[90vw] md:max-w-full whitespace-normal flex-wrap text-center justify-center rounded-2xl md:rounded-full bg-white border border-slate-200 shadow-sm text-[11px] sm:text-xs font-semibold text-brand-600 uppercase tracking-widest gap-2 px-4 py-2 mb-6 mx-auto lg:mx-0">
             <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> AGÊNCIA DE SEO
           </div>
@@ -66,7 +45,7 @@ const Hero = () => {
               Fazer Auditoria Grátis <Search size={18} className="text-white/70" />
             </RouterLink>
           </div>
-        </motion.div>
+        </div>
 
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}

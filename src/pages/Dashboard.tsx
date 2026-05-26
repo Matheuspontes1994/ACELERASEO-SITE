@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Helmet } from 'react-helmet-async';
 import YoastTrafficLight from '../components/YoastTrafficLight';
@@ -130,11 +130,11 @@ const getRemainingBusinessDays = (startDate: Date, deadlineDays: number): number
 
 import { ContentAgency } from '../components/ContentAgency';
 import { HubClients } from '../components/HubClients';
-import { PostFormModal } from '../components/PostFormModal';
-import { BacklinkFormModal } from '../components/BacklinkFormModal';
-import { KeywordFormModal } from '../components/KeywordFormModal';
-import { PaymentModal } from '../components/PaymentModal';
-import SettingsGlobal from '../components/SettingsGlobal';
+const PostFormModal = lazy(() => import('../components/PostFormModal').then(m => ({ default: m.PostFormModal })));
+const BacklinkFormModal = lazy(() => import('../components/BacklinkFormModal').then(m => ({ default: m.BacklinkFormModal })));
+const KeywordFormModal = lazy(() => import('../components/KeywordFormModal').then(m => ({ default: m.KeywordFormModal })));
+const PaymentModal = lazy(() => import('../components/PaymentModal').then(m => ({ default: m.PaymentModal })));
+const SettingsGlobal = lazy(() => import('../components/SettingsGlobal'));
 import { FileUploader } from '../components/FileUploader';
 
 import Skeleton, { SkeletonCard, SkeletonMetric } from '../components/ui/Skeleton';
@@ -4902,57 +4902,61 @@ export default function Dashboard() {
           </motion.div>
         ) : activeTab === 'Configurações' ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-             <SettingsGlobal />
+             <Suspense fallback={null}>
+               <SettingsGlobal />
+             </Suspense>
           </motion.div>
         ) : null}
       </div>
     </main>
 
-    <PostFormModal 
-      showPostForm={showPostForm} 
-      setShowPostForm={setShowPostForm} 
-      postForm={postForm} 
-      setPostForm={setPostForm} 
-      handleSavePost={handleSavePost}
-      handleSaveDraft={handleSaveDraft}
-      clientsList={clientsList}
-      categories={categories}
-      isSaving={isSaving}
-      addToast={addToast}
-    />
+    <Suspense fallback={null}>
+      <PostFormModal 
+        showPostForm={showPostForm} 
+        setShowPostForm={setShowPostForm} 
+        postForm={postForm} 
+        setPostForm={setPostForm} 
+        handleSavePost={handleSavePost}
+        handleSaveDraft={handleSaveDraft}
+        clientsList={clientsList}
+        categories={categories}
+        isSaving={isSaving}
+        addToast={addToast}
+      />
 
-    <BacklinkFormModal 
-      showBacklinkForm={showBacklinkForm}
-      setShowBacklinkForm={setShowBacklinkForm}
-      backlinkForm={backlinkForm}
-      setBacklinkForm={setBacklinkForm}
-      handleSaveBacklink={handleSaveBacklink}
-      clientsList={clientsList}
-      isSaving={isSaving}
-    />
+      <BacklinkFormModal 
+        showBacklinkForm={showBacklinkForm}
+        setShowBacklinkForm={setShowBacklinkForm}
+        backlinkForm={backlinkForm}
+        setBacklinkForm={setBacklinkForm}
+        handleSaveBacklink={handleSaveBacklink}
+        clientsList={clientsList}
+        isSaving={isSaving}
+      />
 
-    <KeywordFormModal
-      showKeywordForm={showKeywordForm}
-      setShowKeywordForm={setShowKeywordForm}
-      keywordForm={keywordForm}
-      setKeywordForm={setKeywordForm}
-      handleSaveKeyword={handleSaveKeyword}
-      clientsList={clientsList}
-    />
+      <KeywordFormModal
+        showKeywordForm={showKeywordForm}
+        setShowKeywordForm={setShowKeywordForm}
+        keywordForm={keywordForm}
+        setKeywordForm={setKeywordForm}
+        handleSaveKeyword={handleSaveKeyword}
+        clientsList={clientsList}
+      />
 
-    <PaymentModal 
-      showPaymentModal={showPaymentModal}
-      setShowPaymentModal={setShowPaymentModal}
-      selectedClientForPayments={selectedClientForPayments}
-      setSelectedClientForPayments={setSelectedClientForPayments}
-      payments={payments}
-      loadingPayments={loadingPayments}
-      paymentForm={paymentForm}
-      setPaymentForm={setPaymentForm}
-      handleAddPayment={handleAddPayment}
-      handleDeletePayment={handleDeletePayment}
-      clients={clients}
-    />
+      <PaymentModal 
+        showPaymentModal={showPaymentModal}
+        setShowPaymentModal={setShowPaymentModal}
+        selectedClientForPayments={selectedClientForPayments}
+        setSelectedClientForPayments={setSelectedClientForPayments}
+        payments={payments}
+        loadingPayments={loadingPayments}
+        paymentForm={paymentForm}
+        setPaymentForm={setPaymentForm}
+        handleAddPayment={handleAddPayment}
+        handleDeletePayment={handleDeletePayment}
+        clients={clients}
+      />
+    </Suspense>
 
     <ToastContainer toasts={toasts} removeToast={removeToast} />
   </div>

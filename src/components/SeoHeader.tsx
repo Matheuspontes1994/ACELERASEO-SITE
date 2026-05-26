@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
 import { useSettings } from '../contexts/SettingsContext';
+import { db } from '../firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export function GlobalSeo() {
   const location = useLocation();
@@ -16,12 +18,7 @@ export function GlobalSeo() {
 
     async function fetchMetadata() {
       try {
-        const [{ db }, { collection, query, where, getDocs }] = await Promise.all([
-          import('../firebase'),
-          import('firebase/firestore')
-        ]);
-        
-        if (!db || !isMounted) return;
+        if (!db) return;
 
         const q = query(collection(db, 'seo_pages'), where('url', '==', currentPath));
         const snapshot = await getDocs(q);

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function AuthRoute({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -11,12 +13,7 @@ export default function AuthRoute({ children }: { children: React.ReactNode }) {
     let active = true;
     let unsubscribe: () => void = () => {};
 
-    Promise.all([
-      import('../firebase'),
-      import('firebase/auth')
-    ]).then(([{ auth }, { onAuthStateChanged }]) => {
-      if (!active) return;
-
+    if (auth) {
       if (auth.currentUser) {
         setUser(auth.currentUser);
         setLoading(false);
@@ -27,12 +24,9 @@ export default function AuthRoute({ children }: { children: React.ReactNode }) {
         setUser(currentUser);
         setLoading(false);
       });
-    }).catch(err => {
-      console.error("Error loading auth:", err);
-      if (active) {
-        setLoading(false);
-      }
-    });
+    } else {
+      setLoading(false);
+    }
 
     return () => {
       active = false;

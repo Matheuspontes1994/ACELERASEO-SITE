@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { db } from '../firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 const defaultLogo = '/logo.png';
 
@@ -112,12 +114,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     let unsubGeneral: () => void = () => {};
     let unsubImages: () => void = () => {};
 
-    Promise.all([
-      import('../firebase'),
-      import('firebase/firestore')
-    ]).then(([{ db }, { doc, onSnapshot }]) => {
-      if (!active || !db) return;
-
+    if (db) {
       try {
         // 1. Snapshot for general settings
         unsubGeneral = onSnapshot(doc(db, 'settings', 'general'), (docSnap) => {
@@ -189,9 +186,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       } catch (err) {
         console.error("Failed to setup settings snapshots:", err);
       }
-    }).catch(err => {
-      console.error("Error dynamically loading Firebase", err);
-    });
+    }
 
     return () => {
       active = false;
