@@ -306,7 +306,25 @@ Regras de Resposta:
       const now = new Date().toISOString().split('T')[0];
 
       let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-      const staticPages = ['', '/sobre', '/auditoria', '/servicos', '/blog'];
+      const staticPages = [
+  '', 
+  '/sobre', 
+  '/servicos', 
+  '/seo-ecommerce', 
+  '/consultoria-seo', 
+  '/agencia-link-building', 
+  '/especialista-em-seo', 
+  '/blog', 
+  '/contato', 
+  '/auditoria',
+  '/agencia-seo-sao-paulo', 
+  '/agencia-seo-rio-de-janeiro', 
+  '/agencia-seo-belo-horizonte', 
+  '/agencia-seo-vitoria', 
+  '/agencia-seo-curitiba', 
+  '/agencia-seo-florianopolis', 
+  '/agencia-seo-porto-alegre'
+];
       staticPages.forEach(p => {
         xml += `  <url>\n    <loc>${baseUrl}${p}</loc>\n    <lastmod>${now}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>${p === '' ? '1.0' : '0.8'}</priority>\n  </url>\n`;
       });
