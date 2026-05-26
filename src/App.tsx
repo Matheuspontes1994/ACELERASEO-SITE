@@ -6,7 +6,7 @@
 import { 
   Activity
 } from 'lucide-react';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -15,21 +15,22 @@ import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import Home from './pages/Home';
-import AuditPage from './pages/Audit';
-import BlogPage from './pages/Blog';
-import BlogPost from './pages/BlogPost';
-import ServicesPage from './pages/Services';
-import AboutPage from './pages/About';
-import ContactPage from './pages/Contact';
-import SeoEcommercePage from './pages/SeoEcommerce';
-import LinkBuildingPage from './pages/LinkBuilding';
-import EspecialistaSeoPage from './pages/EspecialistaSeo';
-import SeoLocalPage from './pages/SeoLocal';
-import ConsultoriaSeoPage from './pages/ConsultoriaSeo';
-import ClientDashboard from './pages/ClientDashboard';
-import DashboardPage from './pages/Dashboard';
-import LoginPage from './pages/Login';
-import RegisterPage from './pages/Register';
+
+const AuditPage = lazy(() => import('./pages/Audit'));
+const BlogPage = lazy(() => import('./pages/Blog'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
+const ServicesPage = lazy(() => import('./pages/Services'));
+const AboutPage = lazy(() => import('./pages/About'));
+const ContactPage = lazy(() => import('./pages/Contact'));
+const SeoEcommercePage = lazy(() => import('./pages/SeoEcommerce'));
+const LinkBuildingPage = lazy(() => import('./pages/LinkBuilding'));
+const EspecialistaSeoPage = lazy(() => import('./pages/EspecialistaSeo'));
+const SeoLocalPage = lazy(() => import('./pages/SeoLocal'));
+const ConsultoriaSeoPage = lazy(() => import('./pages/ConsultoriaSeo'));
+const ClientDashboard = lazy(() => import('./pages/ClientDashboard'));
+const DashboardPage = lazy(() => import('./pages/Dashboard'));
+const LoginPage = lazy(() => import('./pages/Login'));
+const RegisterPage = lazy(() => import('./pages/Register'));
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import AuthRoute from './components/AuthRoute';
 import { GlobalSeo } from './components/SeoHeader';

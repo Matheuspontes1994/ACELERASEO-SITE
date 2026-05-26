@@ -3305,7 +3305,25 @@ export default function Dashboard() {
                           </td>
                           <td className="px-8 py-6">
                             <span className="text-lg font-bold text-slate-900 block leading-tight tracking-tight group-hover:text-brand-600 transition-all uppercase">{lead.name}</span>
-                            <span className="text-[10px] font-medium text-slate-400 block tracking-tight italic flex items-center gap-1.5 mt-1"><div className="w-1 h-1 rounded-full bg-slate-200"></div>{lead.phone || 'Sem contato extra'}</span>
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <div className="w-1 h-1 rounded-full bg-slate-200"></div>
+                              {lead.phone ? (
+                                <a 
+                                  href={getWhatsappLink(lead, 'audit')}
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 hover:text-emerald-500 transition-colors duration-150 py-0.5 px-2 bg-emerald-50/50 hover:bg-emerald-50 border border-emerald-100/50 rounded-lg"
+                                  title="Enviar mensagem comercial no WhatsApp"
+                                >
+                                  <svg className="w-3 h-3 fill-emerald-600" viewBox="0 0 24 24">
+                                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.1 1.45 4.7 1.45 5.3 0 9.6-4.3 9.6-9.6s-4.3-9.6-9.6-9.6C6.1 1.4 1.8 5.7 1.8 11c0 1.7.5 3.3 1.4 4.8l-1 3.6 3.7-.9c1.6.9 3.1 1.4 4.7 1.4z"/>
+                                  </svg>
+                                  {lead.phone}
+                                </a>
+                              ) : (
+                                <span className="text-[10px] font-medium text-slate-400 italic">Sem contato extra</span>
+                              )}
+                            </div>
                           </td>
                           <td className="px-8 py-6">
                             <span className="text-[10px] font-bold text-slate-400 block truncate max-w-[200px] mb-2 font-mono group-hover:text-slate-900 transition-colors lowercase">{lead.url || 'Sem domínio'}</span>
@@ -3369,11 +3387,32 @@ export default function Dashboard() {
                         <tr key={lead.id} className="hover:bg-slate-50/50 transition-all group">
                           <td className="px-8 py-8 align-top">
                             <span className="text-lg font-bold text-slate-900 block leading-tight tracking-tight mb-1 group-hover:text-brand-600 transition-colors uppercase">{lead.name}</span>
-                            <span className="text-[10px] font-medium text-slate-400 block tracking-tight mb-3 lowercase">{lead.email}</span>
-                            <span className="inline-flex text-[9px] font-bold text-slate-300 uppercase tracking-[0.1em] font-mono bg-slate-50 px-2 py-1 rounded-md border border-slate-100">{lead.createdAt?.toDate ? lead.createdAt.toDate().toLocaleDateString('pt-BR') : 'Agora'}</span>
+                            <span className="text-[10px] font-medium text-slate-400 block tracking-tight mb-2 lowercase">{lead.email}</span>
+                            {lead.whatsapp && (
+                              <div className="mb-3">
+                                <a 
+                                  href={getWhatsappLink(lead, 'contact')}
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 hover:text-emerald-500 transition-colors duration-150 py-1 px-2.5 bg-emerald-50/50 hover:bg-emerald-50 border border-emerald-100/50 rounded-lg"
+                                  title="Iniciar conversa de contato no WhatsApp"
+                                >
+                                  <svg className="w-3 h-3 fill-emerald-600" viewBox="0 0 24 24">
+                                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.1 1.45 4.7 1.45 5.3 0 9.6-4.3 9.6-9.6s-4.3-9.6-9.6-9.6C6.1 1.4 1.8 5.7 1.8 11c0 1.7.5 3.3 1.4 4.8l-1 3.6 3.7-.9c1.6.9 3.1 1.4 4.7 1.4z"/>
+                                  </svg>
+                                  {lead.whatsapp}
+                                </a>
+                              </div>
+                            )}
+                            <div>
+                              <span className="inline-flex text-[9px] font-bold text-slate-300 uppercase tracking-[0.1em] font-mono bg-slate-50 px-2 py-1 rounded-md border border-slate-100">{lead.createdAt?.toDate ? lead.createdAt.toDate().toLocaleDateString('pt-BR') : 'Agora'}</span>
+                            </div>
                           </td>
                           <td className="px-8 py-8">
                             <div className="bg-slate-50/50 p-6 rounded-[24px] border border-slate-100 max-w-xl group-hover:bg-white transition-all shadow-sm">
+                              {lead.company && (
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 font-mono">Empresa: {lead.company}</p>
+                              )}
                               <p className="text-xs text-slate-600 leading-relaxed font-medium italic">"{lead.message}"</p>
                             </div>
                           </td>
