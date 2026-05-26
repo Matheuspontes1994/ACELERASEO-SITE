@@ -302,7 +302,7 @@ Regras de Resposta:
     res.header("Content-Type", "application/xml");
     try {
       const db = await getFirebaseAdminDb();
-      const baseUrl = `https://${req.get("host")}`;
+      const baseUrl = process.env.SITE_URL || "https://aceleraseo.com.br";
       const now = new Date().toISOString().split('T')[0];
 
       let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
