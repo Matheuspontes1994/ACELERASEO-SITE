@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 
-const defaultLogo = '/logo.png';
+const defaultLogo = '/logo.svg';
 
 const getCachedSetting = (key: string, defaultValue: string) => {
   if (typeof window === 'undefined') return defaultValue;

@@ -14,7 +14,18 @@ export const Footer = () => {
         {/* Branding & Contact Info */}
         <div className="lg:col-span-4 flex flex-col">
           <div className="flex items-center gap-3 mb-6">
-            <img src={logoUrl} alt="Acelera SEO Logo" width="40" height="40" className="h-10 w-40 object-contain" />
+            <img 
+              src={logoUrl} 
+              alt="Acelera SEO Logo" 
+              width="40" 
+              height="40" 
+              className="h-10 w-auto max-w-[160px] object-contain" 
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.onerror = null;
+                target.src = '/logo.svg';
+              }}
+            />
             <span className="text-xl font-display font-bold text-slate-800">Acelera <span className="text-brand-600 font-light">SEO</span></span>
           </div>
           <p className="text-sm text-slate-500 font-medium leading-relaxed mb-8 max-w-sm">

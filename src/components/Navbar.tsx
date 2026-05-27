@@ -60,8 +60,12 @@ export const Navbar = () => {
                 alt="Acelera SEO Logo" 
                 width="144"
                 height="36"
-                className="h-9 w-36 object-contain group-hover:scale-105 transition-transform" 
-                onError={(e) => (e.target as HTMLImageElement).src = getDefaultLogo()} 
+                className="h-9 w-auto max-w-[144px] object-contain group-hover:scale-105 transition-transform" 
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = '/logo.svg';
+                }} 
                 fetchPriority="high"
               />
               <span className="text-xl font-display font-black tracking-tight text-slate-800 uppercase">
@@ -147,7 +151,18 @@ export const Navbar = () => {
           >
             <div className="flex justify-between items-center h-[80px] border-b border-slate-100 px-6">
               <RouterLink to="/" className="flex items-center gap-3" onClick={() => setMobileMenuOpen(false)}>
-                <img src={logoUrl} alt="Acelera SEO Logo" width="160" height="40" className="h-10 w-40 object-contain" />
+                <img 
+                  src={logoUrl} 
+                  alt="Acelera SEO Logo" 
+                  width="160"
+                  height="40" 
+                  className="h-10 w-auto max-w-[160px] object-contain" 
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = '/logo.svg';
+                  }}
+                />
                 <span className="text-2xl font-display font-bold text-slate-900">Acelera<span className="text-brand-600 font-light">SEO</span></span>
               </RouterLink>
               <button 
