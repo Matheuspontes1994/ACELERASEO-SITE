@@ -3,6 +3,16 @@ import { createServer as createViteServer } from "vite";
 import * as path from "path";
 import rateLimit from "express-rate-limit";
 
+// Global process error handlers to prevent unhandled crashes
+process.on("unhandledRejection", (reason, promise) => {
+  if (!reason) return;
+  console.warn("[Server Warning] Unhandled Promise Rejection:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("[Server Error] Uncaught Exception:", err);
+});
+
 async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3000;
@@ -38,33 +48,39 @@ async function startServer() {
   async function getFirebaseAdminDb() {
     if (adminDb) return adminDb;
     const admin = (await import("firebase-admin")).default;
-    if (admin.apps.length === 0) {
+    let appInstance = admin.apps[0];
+    if (!appInstance) {
       // If we have GOOGLE_SERVICE_ACCOUNT_JSON, use it. Otherwise, try use config or project default.
       const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
       if (serviceAccountJson) {
         try {
           const cert = JSON.parse(serviceAccountJson);
-          admin.initializeApp({
+          appInstance = admin.initializeApp({
             credential: admin.credential.cert(cert)
           });
         } catch (e) {
           console.error("Erro ao parsear GOOGLE_SERVICE_ACCOUNT_JSON, falhando para default:", e);
-          admin.initializeApp();
+          appInstance = admin.initializeApp();
         }
       } else if (firebaseConfig?.projectId) {
         // Explicitly use the provisioned project and database from config
-        admin.initializeApp({
+        appInstance = admin.initializeApp({
           projectId: firebaseConfig.projectId
         });
       } else {
-        admin.initializeApp();
+        appInstance = admin.initializeApp();
       }
     }
     // For Enterprise Firestore, we must use the specific database ID if it exists
     const { getFirestore } = await import("firebase-admin/firestore");
-    adminDb = firebaseConfig?.firestoreDatabaseId 
-      ? getFirestore(firebaseConfig.firestoreDatabaseId)
-      : getFirestore();
+    try {
+      adminDb = firebaseConfig?.firestoreDatabaseId 
+        ? getFirestore(appInstance, firebaseConfig.firestoreDatabaseId)
+        : getFirestore(appInstance);
+    } catch (dbInitErr) {
+      console.warn("Falha ao inicializar com databaseId específico, tentando default:", dbInitErr);
+      adminDb = getFirestore(appInstance);
+    }
     return adminDb;
   }
 
@@ -132,7 +148,11 @@ async function startServer() {
       }
 
       if (!serviceAccountJsonStr) {
-        return res.status(503).json({ error: "Credenciais da API não configuradas no servidor." });
+        return res.json({
+          clicksOverTime: [],
+          topKeywords: [],
+          configured: false
+        });
       }
 
       const { google } = await import("googleapis");
@@ -262,13 +282,29 @@ Regras de Resposta:
 2. Pontuação (score) deve ser sincera baseada no rigor acima.
 3. Descrições devem ser em Português do Brasil.`;
 
-      if (!process.env.GEMINI_API_KEY) {
-        throw new Error("GEMINI_API_KEY não configurada.");
+      let finalGeminiApiKey = process.env.GEMINI_API_KEY;
+
+      // Buscar chave do Gemini das configurações master do Firestore se disponível
+      try {
+        const adminDbInstance = await getFirebaseAdminDb();
+        const secretsSnap = await adminDbInstance.collection('settings').doc('secrets').get();
+        if (secretsSnap.exists) {
+          const secretsData = secretsSnap.data();
+          if (secretsData?.geminiApiKey) {
+            finalGeminiApiKey = secretsData.geminiApiKey;
+          }
+        }
+      } catch (dbErr) {
+        console.error("[Audit API Key Firestore Error]:", dbErr);
+      }
+
+      if (!finalGeminiApiKey) {
+        throw new Error("A chave de API do Gemini não está vinculada! Acesse o Painel Admin -> Configurações -> Chaves & Integrações para cadastrar a chave.");
       }
 
       const { GoogleGenAI } = await import("@google/genai");
       const ai = new GoogleGenAI({ 
-        apiKey: process.env.GEMINI_API_KEY,
+        apiKey: finalGeminiApiKey,
         httpOptions: {
           headers: {
             'User-Agent': 'aistudio-build',
@@ -369,4 +405,6 @@ Regras de Resposta:
   });
 }
 
-startServer();
+startServer().catch((err) => {
+  console.error("[Fatal Error] Failed to start server:", err);
+});

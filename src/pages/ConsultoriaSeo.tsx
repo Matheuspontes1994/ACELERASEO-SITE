@@ -155,6 +155,7 @@ export default function ConsultoriaSeoPage() {
 
       {/* Roadmap Section */}
       <ServiceRoadmap 
+        id="experiencia"
         title="O Ciclo da nossa Consultoria SEO"
         subtitle="Não trabalhamos com relatórios automatizados. Nosso diferencial é a curadoria humana em cada etapa técnica e estratégica."
         steps={[

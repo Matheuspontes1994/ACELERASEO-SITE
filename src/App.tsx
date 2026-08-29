@@ -20,23 +20,24 @@ import { GlobalSeo } from './components/SeoHeader';
 import Skeleton from './components/ui/Skeleton';
 import ScrollToTop from './components/ScrollToTop';
 import { JsonLd } from './components/JsonLd';
+import { lazyWithRetry } from './utils/lazyWithRetry';
 
-const Home = lazy(() => import('./pages/Home'));
-const AuditPage = lazy(() => import('./pages/Audit'));
-const BlogPage = lazy(() => import('./pages/Blog'));
-const BlogPost = lazy(() => import('./pages/BlogPost'));
-const ServicesPage = lazy(() => import('./pages/Services'));
-const AboutPage = lazy(() => import('./pages/About'));
-const ContactPage = lazy(() => import('./pages/Contact'));
-const SeoEcommercePage = lazy(() => import('./pages/SeoEcommerce'));
-const LinkBuildingPage = lazy(() => import('./pages/LinkBuilding'));
-const EspecialistaSeoPage = lazy(() => import('./pages/EspecialistaSeo'));
-const SeoLocalPage = lazy(() => import('./pages/SeoLocal'));
-const ConsultoriaSeoPage = lazy(() => import('./pages/ConsultoriaSeo'));
-const ClientDashboard = lazy(() => import('./pages/ClientDashboard'));
-const DashboardPage = lazy(() => import('./pages/Dashboard'));
-const LoginPage = lazy(() => import('./pages/Login'));
-const RegisterPage = lazy(() => import('./pages/Register'));
+import Home from './pages/Home';
+const AuditPage = lazyWithRetry(() => import('./pages/Audit'));
+const BlogPage = lazyWithRetry(() => import('./pages/Blog'));
+const BlogPost = lazyWithRetry(() => import('./pages/BlogPost'));
+const ServicesPage = lazyWithRetry(() => import('./pages/Services'));
+const AboutPage = lazyWithRetry(() => import('./pages/About'));
+const ContactPage = lazyWithRetry(() => import('./pages/Contact'));
+const SeoEcommercePage = lazyWithRetry(() => import('./pages/SeoEcommerce'));
+const LinkBuildingPage = lazyWithRetry(() => import('./pages/LinkBuilding'));
+const EspecialistaSeoPage = lazyWithRetry(() => import('./pages/EspecialistaSeo'));
+const SeoLocalPage = lazyWithRetry(() => import('./pages/SeoLocal'));
+const ConsultoriaSeoPage = lazyWithRetry(() => import('./pages/ConsultoriaSeo'));
+const ClientDashboard = lazyWithRetry(() => import('./pages/ClientDashboard'));
+const DashboardPage = lazyWithRetry(() => import('./pages/Dashboard'));
+const LoginPage = lazyWithRetry(() => import('./pages/Login'));
+const RegisterPage = lazyWithRetry(() => import('./pages/Register'));
 
 // --- SEO Structured Data ---
 const structuredData = {
@@ -160,11 +161,44 @@ function AppContent() {
 export default function App() {
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      logger.error('Unhandled Promise Rejection', event.reason);
+      // Prevent browser console and platform from treating benign/canceled promises as critical uncaught rejections
+      event.preventDefault();
+      if (!event.reason) {
+        return;
+      }
+      const reasonStr = typeof event.reason === 'string' 
+        ? event.reason 
+        : event.reason?.message || event.reason?.name || '';
+      
+      if (
+        reasonStr.includes('ResizeObserver') || 
+        reasonStr.includes('canceled') || 
+        reasonStr.includes('abort') || 
+        reasonStr.includes('Failed to fetch') ||
+        reasonStr.includes('network') ||
+        reasonStr.includes('The user aborted a request')
+      ) {
+        return;
+      }
+      logger.warn('Unhandled Promise Rejection caught:', event.reason);
     };
 
     const handleGlobalError = (event: ErrorEvent) => {
-      logger.error('Global Error', event.error || event.message);
+      if (!event.error && !event.message) {
+        event.preventDefault();
+        return;
+      }
+      const msg = event.message || '';
+      if (
+        msg.includes('ResizeObserver') || 
+        msg.includes('Script error') ||
+        msg.includes('Loading chunk') ||
+        msg.includes('Failed to fetch dynamically imported module')
+      ) {
+        event.preventDefault();
+        return;
+      }
+      logger.warn('Global Error caught:', event.error || event.message);
     };
 
     window.addEventListener('unhandledrejection', handleUnhandledRejection);

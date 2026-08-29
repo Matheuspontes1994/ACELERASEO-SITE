@@ -12,15 +12,17 @@ interface ServiceRoadmapProps {
   steps: Step[];
   title?: string;
   subtitle?: string;
+  id?: string;
 }
 
 export const ServiceRoadmap: React.FC<ServiceRoadmapProps> = ({ 
   steps, 
   title = "Nosso Processo de Trabalho", 
-  subtitle = "Uma metodologia clara e orientada a resultados para escalar seu tráfego orgânico." 
+  subtitle = "Uma metodologia clara e orientada a resultados para escalar seu tráfego orgânico.",
+  id
 }) => {
   return (
-    <section className="py-24 bg-slate-50 relative overflow-hidden">
+    <section id={id} className="py-24 bg-slate-50 relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-40">
         <div className="absolute top-1/4 right-0 w-96 h-96 bg-brand-200/20 rounded-full blur-[100px]" />

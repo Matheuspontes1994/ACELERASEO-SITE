@@ -148,15 +148,15 @@ export default function Audit() {
                 </p>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center text-slate-700 font-medium gap-3">
-                    <CheckCircle2 size={24} className="text-emerald-500 shrink-0" />
+                    <CheckCircle2 size={24} className="text-brand-600 shrink-0" />
                     Análise técnica de código e performance (On-Page)
                   </li>
                   <li className="flex items-center text-slate-700 font-medium gap-3">
-                    <CheckCircle2 size={24} className="text-emerald-500 shrink-0" />
+                    <CheckCircle2 size={24} className="text-brand-600 shrink-0" />
                     Diagnóstico de palavras-chave e semântica
                   </li>
                   <li className="flex items-center text-slate-700 font-medium gap-3">
-                    <CheckCircle2 size={24} className="text-emerald-500 shrink-0" />
+                    <CheckCircle2 size={24} className="text-brand-600 shrink-0" />
                     Insights de Link Building para Autoridade
                   </li>
                 </ul>

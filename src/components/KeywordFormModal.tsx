@@ -1,54 +1,77 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { X } from 'lucide-react';
+import { X, Sparkles, Check } from 'lucide-react';
 
-export function KeywordFormModal({ 
-  showKeywordForm, 
-  setShowKeywordForm, 
-  keywordForm, 
-  setKeywordForm, 
+interface KeywordFormModalProps {
+  showKeywordForm: boolean;
+  setShowKeywordForm: (show: boolean) => void;
+  keywordForm: any;
+  setKeywordForm: (form: any) => void;
+  handleSaveKeyword: (e: React.FormEvent) => void;
+  clientsList?: string[];
+  isSidebarCollapsed?: boolean;
+}
+
+export function KeywordFormModal({
+  showKeywordForm,
+  setShowKeywordForm,
+  keywordForm,
+  setKeywordForm,
   handleSaveKeyword,
-  clientsList = []
-}: any) {
+  clientsList = [],
+  isSidebarCollapsed = false
+}: KeywordFormModalProps) {
   if (!showKeywordForm) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-3xl z-[110] flex items-center justify-center p-4">
+    <div className={`fixed inset-y-0 right-0 z-[110] flex items-center justify-center p-4 transition-all duration-300 left-0 ${isSidebarCollapsed ? 'md:left-18' : 'md:left-72'}`}>
+      <div 
+        className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs -z-10" 
+        onClick={() => setShowKeywordForm(false)} 
+      />
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white rounded-[32px] w-full max-w-4xl shadow-3xl overflow-hidden max-h-[90vh] flex flex-col border border-white"
+        className="bg-white rounded-2xl w-full max-w-4xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col border border-slate-200"
       >
-        <div className="flex items-center justify-between p-8 border-b border-slate-50 bg-slate-50/20">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-emerald-500 rounded-xl text-white shadow-lg shadow-emerald-500/20">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+        {/* Header do Modal */}
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50/50">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 bg-brand-50 text-brand-700 border border-brand-200 rounded-xl flex items-center justify-center">
+              <Sparkles size={18} />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-900 tracking-tight uppercase leading-none">Reservar Tema Estratégico</h3>
-              <p className="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-[0.2em]">Inteligência SEO e Planejamento de Pauta</p>
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">
+                {keywordForm.id ? 'Editar Tema / Palavra-chave' : 'Reservar Tema Estratégico'}
+              </h3>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Inteligência SEO, volumes e direcionamento editorial
+              </p>
             </div>
           </div>
           <button 
             type="button" 
             onClick={() => setShowKeywordForm(false)}
-            className="p-3 hover:bg-slate-100 rounded-xl text-slate-300 hover:text-slate-900 transition-all"
+            className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700 transition cursor-pointer"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSaveKeyword} className="flex-1 overflow-y-auto p-8 space-y-8 no-scrollbar">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Formulário */}
+        <form onSubmit={handleSaveKeyword} className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
             <div className="md:col-span-12">
-              <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-2 ml-1 block">Alvo Corporativo (Cliente)</label>
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">
+                Unidade / Cliente <span className="text-rose-500">*</span>
+              </label>
               <select 
                 required 
                 value={keywordForm.clientName} 
                 onChange={e => setKeywordForm({...keywordForm, clientName: e.target.value})} 
-                className="w-full h-12 px-6 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-brand-500/10 outline-none transition-all font-semibold text-slate-900 text-xs shadow-sm appearance-none cursor-pointer"
+                className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition font-semibold text-slate-800 text-xs cursor-pointer"
               >
-                <option value="">Selecionar Cliente...</option>
+                <option value="">Selecione a Unidade...</option>
                 {clientsList.filter((c: any) => c !== 'Agência').map((client: string, i: number) => (
                   <option key={`${client}-${i}`} value={client}>{client}</option>
                 ))}
@@ -56,106 +79,125 @@ export function KeywordFormModal({
             </div>
 
             <div className="md:col-span-8">
-              <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-2 ml-1 block">Keyword Estratégica</label>
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">
+                Palavra-chave Estratégica (Foco) <span className="text-rose-500">*</span>
+              </label>
               <input
                 required
                 type="text"
                 value={keywordForm.keyword}
                 onChange={(e) => setKeywordForm({ ...keywordForm, keyword: e.target.value })}
-                className="w-full h-14 px-6 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-brand-500/10 outline-none transition-all font-bold text-slate-900 text-sm placeholder:text-slate-300 shadow-sm"
-                placeholder="Ex: Software de Logística Internacional"
+                className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition font-bold text-slate-900 text-xs placeholder:text-slate-400"
+                placeholder="Ex: Consultoria de SEO para E-commerce"
               />
             </div>
+
             <div className="md:col-span-4">
-              <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-2 ml-1 block">Ciclo de Ataque</label>
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">
+                Ciclo Editorial <span className="text-rose-500">*</span>
+              </label>
               <input
                 required
                 type="month"
                 value={keywordForm.targetMonth}
                 onChange={(e) => setKeywordForm({ ...keywordForm, targetMonth: e.target.value })}
-                className="w-full h-14 px-6 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-brand-500/10 outline-none transition-all font-bold text-slate-900 text-sm shadow-sm"
+                className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition font-bold text-slate-800 text-xs"
               />
             </div>
 
             <div className="md:col-span-6">
-              <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-2 ml-1 block">Volume Estimado (SEO)</label>
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">
+                Volume Estimado de Busca
+              </label>
               <input
                 type="text"
                 value={keywordForm.searchVolume}
                 onChange={(e) => setKeywordForm({ ...keywordForm, searchVolume: e.target.value })}
-                className="w-full h-14 px-6 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-brand-500/10 outline-none transition-all font-medium text-slate-900 text-sm placeholder:text-slate-300 shadow-sm"
-                placeholder="Ex: 12.5k/mês"
+                className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition font-medium text-slate-800 text-xs placeholder:text-slate-400"
+                placeholder="Ex: 8.500/mês"
               />
             </div>
+
             <div className="md:col-span-6">
-              <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-2 ml-1 block">Dificuldade (KD %)</label>
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">
+                Dificuldade de Ranqueamento (KD %)
+              </label>
               <input
                 type="text"
                 value={keywordForm.difficulty}
                 onChange={(e) => setKeywordForm({ ...keywordForm, difficulty: e.target.value })}
-                className="w-full h-14 px-6 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-brand-500/10 outline-none transition-all font-medium text-slate-900 text-sm placeholder:text-slate-300 shadow-sm"
-                placeholder="Ex: 45%"
+                className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition font-medium text-slate-800 text-xs placeholder:text-slate-400"
+                placeholder="Ex: 38"
               />
             </div>
 
-            <div className="md:col-span-12 h-px bg-slate-50 my-2" />
-
             <div className="md:col-span-12">
-              <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-2 ml-1 block">TEMA (Artigo / Planejamento)</label>
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">
+                Tema / Título Sugerido do Conteúdo
+              </label>
               <input
                 type="text"
                 value={keywordForm.theme || ""}
                 onChange={(e) => setKeywordForm({ ...keywordForm, theme: e.target.value })}
-                className="w-full h-14 px-6 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-brand-500/10 outline-none transition-all font-medium text-slate-900 text-sm shadow-sm"
-                placeholder="Tema central do conteúdo (aprox. 20 palavras)"
+                className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition font-medium text-slate-800 text-xs placeholder:text-slate-400"
+                placeholder="Ex: Guia Completo: Como Escolher a Melhor Consultoria de SEO em 2026"
               />
             </div>
 
             <div className="md:col-span-12">
-              <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-2 ml-1 block">PALAVRAS ÂNCORAS SECUNDÁRIAS</label>
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">
+                Palavras-chave Secundárias / Âncoras
+              </label>
               <input
                 type="text"
                 value={keywordForm.secondaryKeywords || ""}
                 onChange={(e) => setKeywordForm({ ...keywordForm, secondaryKeywords: e.target.value })}
-                className="w-full h-14 px-6 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-brand-500/10 outline-none transition-all font-medium text-slate-900 text-sm shadow-sm"
-                placeholder="Ex: logística 4.0, frete internacional, gestão de armazém (5 a 10 palavras)"
+                className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition font-medium text-slate-800 text-xs placeholder:text-slate-400"
+                placeholder="Ex: especialista seo, otimização de sites, tráfego orgânico"
               />
             </div>
 
             <div className="md:col-span-12">
-              <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-2 ml-1 block">LINKAGEM INTERNA</label>
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">
+                Linkagem Interna Recomendada
+              </label>
               <textarea
                 value={keywordForm.internalLinking || ""}
                 onChange={(e) => setKeywordForm({ ...keywordForm, internalLinking: e.target.value })}
-                className="w-full p-6 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-brand-500/10 outline-none transition-all font-medium text-slate-900 text-sm min-h-[100px] shadow-sm"
-                placeholder="Palavras-chave para linkagens internas, separadas por vírgulas (15 a 20 palavras)"
+                rows={2}
+                className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition font-medium text-slate-800 text-xs placeholder:text-slate-400"
+                placeholder="URLs ou âncoras para linkagem interna cruzada no blog..."
               />
             </div>
 
             <div className="md:col-span-12">
-              <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-2 ml-1 block">DIRECIONAMENTO (Briefing p/ Redator)</label>
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">
+                Direcionamento Editorial (Briefing para Redator)
+              </label>
               <textarea
                 value={keywordForm.notes || ""}
                 onChange={(e) => setKeywordForm({ ...keywordForm, notes: e.target.value })}
-                className="w-full p-6 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-brand-500/10 outline-none transition-all font-medium text-slate-900 text-sm min-h-[120px] shadow-sm"
-                placeholder="Direcionamento estratégico, tom de voz e pontos obrigatórios (aprox. 60 palavras)"
+                rows={3}
+                className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition font-medium text-slate-800 text-xs placeholder:text-slate-400"
+                placeholder="Orientações de tom de voz, tópicos obrigatórios (H2/H3) e requisitos da marca..."
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-4 pt-4">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
             <button 
               type="button" 
               onClick={() => setShowKeywordForm(false)} 
-              className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-rose-500 transition-colors"
+              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
             >
-              Descartar
+              Cancelar
             </button>
             <button 
               type="submit" 
-              className="bg-slate-900 text-white px-10 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl shadow-slate-900/10"
+              className="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-xs flex items-center gap-1.5"
             >
-              Registrar Planejamento
+              <Check size={14} />
+              <span>Salvar Planejamento</span>
             </button>
           </div>
         </form>

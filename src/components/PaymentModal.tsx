@@ -27,6 +27,7 @@ interface PaymentModalProps {
   handleAddPayment: (e: React.FormEvent) => void;
   handleDeletePayment: (payment: any) => void;
   clients: any[];
+  isSidebarCollapsed?: boolean;
 }
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -41,15 +42,16 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   handleDeletePayment,
   clients,
   setSelectedClientForPayments,
+  isSidebarCollapsed = false,
 }) => {
   return (
     <AnimatePresence>
       {showPaymentModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className={`fixed inset-y-0 right-0 z-[100] flex items-center justify-center p-4 transition-all duration-300 left-0 ${isSidebarCollapsed ? 'md:left-18' : 'md:left-72'}`}>
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setShowPaymentModal(false)}
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm -z-10" 
           />
           <motion.div 
             initial={{ opacity: 0, scale: 0.95, y: 20 }}

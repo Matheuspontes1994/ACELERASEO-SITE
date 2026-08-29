@@ -29,13 +29,18 @@ class Logger {
     const formattedLog = `[${data.timestamp}] [${data.level.toUpperCase()}] ${data.message}`;
     
     if (data.level === 'error') {
-      console.error(formattedLog, data.error, data.context);
-      // Aqui poderíamos enviar para Sentry ou Firebase Analytics:
-      // logEvent(analytics, 'exception', { description: data.message, ... });
+      const args: any[] = [formattedLog];
+      if (data.error !== undefined) args.push(data.error);
+      if (data.context !== undefined) args.push(data.context);
+      console.error(...args);
     } else if (data.level === 'warn') {
-      console.warn(formattedLog, data.context);
+      const args: any[] = [formattedLog];
+      if (data.context !== undefined) args.push(data.context);
+      console.warn(...args);
     } else {
-      console.log(formattedLog, data.context);
+      const args: any[] = [formattedLog];
+      if (data.context !== undefined) args.push(data.context);
+      console.log(...args);
     }
   }
 

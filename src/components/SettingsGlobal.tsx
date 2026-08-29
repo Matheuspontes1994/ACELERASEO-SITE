@@ -152,11 +152,15 @@ export default function SettingsGlobal() {
   const [defaultKeywords, setDefaultKeywords] = useState('');
   const [whatsappContactTemplate, setWhatsappContactTemplate] = useState('');
   const [whatsappAuditTemplate, setWhatsappAuditTemplate] = useState('');
+  const [geminiApiKey, setGeminiApiKey] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [activeSubTab, setActiveSubTab] = useState<'visual' | 'seo' | 'images' | 'whatsapp'>('visual');
+  const [savingIntegrations, setSavingIntegrations] = useState(false);
+  const [successIntegrations, setSuccessIntegrations] = useState(false);
+  const [showGeminiKey, setShowGeminiKey] = useState(false);
+  const [activeSubTab, setActiveSubTab] = useState<'visual' | 'seo' | 'images' | 'whatsapp' | 'integrations'>('visual');
   const [seoSectionTab, setSeoSectionTab] = useState<'geral' | 'paginas'>('geral');
 
   // Page specific SEO states
@@ -266,6 +270,20 @@ export default function SettingsGlobal() {
         } else {
           setWhatsappContactTemplate('Olá {nome}! Recebemos seu contato no site da Acelera SEO sobre a empresa {empresa}. Como podemos te ajudar?');
           setWhatsappAuditTemplate('Olá {nome}! Vi que você realizou uma auditoria de SEO automática no site {site}. Vamos agendar uma apresentação gratuita do relatório técnico?');
+        }
+
+        // Carregar segredos de settings/secrets
+        try {
+          const secretsRef = doc(db, 'settings', 'secrets');
+          const secretsSnap = await getDoc(secretsRef);
+          if (secretsSnap.exists()) {
+            const secretsData = secretsSnap.data();
+            if (secretsData.geminiApiKey) {
+              setGeminiApiKey(secretsData.geminiApiKey);
+            }
+          }
+        } catch (secretErr) {
+          console.warn("Sem autorização para ler segredos ou documento inexistente:", secretErr);
         }
 
         const imgRef = doc(db, 'settings', 'layout_images');
@@ -404,6 +422,26 @@ export default function SettingsGlobal() {
     }
   };
 
+  const handleSaveIntegrations = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingIntegrations(true);
+    setSuccessIntegrations(false);
+    try {
+      await setDoc(doc(db, 'settings', 'secrets'), {
+        geminiApiKey: geminiApiKey.trim(),
+        updatedAt: new Date()
+      }, { merge: true });
+      
+      setSuccessIntegrations(true);
+      setTimeout(() => setSuccessIntegrations(false), 3000);
+    } catch (error) {
+      console.error("Erro ao salvar chaves de integração:", error);
+      alert("Erro ao salvar a chave de API. Verifique suas permissões de administrador.");
+    } finally {
+      setSavingIntegrations(false);
+    }
+  };
+
   const processImageFile = (file: File, maxWidth: number, maxHeight: number, callback: (dataUrl: string) => void) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -473,62 +511,99 @@ export default function SettingsGlobal() {
   const activeAspect = activeImageDef?.aspects[selectedAspectIndex] || { label: "Padrão", ratioClass: "aspect-[4/3]", description: "Visualização em container proporcional" };
 
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.99 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8">
-      <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-10 lg:p-16 relative">
-        <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none text-slate-900 group-hover:scale-110 transition-transform duration-1000">
-           <Settings size={200} />
-        </div>
-        
-        <div className="mb-12 relative z-10">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-px bg-slate-900"></div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Gestão do Ecossistema</p>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 pb-16 text-left">
+      {/* Top Header Card */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 border border-brand-100 flex items-center justify-center shrink-0">
+            <Settings size={20} />
           </div>
-          <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight uppercase leading-none mb-4">Configurações <span className="text-brand-600">Globais</span></h2>
-          <p className="text-slate-500 font-medium text-lg max-w-2xl leading-relaxed tracking-tight">Gerencie a identidade visual, favicon de aba, metatags de SEO e padrões de ranqueamento para o Google.</p>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Ajustes Master & Configurações Globais</h2>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Identidade visual, metatags de SEO, templates de mensagens e gestão de mídias do portal
+            </p>
+          </div>
         </div>
 
-        {/* Dynamic Nav Tabs */}
-        <div className="flex border-b border-slate-100 mb-10 gap-8 relative z-10 overflow-x-auto scrollbar-none">
+        {/* Global Save Button indicator if any */}
+        <div className="flex items-center gap-2">
+          {success && (
+            <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-bold animate-fadeIn">
+              <CheckCircle2 size={13} />
+              Configurações salvas!
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Main Container */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden p-6 sm:p-8">
+        {/* Modern Subtabs Navigation */}
+        <div className="flex border-b border-slate-200/80 mb-8 gap-2 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveSubTab('visual')}
-            className={`pb-4 text-xs font-black uppercase tracking-widest transition-all relative shrink-0 ${activeSubTab === 'visual' ? 'text-brand-600' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+              activeSubTab === 'visual'
+                ? 'bg-brand-50 text-brand-700 border border-brand-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
           >
-            Identidade Visual
-            {activeSubTab === 'visual' && (
-              <motion.div layoutId="subtab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600" />
-            )}
+            <ImageIcon size={14} />
+            <span>Identidade Visual</span>
           </button>
+
           <button
             type="button"
             onClick={() => setActiveSubTab('seo')}
-            className={`pb-4 text-xs font-black uppercase tracking-widest transition-all relative shrink-0 ${activeSubTab === 'seo' ? 'text-brand-600' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+              activeSubTab === 'seo'
+                ? 'bg-brand-50 text-brand-700 border border-brand-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
           >
-            SEO & Metadados
-            {activeSubTab === 'seo' && (
-              <motion.div layoutId="subtab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600" />
-            )}
+            <Globe size={14} />
+            <span>SEO & Metadados</span>
           </button>
+
           <button
             type="button"
             onClick={() => setActiveSubTab('images')}
-            className={`pb-4 text-xs font-black uppercase tracking-widest transition-all relative shrink-0 ${activeSubTab === 'images' ? 'text-brand-600' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+              activeSubTab === 'images'
+                ? 'bg-brand-50 text-brand-700 border border-brand-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
           >
-            Imagens do Layout
-            {activeSubTab === 'images' && (
-              <motion.div layoutId="subtab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600" />
-            )}
+            <ImageIcon size={14} />
+            <span>Imagens do Layout</span>
           </button>
+
           <button
             type="button"
             onClick={() => setActiveSubTab('whatsapp')}
-            className={`pb-4 text-xs font-black uppercase tracking-widest transition-all relative shrink-0 ${activeSubTab === 'whatsapp' ? 'text-brand-600' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+              activeSubTab === 'whatsapp'
+                ? 'bg-brand-50 text-brand-700 border border-brand-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
           >
-            Modelos WhatsApp
-            {activeSubTab === 'whatsapp' && (
-              <motion.div layoutId="subtab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600" />
-            )}
+            <MessageSquare size={14} />
+            <span>Modelos WhatsApp</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('integrations')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+              activeSubTab === 'integrations'
+                ? 'bg-brand-50 text-brand-700 border border-brand-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
+          >
+            <Link2 size={14} />
+            <span>Chaves & Integrações</span>
           </button>
         </div>
           <div className="relative z-10">
@@ -1233,6 +1308,93 @@ export default function SettingsGlobal() {
                 >
                   {saving ? <Loader2 size={14} className="animate-spin" /> : 
                    success ? <CheckCircle2 size={14} className="text-white" /> : 'Confirmar Ajustes'}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {activeSubTab === 'integrations' && (
+            <form onSubmit={handleSaveIntegrations} className="space-y-10">
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }} 
+                animate={{ opacity: 1, x: 0 }} 
+                className="space-y-8 max-w-4xl"
+              >
+                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 flex gap-4 items-start">
+                  <AlertCircle className="text-brand-500 shrink-0 mt-0.5" size={18} />
+                  <div className="space-y-1">
+                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Integrações & APIs de Terceiros</h4>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      Gerencie credenciais e tokens de API com segurança. Estes campos são salvos em um diretório restrito do Firestore (`settings/secrets`), oculto para usuários comuns.
+                    </p>
+                  </div>
+                </div>
+
+                {/* GEMINI API KEY SECTION */}
+                <div className="space-y-4 bg-white rounded-2xl p-6 border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-brand-50 text-brand-600 rounded-xl">
+                      <Settings size={18} />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-800">IA Gemini da Google (Auditoria Automática)</h4>
+                      <p className="text-[11px] text-slate-400">Usado para processar, analisar o SEO técnico dos sites e sugerir correções personalizadas de modo implacável.</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-2">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Chave de API do Gemini (AI Studio)</label>
+                    <div className="relative">
+                      <input 
+                        type={showGeminiKey ? "text" : "password"}
+                        value={geminiApiKey}
+                        onChange={e => setGeminiApiKey(e.target.value)}
+                        placeholder="Cole sua GEMINI_API_KEY do Google AI Studio"
+                        className="w-full pl-5 pr-24 py-4 bg-slate-50 border border-slate-200 text-xs font-semibold rounded-xl focus:ring-2 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all text-slate-800 tracking-wider"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowGeminiKey(!showGeminiKey)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black uppercase text-slate-400 hover:text-slate-600 tracking-wider transition-all"
+                      >
+                        {showGeminiKey ? "Ocultar" : "Exibir"}
+                      </button>
+                    </div>
+                    <div className="flex justify-between items-center px-1">
+                      <p className="text-[9px] text-slate-400">
+                        Obtenha uma chave gratuita ou paga criando uma conta no{' '}
+                        <a 
+                          href="https://aistudio.google.com/" 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          className="text-brand-600 font-bold hover:underline inline-flex items-center gap-0.5"
+                        >
+                          Google AI Studio <ExternalLink size={10} />
+                        </a>.
+                      </p>
+                      {geminiApiKey && (
+                        <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-1">
+                          <CheckCircle2 size={10} /> Código Configurado
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <div className="flex flex-col sm:flex-row items-center justify-between pt-8 border-t border-slate-100 gap-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm animate-pulse"></div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Transação Criptografada & Conexão Segura</p>
+                </div>
+                
+                <button 
+                  type="submit" 
+                  disabled={savingIntegrations}
+                  className="w-full sm:w-auto px-10 py-4 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-brand-600 transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2.5"
+                >
+                  {savingIntegrations ? <Loader2 size={14} className="animate-spin" /> : 
+                   successIntegrations ? <CheckCircle2 size={14} className="text-white" /> : 'Salvar Chave de API'}
                 </button>
               </div>
             </form>

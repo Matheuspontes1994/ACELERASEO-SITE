@@ -72,7 +72,7 @@ export default function SeoEcommercePage() {
                   Auditoria de E-commerce <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <a href="#metodologia" className="bg-white border border-slate-200 text-slate-700 font-semibold text-base rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center shadow-sm px-8 py-4 gap-2">
-                  Ver Cases de Sucesso
+                  Ver Metodologia
                 </a>
               </div>
             </motion.div>
@@ -152,6 +152,7 @@ export default function SeoEcommercePage() {
 
       {/* Roadmap Section */}
       <ServiceRoadmap 
+        id="metodologia"
         title="O Caminho do Lucro Orgânico"
         subtitle="Construímos fundações sólidas em desempenho, autoridade e indexabilidade para sua loja virtual faturar mais."
         steps={[

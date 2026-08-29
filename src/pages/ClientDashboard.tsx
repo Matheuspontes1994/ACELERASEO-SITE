@@ -76,6 +76,16 @@ import { ToastContainer } from '../components/Toast';
 export default function ClientDashboard() {
   const { logoUrl: agencyLogo } = useSettings();
   const [activeTab, setActiveTab] = useState('Visão Geral');
+  const [isChangingTab, setIsChangingTab] = useState(false);
+
+  React.useEffect(() => {
+    setIsChangingTab(true);
+    const timer = setTimeout(() => {
+      setIsChangingTab(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [activeTab]);
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
   const [backlinks, setBacklinks] = useState<any[]>([]);
@@ -1242,8 +1252,23 @@ export default function ClientDashboard() {
           </motion.div>
 
           <div className="tab-content relative">
-          <div 
-            id="panel-visão-geral"
+            {isChangingTab ? (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="min-h-[500px] flex flex-col items-center justify-center py-24 text-center w-full bg-transparent"
+              >
+                <div className="relative w-14 h-14">
+                  <div className="absolute inset-0 rounded-full border-4 border-slate-100/80 animate-pulse"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-brand-600 border-t-transparent animate-spin"></div>
+                </div>
+                <p className="mt-8 text-[11px] font-black tracking-[0.25em] text-slate-400 uppercase animate-pulse font-sans">Carregando painel...</p>
+                <p className="mt-2 text-[10px] text-slate-300 font-mono">Processando dados e layouts da agência</p>
+              </motion.div>
+            ) : (
+              <>
+                <div 
+                  id="panel-visão-geral"
             role="tabpanel"
             aria-labelledby="tab-visão-geral"
             hidden={activeTab !== 'Visão Geral'}
@@ -2426,6 +2451,8 @@ export default function ClientDashboard() {
               </motion.div>
             )}
       </div>
+              </>
+            )}
     </div>
   </div>
 </main>

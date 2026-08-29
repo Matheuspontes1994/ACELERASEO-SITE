@@ -225,7 +225,7 @@ const Services = () => {
   ];
 
   return (
-    <section className="bg-white relative border-t border-slate-200 py-12 md:py-24 lg:py-32">
+    <section id="metodologia" className="bg-white relative border-t border-slate-200 py-12 md:py-24 lg:py-32">
       <div className="max-w-7xl mx-auto relative z-10 px-6">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-8 lg:mb-20">
           <p className="text-brand-600 font-bold tracking-widest text-[11px] uppercase mb-6">Nossa Metodologia</p>
@@ -358,8 +358,8 @@ const AuditSection = () => {
           
           <div className="text-slate-500 text-[11px] font-medium flex items-center bg-slate-50 py-1.5 rounded-full border border-slate-100 mt-10 gap-2 px-3">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
             </span>
             Análise técnica finalizada em segundos.
           </div>

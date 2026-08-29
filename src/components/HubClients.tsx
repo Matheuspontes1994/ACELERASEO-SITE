@@ -1,36 +1,79 @@
-import React from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { db } from "../firebase";
-import { updateDoc, doc, serverTimestamp } from "firebase/firestore";
+import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { db } from '../firebase';
+import { updateDoc, doc, serverTimestamp } from 'firebase/firestore';
 import {
-  ArrowUpRight,
-  CheckCircle,
-  Plus,
-  Search,
-  Trash2,
-  Edit2,
   Users,
-  LogOut,
+  Search,
+  Plus,
   FileText,
+  Link as LinkIcon,
+  Trash2,
+  ExternalLink,
   ChevronDown,
-  X
-} from "lucide-react";
-import { HorizontalScroll } from "./HorizontalScroll";
+  Sparkles,
+  CheckCircle2,
+  Clock,
+  ArrowRight,
+  TrendingUp,
+  Target,
+  DollarSign,
+  Layers,
+  ArrowLeft,
+  X,
+  Send,
+  Building2,
+  Filter
+} from 'lucide-react';
+import { HorizontalScroll } from './HorizontalScroll';
+
+interface HubClientsProps {
+  clientsList: string[];
+  clients?: any[];
+  selectedHubClient: string;
+  setSelectedHubClient: (client: string) => void;
+  keywordsUniverse: any[];
+  showKeywordForm?: boolean;
+  setShowKeywordForm: (show: boolean) => void;
+  keywordForm?: any;
+  setKeywordForm: (form: any) => void;
+  handleSaveKeyword?: (e: React.FormEvent) => void;
+  handleDeleteKeyword: (id: string) => void;
+  blogPosts: any[];
+  backlinks: any[];
+  postForm?: any;
+  setPostForm: (form: any) => void;
+  showPostForm?: boolean;
+  setShowPostForm: (show: boolean) => void;
+  backlinkForm?: any;
+  setBacklinkForm: (form: any) => void;
+  showBacklinkForm?: boolean;
+  setShowBacklinkForm: (show: boolean) => void;
+  handleDeletePost: (id: string, coverImage?: string) => void;
+  handleDeleteBacklink: (id: string) => void;
+  loadBlogPosts: () => void;
+  loadBacklinks: () => void;
+  promoteKeywordToPost: (keyword: any) => void;
+  promoteKeywordToBacklink: (keyword: any) => void;
+  handleSavePost?: (e: React.FormEvent) => void;
+  handleSaveBacklink?: (e: React.FormEvent) => void;
+  [key: string]: any;
+}
 
 export function HubClients({
-  clientsList,
+  clientsList = [],
   clients = [],
   selectedHubClient,
   setSelectedHubClient,
-  keywordsUniverse,
+  keywordsUniverse = [],
   showKeywordForm,
   setShowKeywordForm,
   keywordForm,
   setKeywordForm,
   handleSaveKeyword,
   handleDeleteKeyword,
-  blogPosts,
-  backlinks,
+  blogPosts = [],
+  backlinks = [],
   setPostForm,
   setShowPostForm,
   setBacklinkForm,
@@ -41,513 +84,836 @@ export function HubClients({
   loadBacklinks,
   promoteKeywordToPost,
   promoteKeywordToBacklink,
-}: any) {
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [isFabOpen, setIsFabOpen] = React.useState(false);
+}: HubClientsProps) {
+  const [clientSearch, setClientSearch] = useState('');
+  const [keywordSearch, setKeywordSearch] = useState('');
+  const [keywordStatusFilter, setKeywordStatusFilter] = useState<'todos' | 'Disponível' | 'Em Produção'>('todos');
+  
+  // Dialog state para publicação de post ou backlink sem window.prompt
+  const [publishModal, setPublishModal] = useState<{
+    isOpen: boolean;
+    type: 'post' | 'backlink';
+    id: string;
+    title: string;
+    url: string;
+  }>({
+    isOpen: false,
+    type: 'post',
+    id: '',
+    title: '',
+    url: '',
+  });
 
-  const realClients = clientsList
-    .filter((c: string) => c !== "Agência")
-    .filter((c: string) => c.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Lista de unidades válidas
+  const selectableClients = useMemo(() => {
+    return clients.filter(c => c.name && c.name !== 'Agência');
+  }, [clients]);
 
-  const clientKeywords = keywordsUniverse.filter(
-    (k: any) => k.clientName === selectedHubClient,
-  );
+  const filteredSelectableClients = useMemo(() => {
+    if (!clientSearch) return selectableClients;
+    const query = clientSearch.toLowerCase();
+    return selectableClients.filter(c => 
+      c.name.toLowerCase().includes(query) ||
+      (c.domain && c.domain.toLowerCase().includes(query)) ||
+      (c.plan && c.plan.toLowerCase().includes(query))
+    );
+  }, [selectableClients, clientSearch]);
 
-  const selectedHubClientData = clients.find((c: any) => c.name === selectedHubClient);
+  const selectedClientData = useMemo(() => {
+    return clients.find(c => c.name === selectedHubClient);
+  }, [clients, selectedHubClient]);
 
-  const clientPosts = blogPosts.filter(
-    (p: any) => p.clientName === selectedHubClient,
-  );
-  const clientBacklinks = backlinks.filter(
-    (b: any) => b.clientName === selectedHubClient,
-  );
+  // Palavras-chave da unidade
+  const clientKeywords = useMemo(() => {
+    return keywordsUniverse.filter(k => k.clientName === selectedHubClient);
+  }, [keywordsUniverse, selectedHubClient]);
+
+  const filteredKeywords = useMemo(() => {
+    return clientKeywords.filter(k => {
+      const matchSearch = !keywordSearch || 
+        k.keyword.toLowerCase().includes(keywordSearch.toLowerCase()) ||
+        (k.targetMonth && k.targetMonth.toLowerCase().includes(keywordSearch.toLowerCase()));
+      const matchStatus = keywordStatusFilter === 'todos' || (k.status || 'Disponível') === keywordStatusFilter;
+      return matchSearch && matchStatus;
+    });
+  }, [clientKeywords, keywordSearch, keywordStatusFilter]);
+
+  // Artigos e Backlinks da unidade
+  const clientPosts = useMemo(() => {
+    return blogPosts.filter(p => p.clientName === selectedHubClient);
+  }, [blogPosts, selectedHubClient]);
+
+  const clientBacklinks = useMemo(() => {
+    return backlinks.filter(b => b.clientName === selectedHubClient);
+  }, [backlinks, selectedHubClient]);
+
+  // Handler de finalização com URL
+  const handleConfirmPublish = async () => {
+    if (!publishModal.url.trim() || !publishModal.id) return;
+    try {
+      if (publishModal.type === 'post') {
+        await updateDoc(doc(db, 'blog_posts', publishModal.id), {
+          status: 'Publicado',
+          publishedUrl: publishModal.url.trim(),
+          publishedAt: new Date().toISOString().split('T')[0],
+          updatedAt: serverTimestamp(),
+        });
+        loadBlogPosts();
+      } else {
+        await updateDoc(doc(db, 'backlinks', publishModal.id), {
+          status: 'Publicado',
+          publishedUrl: publishModal.url.trim(),
+          publishedAt: new Date().toISOString().split('T')[0],
+          updatedAt: serverTimestamp(),
+        });
+        loadBacklinks();
+      }
+      setPublishModal({ isOpen: false, type: 'post', id: '', title: '', url: '' });
+    } catch (err) {
+      console.error('Erro ao atualizar status para Publicado:', err);
+    }
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.99 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="space-y-12 pb-32"
-    >
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 pb-20 text-left">
+      {/* 1. SE NENHUM CLIENTE SELECIONADO: Grade de Seleção de Unidades */}
       {!selectedHubClient ? (
-        <div className="bg-white border border-slate-100 p-20 rounded-[2rem] shadow-sm text-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none text-slate-900">
-            <Users size={320} />
-          </div>
-          <div className="relative z-10 max-w-lg mx-auto">
-             <div className="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-200 mx-auto mb-8 shadow-sm">
-                <Search size={32} />
-             </div>
-             <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-tight mb-4 uppercase">
-               Selecione uma <span className="text-brand-600">Unidade de Performance</span>
-             </h2>
-             <p className="text-slate-400 font-medium text-lg leading-relaxed mb-8">
-               A inteligência de SEO, as células de conteúdo e os ativos de backlinks agora são gerenciados por unidade. Selecione o cliente no menu lateral para ativar o ecossistema de performance.
-             </p>
-             
-             <div className="inline-flex items-center gap-3 px-6 py-4 bg-brand-50 text-brand-700 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] border border-brand-100/50 shadow-sm">
-                <Users size={14} /> Selecione no Menu Lateral
-             </div>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-white border border-slate-100 p-8 lg:p-12 rounded-[2rem] shadow-sm">
-          <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-10 mb-16 pb-10 border-b border-slate-50">
-            <div className="relative group/switcher">
-              <div className="flex items-center gap-3 mb-4 text-brand-600">
-                <div className="w-2 h-2 rounded-full bg-brand-500 animate-ping"></div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Ambiente de Controle Ativo</span>
+        <div className="space-y-6">
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-brand-600 font-bold text-xs uppercase tracking-wider mb-1">
+                <Building2 size={16} />
+                <span>Hub de Unidades & Operações</span>
               </div>
-              
-              <div className="flex items-center gap-4 flex-wrap max-w-full">
-                <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-none break-words max-w-[calc(100vw-80px)] lg:max-w-full">
-                  {selectedHubClient}
-                </h2>
-                
-                <div className="relative">
-                  <select 
-                    value={selectedHubClient}
-                    onChange={(e) => setSelectedHubClient(e.target.value)}
-                    className="absolute inset-0 opacity-0 cursor-pointer z-20"
-                  >
-                    {clientsList.filter((c:string) => c !== 'Agência').map((c:string) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                  <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover/switcher:bg-brand-600 group-hover/switcher:text-white transition-all shadow-sm">
-                    <ChevronDown size={18} />
-                  </div>
-                </div>
-              </div>
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                Selecione uma Unidade de Performance
+              </h2>
+              <p className="text-xs text-slate-500 font-medium mt-1">
+                Gerencie o pipeline de produção, autoridade off-page e inteligência de palavras-chave por cliente
+              </p>
+            </div>
+
+            <div className="relative w-full md:w-72">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+              <input
+                type="text"
+                placeholder="Buscar unidade ou domínio..."
+                value={clientSearch}
+                onChange={(e) => setClientSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-brand-500 focus:bg-white transition"
+              />
             </div>
           </div>
 
-          <div className="space-y-20">
-            {/* Resumo do Cliente */}
-            {selectedHubClientData && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm group hover:shadow-xl transition-all flex flex-col justify-center min-h-[140px]">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 leading-tight">Investimento Mensal</p>
-                  <h4 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-brand-600 transition-colors tracking-tight break-words" title={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedHubClientData.packageValue || 0)}>
-                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedHubClientData.packageValue || 0)}
-                  </h4>
-                </div>
-                <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm group hover:shadow-xl transition-all flex flex-col justify-center min-h-[140px]">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 leading-tight">Posts Contratados</p>
-                  <h4 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-emerald-500 transition-colors tracking-tight leading-tight">
-                    {selectedHubClientData.monthlyPosts || 0} <span className="text-[10px] text-slate-400 block sm:inline font-black uppercase tracking-wide whitespace-nowrap">pautas/mês</span>
-                  </h4>
-                </div>
-                <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm group hover:shadow-xl transition-all flex flex-col justify-center min-h-[140px]">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 leading-tight">Links Estratégicos</p>
-                  <h4 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-amber-500 transition-colors tracking-tight leading-tight">
-                    {selectedHubClientData.monthlyBacklinks || 0} <span className="text-[10px] text-slate-400 block sm:inline font-black uppercase tracking-wide whitespace-nowrap">backlinks/mês</span>
-                  </h4>
-                </div>
-                <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm group hover:shadow-xl transition-all flex flex-col justify-center min-h-[140px]">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 leading-tight">SLA Aprovação</p>
-                  <h4 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-blue-500 transition-colors tracking-tight leading-tight">
-                    {selectedHubClientData.approvalDeadlineDays || 5} <span className="text-[10px] text-slate-400 block sm:inline font-black uppercase tracking-wide whitespace-nowrap">dias úteis</span>
-                  </h4>
-                </div>
-              </div>
-            )}
+          {/* Grade de Unidades */}
+          {filteredSelectableClients.length === 0 ? (
+            <div className="bg-white p-12 rounded-2xl border border-dashed border-slate-200 text-center space-y-3">
+              <Building2 className="mx-auto text-slate-300" size={36} />
+              <h4 className="text-sm font-bold text-slate-700">Nenhuma unidade encontrada</h4>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                Verifique os termos da busca ou cadastre novas contas no painel Clientes & CRM.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredSelectableClients.map((c: any) => {
+                const totalPosts = blogPosts.filter(p => p.clientName === c.name).length;
+                const totalLinks = backlinks.filter(b => b.clientName === c.name).length;
+                const totalKw = keywordsUniverse.filter(k => k.clientName === c.name).length;
 
-            {/* Universo de Palavras */}
-            <div className="bg-slate-50/50 border border-slate-100 p-8 lg:p-12 rounded-[2rem]">
-              <div className="flex flex-col md:flex-row justify-between md:items-center gap-10 mb-12">
-                <div>
-                  <h3 className="text-3xl font-black text-slate-900 tracking-tight mb-2 flex items-center gap-3 uppercase">
-                    <div className="w-1.5 h-8 bg-brand-600 rounded-full" />
-                    Universo de <span className="text-brand-500">Keywords</span>
+                return (
+                  <div
+                    key={c.id || c.name}
+                    onClick={() => setSelectedHubClient(c.name)}
+                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:border-brand-500 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-800 group-hover:bg-brand-50 group-hover:text-brand-700 font-bold flex items-center justify-center border border-slate-200 group-hover:border-brand-200 uppercase tracking-tight text-sm transition-colors">
+                          {c.name.slice(0, 2)}
+                        </div>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                          {c.plan || 'Plano SEO'}
+                        </span>
+                      </div>
+
+                      <h3 className="text-base font-bold text-slate-900 group-hover:text-brand-600 transition-colors tracking-tight">
+                        {c.name}
+                      </h3>
+                      {c.domain && (
+                        <p className="text-xs text-slate-400 font-mono mt-0.5 truncate">
+                          {c.domain}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-3 text-slate-500 font-medium">
+                        <span><strong>{totalPosts}</strong> pautas</span>
+                        <span>•</span>
+                        <span><strong>{totalLinks}</strong> links</span>
+                        <span>•</span>
+                        <span><strong>{totalKw}</strong> kw</span>
+                      </div>
+                      <span className="text-slate-900 group-hover:text-brand-600 font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-all">
+                        <span>Acessar</span>
+                        <ArrowRight size={13} />
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* 2. QUANDO UM CLIENTE ESTÁ SELECIONADO: Hub Completo da Unidade */
+        <div className="space-y-6">
+          {/* Header Executivo da Unidade */}
+          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setSelectedHubClient('')}
+                className="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center transition cursor-pointer shrink-0"
+                title="Voltar para lista de unidades"
+              >
+                <ArrowLeft size={16} />
+              </button>
+
+              <div>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  {/* Seletor Estilizado com Design Padronizado */}
+                  <div className="relative inline-flex items-center bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 transition">
+                    <select
+                      value={selectedHubClient}
+                      onChange={(e) => setSelectedHubClient(e.target.value)}
+                      className="text-base font-bold text-slate-900 bg-transparent pr-6 cursor-pointer focus:outline-hidden appearance-none"
+                    >
+                      {selectableClients.map((c: any) => (
+                        <option key={c.id || c.name} value={c.name}>{c.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-2.5 pointer-events-none text-slate-400" />
+                  </div>
+
+                  <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-50 text-brand-700 border border-brand-200">
+                    {selectedClientData?.plan || 'Operação Ativa'}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-500 font-medium mt-1.5 flex items-center gap-2">
+                  <span>Gestão operacional de conteúdo, backlinks e palavras-chave</span>
+                  {selectedClientData?.domain && (
+                    <>
+                      <span>•</span>
+                      <a
+                        href={selectedClientData.domain.startsWith('http') ? selectedClientData.domain : `https://${selectedClientData.domain}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-slate-600 hover:text-brand-600 flex items-center gap-1 underline font-mono text-xs font-medium"
+                      >
+                        <span>{selectedClientData.domain}</span>
+                        <ExternalLink size={11} />
+                      </a>
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            {/* Quick Actions Padronizadas */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => {
+                  setKeywordForm({
+                    id: '',
+                    clientName: selectedHubClient,
+                    clientEmail: '',
+                    keyword: '',
+                    searchVolume: '',
+                    difficulty: '',
+                    status: 'Disponível',
+                    notes: '',
+                    targetMonth: '',
+                    internalLinking: '',
+                    theme: '',
+                    secondaryKeywords: ''
+                  });
+                  setShowKeywordForm(true);
+                }}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition cursor-pointer shadow-2xs"
+              >
+                <Sparkles size={14} className="text-slate-500" />
+                <span>+ Palavra-chave</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setPostForm({
+                    id: '',
+                    title: '',
+                    clientName: selectedHubClient,
+                    clientEmail: '',
+                    targetMonth: new Date().toISOString().slice(0, 7),
+                    slug: '',
+                    description: '',
+                    content: '',
+                    coverImage: '',
+                    category: 'Geral',
+                    focusKeywords: '',
+                    anchor: '',
+                    seoTitle: '',
+                    wordCount: '',
+                    targetWords: '',
+                    imagesInfo: '',
+                    status: 'RascunhoInterno',
+                    publishedAt: '',
+                    publishedUrl: '',
+                    internalLinking: '',
+                    theme: '',
+                    secondaryKeywords: '',
+                    directioning: ''
+                  });
+                  setShowPostForm(true);
+                }}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer"
+              >
+                <FileText size={14} />
+                <span>+ Nova Pauta</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setBacklinkForm({
+                    id: '',
+                    title: '',
+                    clientName: selectedHubClient,
+                    clientEmail: '',
+                    targetMonth: new Date().toISOString().slice(0, 7),
+                    focusKeywords: '',
+                    anchor: '',
+                    targetUrl: '',
+                    theme: '',
+                    directioning: '',
+                    content: '',
+                    status: 'Pendente',
+                    publishedAt: '',
+                    publishedUrl: '',
+                    wordCount: '',
+                    targetWords: ''
+                  });
+                  setShowBacklinkForm(true);
+                }}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer"
+              >
+                <LinkIcon size={14} />
+                <span>+ Novo Link</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 4 KPIs de Contrato e SLAs da Unidade - Ícones e Estrutura Padronizados */}
+          {selectedClientData && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Investimento Mensal</span>
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                    <DollarSign size={16} />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <h3 className="text-xl font-bold text-slate-900">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedClientData.packageValue || 0)}
                   </h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-3">Inteligência de mercado e mapeamento de janelas de oportunidade.</p>
+                  <p className="text-[11px] text-slate-400 font-medium mt-0.5">Recorrência acordada</p>
                 </div>
-                <button
-                  onClick={() => {
-                    setKeywordForm({
-                      id: "",
-                      clientName: selectedHubClient,
-                      clientEmail: "",
-                      keyword: "",
-                      searchVolume: "",
-                      difficulty: "",
-                      status: "Disponível",
-                      notes: "",
-                      targetMonth: "",
-                      internalLinking: "",
-                      theme: "",
-                      secondaryKeywords: ""
-                    });
-                    setShowKeywordForm(true);
-                  }}
-                  className="bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em] px-10 py-5 rounded-2xl hover:bg-brand-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95"
-                >
-                   Injetar Inteligência SEO
-                </button>
               </div>
 
-              <div className="hidden md:block">
-                <HorizontalScroll>
-                  <table className="w-full text-left min-w-[800px]">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                        <th className="py-6 px-8">Ciclo Ref.</th>
-                        <th className="py-6 px-8">Keyword Estratégica</th>
-                        <th className="py-6 px-8 text-center">Volume & Dificuldade</th>
-                        <th className="py-6 px-8 text-center">Status Ativo</th>
-                        <th className="py-6 px-8 text-right">Controle</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-slate-50/20">
-                      {clientKeywords
-                        .sort((a: any, b: any) => (b.targetMonth || "").localeCompare(a.targetMonth || ""))
-                        .map((kw: any) => (
-                          <tr key={kw.id} className="group hover:bg-white transition-all duration-500">
-                            <td className="py-8 px-8">
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] italic bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200/50">
-                                {kw.targetMonth || "-"}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pautas Contratadas</span>
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                    <FileText size={16} />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <h3 className="text-xl font-bold text-slate-900">
+                    {selectedClientData.monthlyPosts || 0}
+                    <span className="text-xs font-semibold text-slate-400 ml-1">posts / mês</span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-medium mt-0.5">Capacidade on-page mensal</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Links Estratégicos</span>
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                    <LinkIcon size={16} />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <h3 className="text-xl font-bold text-slate-900">
+                    {selectedClientData.monthlyBacklinks || 0}
+                    <span className="text-xs font-semibold text-slate-400 ml-1">links / mês</span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-medium mt-0.5">Meta de autoridade off-page</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">SLA de Aprovação</span>
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                    <Clock size={16} />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <h3 className="text-xl font-bold text-slate-900">
+                    {selectedClientData.approvalDeadlineDays || 5}
+                    <span className="text-xs font-semibold text-slate-400 ml-1">dias úteis</span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-medium mt-0.5">Tempo limite de validação</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Universo de Keywords da Unidade */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5 mb-5">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Sparkles size={16} className="text-brand-600" />
+                  <h3 className="text-base font-bold text-slate-900">Universo de Palavras-chave</h3>
+                </div>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  Mapeamento de termos estratégicos, volumes e oportunidades de ranqueamento
+                </p>
+              </div>
+
+              {/* Filtros e Busca de Keywords */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Buscar palavra ou ciclo..."
+                    value={keywordSearch}
+                    onChange={(e) => setKeywordSearch(e.target.value)}
+                    className="pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-brand-500 w-44"
+                  />
+                </div>
+
+                <div className="inline-flex bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-[11px] font-bold">
+                  <button
+                    onClick={() => setKeywordStatusFilter('todos')}
+                    className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
+                      keywordStatusFilter === 'todos' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    Todas ({clientKeywords.length})
+                  </button>
+                  <button
+                    onClick={() => setKeywordStatusFilter('Disponível')}
+                    className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
+                      keywordStatusFilter === 'Disponível' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    Disponíveis
+                  </button>
+                  <button
+                    onClick={() => setKeywordStatusFilter('Em Produção')}
+                    className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
+                      keywordStatusFilter === 'Em Produção' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    Em Produção
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Tabela de Keywords */}
+            {filteredKeywords.length === 0 ? (
+              <div className="py-12 text-center text-slate-400 space-y-2">
+                <Sparkles size={28} className="mx-auto text-slate-300 stroke-[1.5]" />
+                <p className="text-xs font-bold text-slate-700">Nenhuma palavra-chave encontrada</p>
+                <p className="text-[11px] text-slate-400">
+                  Cadastre palavras estratégicas para acelerar a geração de pautas e links.
+                </p>
+              </div>
+            ) : (
+              <HorizontalScroll>
+                <table className="w-full text-left min-w-[700px] text-xs">
+                  <thead>
+                    <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      <th className="py-3 px-4">Ciclo</th>
+                      <th className="py-3 px-4">Palavra-chave Estratégica</th>
+                      <th className="py-3 px-4 text-center">Volume</th>
+                      <th className="py-3 px-4 text-center">Dificuldade (KD)</th>
+                      <th className="py-3 px-4 text-center">Status</th>
+                      <th className="py-3 px-4 text-right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredKeywords
+                      .sort((a: any, b: any) => (b.targetMonth || '').localeCompare(a.targetMonth || ''))
+                      .map((kw: any) => {
+                        const kd = Number(kw.difficulty || 0);
+                        const kdBadge = kd < 30 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                        kd < 60 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                        'bg-rose-50 text-rose-700 border-rose-200';
+
+                        return (
+                          <tr key={kw.id} className="hover:bg-slate-50/60 transition-colors group">
+                            <td className="py-3 px-4">
+                              <span className="font-mono text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                                {kw.targetMonth || 'Geral'}
                               </span>
                             </td>
-                            <td className="py-8 px-8">
-                              <p className="text-xl font-bold text-slate-900 tracking-tight group-hover:text-brand-600 transition-colors uppercase leading-none">
+                            <td className="py-3 px-4">
+                              <span className="font-bold text-slate-900 group-hover:text-brand-600 transition-colors">
                                 {kw.keyword}
-                              </p>
+                              </span>
+                              {kw.notes && (
+                                <p className="text-[10px] text-slate-400 truncate max-w-xs mt-0.5">{kw.notes}</p>
+                              )}
                             </td>
-                            <td className="py-8 px-8">
-                              <div className="flex items-center justify-center gap-6">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] italic opacity-60">{kw.searchVolume || "0 Vol"}</span>
-                                <div className="w-1.5 h-1.5 rounded-full shadow-lg border border-white bg-brand-500"></div>
-                                <span className="text-[10px] font-bold text-brand-600 uppercase tracking-[0.1em] bg-brand-50 px-4 py-2 rounded-lg border border-brand-100/50 shadow-sm">{kw.difficulty || "0"} KD</span>
-                              </div>
+                            <td className="py-3 px-4 text-center font-mono font-medium text-slate-600">
+                              {kw.searchVolume || '-'}
                             </td>
-                            <td className="py-8 px-8 text-center">
-                              <span className={`text-[8px] font-bold uppercase tracking-[0.1em] px-3 py-1.5 rounded-lg border ${
-                                kw.status === 'Em Produção' 
-                                ? 'bg-amber-50 text-amber-600 border-amber-100' 
-                                : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                            <td className="py-3 px-4 text-center">
+                              <span className={`inline-block px-2 py-0.5 rounded-md font-bold text-[10px] border ${kdBadge}`}>
+                                {kw.difficulty || '0'} KD
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                                kw.status === 'Em Produção'
+                                  ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                  : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                               }`}>
                                 {kw.status || 'Disponível'}
                               </span>
                             </td>
-                            <td className="py-8 px-8 text-right">
-                              <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                            <td className="py-3 px-4 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
                                 <button
                                   onClick={() => promoteKeywordToPost(kw)}
-                                  className="bg-slate-900 text-white text-[9px] font-bold uppercase tracking-[0.1em] h-10 px-6 rounded-xl hover:bg-brand-600 transition-all shadow-lg shadow-slate-200"
+                                  className="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700 hover:text-brand-600 rounded-lg text-[11px] font-bold border border-slate-200 transition cursor-pointer shadow-2xs"
+                                  title="Criar Pauta a partir desta Keyword"
                                 >
-                                  Nova Pauta
+                                  + Pauta
                                 </button>
                                 <button
                                   onClick={() => promoteKeywordToBacklink(kw)}
-                                  className="bg-white border border-slate-100 text-slate-900 text-[9px] font-bold uppercase tracking-[0.1em] h-10 px-6 rounded-xl hover:bg-slate-50 transition-all shadow-sm"
+                                  className="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700 hover:text-brand-600 rounded-lg text-[11px] font-bold border border-slate-200 transition cursor-pointer shadow-2xs"
+                                  title="Criar Backlink a partir desta Keyword"
                                 >
-                                  Novo Link
+                                  + Link
                                 </button>
-                                <button onClick={() => { if(confirm('Remover keyword?')) handleDeleteKeyword(kw.id); }} className="w-10 h-10 flex items-center justify-center bg-white border border-slate-100 rounded-xl text-slate-200 hover:text-rose-500 hover:shadow-xl transition-all shadow-sm">
-                                  <Trash2 size={16} />
+                                <button
+                                  onClick={() => {
+                                    if (confirm(`Remover a palavra-chave "${kw.keyword}"?`)) {
+                                      handleDeleteKeyword(kw.id);
+                                    }
+                                  }}
+                                  className="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition cursor-pointer"
+                                  title="Excluir Palavra-chave"
+                                >
+                                  <Trash2 size={14} />
                                 </button>
                               </div>
                             </td>
                           </tr>
-                        ))}
-                      {clientKeywords.length === 0 && (
-                        <tr>
-                          <td colSpan={5} className="py-24 text-center text-[10px] font-bold text-slate-200 uppercase tracking-[0.2em] italic">
-                            Oceano de oportunidades vazio p/ esta unidade.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </HorizontalScroll>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </HorizontalScroll>
+            )}
+          </div>
+
+          {/* Grid de Produção On-Page & Off-Page */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* 1. Célula de Conteúdo On-Page */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                    <FileText size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">Célula de Conteúdo (Artigos)</h3>
+                    <p className="text-[11px] text-slate-500 font-medium">Pipeline on-page e entregáveis</p>
+                  </div>
+                </div>
+                <span className="text-xs font-bold text-slate-400">{clientPosts.length} itens</span>
               </div>
 
-              {/* Mobile Card View for Keywords */}
-              <div className="md:hidden space-y-4">
-                {clientKeywords
-                  .sort((a: any, b: any) => (b.targetMonth || "").localeCompare(a.targetMonth || ""))
-                  .map((kw: any) => (
-                    <div key={`kw-card-${kw.id}`} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
-                      <div className="flex justify-between items-start">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] italic bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                          {kw.targetMonth || "-"}
-                        </span>
-                        <span className={`text-[8px] font-bold uppercase tracking-[0.1em] px-3 py-1.5 rounded-lg border ${
-                          kw.status === 'Em Produção' 
-                          ? 'bg-amber-50 text-amber-600 border-amber-100' 
-                          : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+              {clientPosts.length === 0 ? (
+                <div className="py-10 text-center text-slate-400 space-y-2">
+                  <FileText size={24} className="mx-auto text-slate-300" />
+                  <p className="text-xs font-bold text-slate-600">Nenhum artigo cadastrado</p>
+                  <p className="text-[11px] text-slate-400">Clique em "+ Nova Pauta" para iniciar o ciclo.</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
+                  {clientPosts.map((post: any) => (
+                    <div
+                      key={`hub-post-${post.id}`}
+                      className="p-4 bg-slate-50/70 hover:bg-slate-50 rounded-xl border border-slate-200/70 hover:border-slate-300 transition-all space-y-3"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                          post.status === 'Publicado'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : post.status === 'Aguardando Aprovação'
+                            ? 'bg-amber-50 text-amber-700 border-amber-200'
+                            : 'bg-brand-50 text-brand-700 border-brand-200'
                         }`}>
-                          {kw.status || 'Disponível'}
+                          {post.status}
                         </span>
-                      </div>
-                      
-                      <div>
-                        <p className="text-lg font-black text-slate-900 tracking-tight uppercase leading-tight mb-2">
-                          {kw.keyword}
-                        </p>
-                        <div className="flex items-center gap-4">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] italic">{kw.searchVolume || "0 Vol"}</span>
-                          <div className="w-1 h-1 rounded-full bg-slate-200"></div>
-                          <span className="text-[10px] font-bold text-brand-600 uppercase tracking-[0.1em]">{kw.difficulty || "0"} KD</span>
-                        </div>
+                        <span className="font-mono text-[10px] text-slate-400">{post.targetMonth || 'Sem ciclo'}</span>
                       </div>
 
-                      <div className="flex gap-2 pt-4 border-t border-slate-50">
-                        <button
-                          onClick={() => promoteKeywordToPost(kw)}
-                          className="flex-1 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-[0.1em] py-3 rounded-xl active:scale-95 transition-all"
-                        >
-                          Pauta
-                        </button>
-                        <button
-                          onClick={() => promoteKeywordToBacklink(kw)}
-                          className="flex-1 bg-white border border-slate-200 text-slate-900 text-[9px] font-bold uppercase tracking-[0.1em] py-3 rounded-xl active:scale-95 transition-all"
-                        >
-                          Link
-                        </button>
-                        <button 
-                          onClick={() => { if(confirm('Remover keyword?')) handleDeleteKeyword(kw.id); }} 
-                          className="w-12 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug">{post.title}</h4>
+                        <p className="text-[11px] text-slate-500 mt-1">
+                          Palavra-chave: <strong className="text-slate-700">{post.focusKeywords || 'Não definida'}</strong>
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 text-xs">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => {
+                              setPostForm(post);
+                              setShowPostForm(true);
+                            }}
+                            className="font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
+                          >
+                            Revisar
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm('Deseja realmente remover esta pauta?')) {
+                                handleDeletePost(post.id, post.coverImage);
+                              }
+                            }}
+                            className="font-bold text-slate-400 hover:text-rose-600 transition cursor-pointer"
+                          >
+                            Excluir
+                          </button>
+                        </div>
+
+                        {post.status !== 'Publicado' ? (
+                          <button
+                            onClick={() => {
+                              setPublishModal({
+                                isOpen: true,
+                                type: 'post',
+                                id: post.id,
+                                title: post.title,
+                                url: post.publishedUrl || '',
+                              });
+                            }}
+                            className="px-2.5 py-1 bg-slate-900 hover:bg-brand-600 text-white rounded-lg font-bold text-[11px] transition cursor-pointer shadow-2xs"
+                          >
+                            Finalizar Publicação
+                          </button>
+                        ) : post.publishedUrl ? (
+                          <a
+                            href={post.publishedUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-brand-600 hover:text-brand-700 font-bold flex items-center gap-1 hover:underline"
+                          >
+                            <span>Ver post</span>
+                            <ExternalLink size={12} />
+                          </a>
+                        ) : null}
                       </div>
                     </div>
                   ))}
-                {clientKeywords.length === 0 && (
-                  <div className="py-24 text-center bg-white border-2 border-dashed border-slate-100 rounded-[32px]">
-                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.1em]">Oceano de oportunidades vazio</p>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
-            {/* Grid de Produção */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-20">
-              {/* Artigos */}
-              <div className="bg-slate-50/70 border border-slate-100 p-8 lg:p-12 rounded-[2rem]">
-                <div className="flex items-center gap-5 mb-10">
-                  <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-slate-900 shadow-sm border border-slate-100 transition-transform duration-500">
-                    <FileText size={24} />
+            {/* 2. Célula de Autoridade Off-Page */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                    <LinkIcon size={16} />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
-                      Célula de Conteúdo
-                    </h3>
-                    <div className="flex items-center gap-2 text-brand-600 mt-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.1em]">Ativos de Atração & Autoridade</span>
-                    </div>
+                    <h3 className="text-sm font-bold text-slate-900">Célula de Autoridade (Backlinks)</h3>
+                    <p className="text-[11px] text-slate-500 font-medium">Links estratégicos e prospecção</p>
                   </div>
                 </div>
-
-                <div className="space-y-5">
-                  {clientPosts.length === 0 && (
-                    <div className="py-24 text-center bg-white border-2 border-dashed border-slate-100 rounded-[24px]">
-                      <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.1em]">Sem artigos no pipeline de produção</p>
-                    </div>
-                  )}
-                  {clientPosts.map((post: any) => (
-                    <motion.div
-                      key={`hub-post-${post.id}`}
-                      whileHover={{ y: -4 }}
-                      className="group bg-white border border-slate-100 p-8 rounded-[24px] hover:shadow-xl transition-all duration-500 overflow-hidden relative"
-                    >
-                      <div className="absolute -top-10 -right-10 p-10 opacity-[0.02] group-hover:scale-150 transition-transform duration-700 pointer-events-none group-hover:opacity-[0.05] text-slate-900">
-                        <FileText size={200} />
-                      </div>
-                      <div className="flex justify-between items-start mb-6 relative z-10">
-                        <div className={`px-3 py-1 rounded-lg text-[8px] font-bold uppercase tracking-[0.1em] border flex items-center gap-2 ${
-                            post.status === "Publicado" ? "bg-emerald-50 text-emerald-500 border-emerald-100/50" : 
-                            "bg-brand-50 text-brand-600 border-brand-100/50"
-                        }`}>
-                          <div className={`w-1.5 h-1.5 rounded-full ${post.status === 'Publicado' ? 'bg-emerald-500' : 'bg-brand-500 animate-pulse'}`}></div>
-                          {post.status}
-                        </div>
-                        <span className="text-[9px] font-bold text-slate-300 uppercase tracking-[0.1em] italic pr-2">
-                          {post.targetMonth || 'Fluxo'}
-                        </span>
-                      </div>
-                      <h4 className="text-xl font-bold text-slate-900 mb-4 tracking-tight leading-tight group-hover:text-brand-600 transition-colors relative z-10 uppercase h-[2.4em] line-clamp-2">
-                        {post.title}
-                      </h4>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-8 relative z-10 opacity-70 group-hover:opacity-100 transition-opacity">
-                        Meta: <span className="text-slate-900">{post.focusKeywords || "-"}</span>
-                      </p>
-
-                      <div className="flex items-center justify-between border-t border-slate-50 pt-5 relative z-10">
-                        <div className="flex gap-6">
-                          <button onClick={() => { setPostForm(post); setShowPostForm(true); }} className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400 hover:text-slate-900 transition-colors">REVISAR</button>
-                          <button onClick={() => { if(confirm('Remover?')) handleDeletePost(post.id, post.coverImage); }} className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-200 hover:text-rose-500 transition-colors">EXCLUIR</button>
-                        </div>
-                        {["Aprovado", "Aprovado com Ressalvas", "Rascunho", "Planejado"].includes(post.status) && (
-                          <button
-                            onClick={async () => {
-                              const url = window.prompt("URL Final de Publicação:");
-                              if (url) {
-                                await updateDoc(doc(db, "blog_posts", post.id), {
-                                    status: "Publicado",
-                                    publishedUrl: url,
-                                    publishedAt: new Date().toISOString().split("T")[0],
-                                    updatedAt: serverTimestamp(),
-                                });
-                                loadBlogPosts();
-                              }
-                            }}
-                            className="bg-slate-900 text-white text-[9px] font-bold uppercase tracking-[0.1em] px-6 py-3 rounded-lg hover:bg-emerald-600 transition-all shadow-lg active:scale-90"
-                          >
-                            Finalizar
-                          </button>
-                        )}
-                        {post.status === 'Publicado' && post.publishedUrl && (
-                          <a href={post.publishedUrl} target="_blank" rel="noreferrer" className="h-10 w-10 flex items-center justify-center bg-slate-50 text-slate-300 hover:text-brand-600 rounded-xl border border-slate-100 transition-all active:scale-90">
-                             <ArrowUpRight size={18} />
-                          </a>
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                <span className="text-xs font-bold text-slate-400">{clientBacklinks.length} itens</span>
               </div>
 
-              {/* Backlinks */}
-              <div className="bg-slate-50/70 border border-slate-100 p-8 lg:p-12 rounded-[2rem]">
-                <div className="flex items-center gap-5 mb-10">
-                  <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-slate-900 shadow-sm border border-slate-100 transition-transform duration-500">
-                    <ArrowUpRight size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
-                      Célula de Autoridade
-                    </h3>
-                    <div className="flex items-center gap-2 text-violet-600 mt-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse"></div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.1em]">Links Estratégicos & Mentions</span>
-                    </div>
-                  </div>
+              {clientBacklinks.length === 0 ? (
+                <div className="py-10 text-center text-slate-400 space-y-2">
+                  <LinkIcon size={24} className="mx-auto text-slate-300" />
+                  <p className="text-xs font-bold text-slate-600">Nenhum backlink cadastrado</p>
+                  <p className="text-[11px] text-slate-400">Clique em "+ Novo Link" para planejar ativos.</p>
                 </div>
-
-                <div className="space-y-5">
-                  {clientBacklinks.length === 0 && (
-                    <div className="py-24 text-center bg-white border-2 border-dashed border-slate-100 rounded-[24px]">
-                      <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.1em]">Nenhuma estratégia off-page ativa</p>
-                    </div>
-                  )}
+              ) : (
+                <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
                   {clientBacklinks.map((backlink: any) => (
-                    <motion.div
+                    <div
                       key={`hub-backlink-${backlink.id}`}
-                      whileHover={{ y: -4 }}
-                      className="group bg-white border border-slate-100 p-8 rounded-[24px] hover:shadow-xl transition-all duration-500 relative overflow-hidden"
+                      className="p-4 bg-slate-50/70 hover:bg-slate-50 rounded-xl border border-slate-200/70 hover:border-slate-300 transition-all space-y-3"
                     >
-                      <div className="flex justify-between items-start mb-6 relative z-10">
-                        <div className={`px-3 py-1 rounded-lg text-[8px] font-bold uppercase tracking-[0.1em] border flex items-center gap-2 ${
-                          backlink.status === 'Publicado' ? 'bg-emerald-50 text-emerald-500 border-emerald-100/50' : 
-                          'bg-slate-50 text-slate-400 border-slate-100'
+                      <div className="flex items-start justify-between gap-2">
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                          backlink.status === 'Publicado'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-slate-100 text-slate-700 border-slate-200'
                         }`}>
-                          <div className={`w-1.5 h-1.5 rounded-full ${backlink.status === 'Publicado' ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
                           {backlink.status}
-                        </div>
-                        <span className="text-[9px] font-bold text-slate-300 uppercase tracking-[0.1em] italic pr-2 uppercase">
-                          {backlink.targetMonth || 'META'}
                         </span>
+                        <span className="font-mono text-[10px] text-slate-400">{backlink.targetMonth || 'Sem ciclo'}</span>
                       </div>
-                      <h4 className="text-xl font-bold text-slate-900 mb-4 tracking-tight leading-tight group-hover:text-violet-600 transition-colors uppercase h-[2.4em] line-clamp-2 relative z-10">
-                        {backlink.title}
-                      </h4>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-8 relative z-10 opacity-70 group-hover:opacity-100 transition-opacity uppercase">
-                        Âncora: <span className="text-slate-900">{backlink.anchor || backlink.focusKeywords || "-"}</span>
-                      </p>
 
-                      <div className="flex items-center justify-between border-t border-slate-50 pt-5 relative z-10">
-                        <div className="flex gap-6">
-                          <button onClick={() => { setBacklinkForm(backlink); setShowBacklinkForm(true); }} className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400 hover:text-slate-900 transition-colors uppercase">AJUSTAR</button>
-                          <button onClick={() => { if(confirm('Remover?')) handleDeleteBacklink(backlink.id); }} className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-200 hover:text-rose-500 transition-colors uppercase">EXCLUIR</button>
-                        </div>
-                        {["Aprovado", "Rascunho", "Planejado"].includes(backlink.status) && (
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug">{backlink.title}</h4>
+                        <p className="text-[11px] text-slate-500 mt-1">
+                          Âncora: <strong className="text-slate-700">{backlink.anchor || backlink.focusKeywords || 'Não definida'}</strong>
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 text-xs">
+                        <div className="flex items-center gap-3">
                           <button
-                            onClick={async () => {
-                              const url = window.prompt("URL do Backlink Ativo:");
-                              if (url) {
-                                await updateDoc(doc(db, "backlinks", backlink.id), {
-                                    status: "Publicado",
-                                    publishedUrl: url,
-                                    publishedAt: new Date().toISOString().split("T")[0],
-                                    updatedAt: serverTimestamp(),
-                                });
-                                loadBacklinks();
+                            onClick={() => {
+                              setBacklinkForm(backlink);
+                              setShowBacklinkForm(true);
+                            }}
+                            className="font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
+                          >
+                            Ajustar
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm('Deseja realmente remover este backlink?')) {
+                                handleDeleteBacklink(backlink.id);
                               }
                             }}
-                            className="bg-slate-900 text-white text-[9px] font-bold uppercase tracking-[0.1em] px-6 py-3 rounded-lg hover:bg-violet-600 transition-all shadow-xl active:scale-90"
+                            className="font-bold text-slate-400 hover:text-rose-600 transition cursor-pointer"
                           >
-                            Validar
+                            Excluir
                           </button>
-                        )}
-                        {backlink.status === 'Publicado' && backlink.publishedUrl && (
-                          <a href={backlink.publishedUrl} target="_blank" rel="noreferrer" className="h-10 w-10 flex items-center justify-center bg-slate-50 text-slate-300 hover:text-violet-600 rounded-xl border border-slate-100 transition-all active:scale-90">
-                             <ArrowUpRight size={18} />
+                        </div>
+
+                        {backlink.status !== 'Publicado' ? (
+                          <button
+                            onClick={() => {
+                              setPublishModal({
+                                isOpen: true,
+                                type: 'backlink',
+                                id: backlink.id,
+                                title: backlink.title,
+                                url: backlink.publishedUrl || '',
+                              });
+                            }}
+                            className="px-2.5 py-1 bg-slate-900 hover:bg-brand-600 text-white rounded-lg font-bold text-[11px] transition cursor-pointer shadow-2xs"
+                          >
+                            Validar Link Ativo
+                          </button>
+                        ) : backlink.publishedUrl ? (
+                          <a
+                            href={backlink.publishedUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-brand-600 hover:text-brand-700 font-bold flex items-center gap-1 hover:underline"
+                          >
+                            <span>Ver link</span>
+                            <ExternalLink size={12} />
                           </a>
-                        )}
+                        ) : null}
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {selectedHubClient && (
-        <div className="fixed bottom-12 right-12 z-50 flex flex-col items-end gap-3">
-          <AnimatePresence>
-            {isFabOpen && (
-              <motion.div 
-                initial={{ opacity: 0, y: 12, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 12, scale: 0.95 }}
-                className="flex flex-col gap-2 items-end mb-2"
-              >
-                <button 
-                  onClick={() => {
-                    setPostForm({ id: '', title: '', clientName: selectedHubClient, clientEmail: '', targetMonth: new Date().toISOString().slice(0, 7), slug: '', description: '', content: '', coverImage: '', category: 'Geral', focusKeywords: '', anchor: '', seoTitle: '', wordCount: '', targetWords: '', imagesInfo: '', status: 'RascunhoInterno', publishedAt: '', publishedUrl: '', internalLinking: '', theme: '', secondaryKeywords: '', directioning: '' });
-                    setShowPostForm(true);
-                    setIsFabOpen(false);
-                  }}
-                  className="bg-white border border-slate-100 px-6 py-4 rounded-xl shadow-2xl hover:bg-slate-900 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-3 group"
+      {/* Modal Suave para Publicação com URL (Substitui window.prompt) */}
+      <AnimatePresence>
+        {publishModal.isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4"
+            >
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={18} className="text-emerald-600" />
+                  <h3 className="text-sm font-bold text-slate-900">
+                    {publishModal.type === 'post' ? 'Concluir Artigo On-Page' : 'Validar Backlink Off-Page'}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setPublishModal({ isOpen: false, type: 'post', id: '', title: '', url: '' })}
+                  className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
                 >
-                  <FileText size={14} className="text-brand-500 group-hover:text-white" /> Artigo
+                  <X size={16} />
                 </button>
-                <button 
-                   onClick={() => {
-                     setBacklinkForm({ id: '', title: '', clientName: selectedHubClient, clientEmail: '', targetMonth: new Date().toISOString().slice(0, 7), focusKeywords: '', anchor: '', targetUrl: '', theme: '', directioning: '', content: '', status: 'Pendente', publishedAt: '', publishedUrl: '', wordCount: '', targetWords: '' });
-                     setShowBacklinkForm(true);
-                     setIsFabOpen(false);
-                   }}
-                   className="bg-white border border-slate-100 px-6 py-4 rounded-xl shadow-2xl hover:bg-slate-900 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-3 group"
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-xs text-slate-600 font-medium">
+                  Insira a URL pública final onde o item foi veiculado:
+                </p>
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-xs font-semibold text-slate-800 line-clamp-1">
+                  {publishModal.title}
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    URL Final de Publicação
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://exemplo.com.br/artigo-ou-link"
+                    value={publishModal.url}
+                    onChange={(e) => setPublishModal({ ...publishModal, url: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-brand-500"
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  onClick={() => setPublishModal({ isOpen: false, type: 'post', id: '', title: '', url: '' })}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
                 >
-                  <ArrowUpRight size={14} className="text-violet-500 group-hover:text-white" /> Link
+                  Cancelar
                 </button>
-                <button 
-                  onClick={() => {
-                    setKeywordForm({ id: "", clientName: selectedHubClient, clientEmail: "", keyword: "", searchVolume: "", difficulty: "", status: "Disponível", notes: "", targetMonth: "" });
-                    setShowKeywordForm(true);
-                    setIsFabOpen(false);
-                  }}
-                  className="bg-white border border-slate-100 px-6 py-4 rounded-xl shadow-2xl hover:bg-slate-900 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-3 group"
+                <button
+                  onClick={handleConfirmPublish}
+                  disabled={!publishModal.url.trim()}
+                  className="px-4 py-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-xs"
                 >
-                  <Plus size={14} className="text-emerald-500 group-hover:text-white" /> Palavra
+                  <CheckCircle2 size={14} />
+                  <span>Confirmar Publicação</span>
                 </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <button 
-            onClick={() => setIsFabOpen(!isFabOpen)}
-            className={`w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-2xl hover:bg-brand-600 transition-all cursor-pointer group active:scale-90 ${isFabOpen ? 'rotate-0' : 'rotate-45'}`}
-          >
-             {isFabOpen ? <X size={24} /> : <Plus size={24} className="-rotate-45 group-hover:rotate-0 transition-transform" />}
-          </button>
-        </div>
-      )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

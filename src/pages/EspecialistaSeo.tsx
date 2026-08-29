@@ -121,15 +121,15 @@ export default function EspecialistaSeoPage() {
             <h3 className="text-xl font-bold text-slate-900 font-display mt-10 mb-6 text-center md:text-left">O Que Nossos Analistas Sêniores Analisam:</h3>
             <ul className="space-y-5">
               <li className="flex items-start gap-4">
-                <ShieldCheck className="text-emerald-500 shrink-0 mt-1" size={24} />
+                <ShieldCheck className="text-brand-600 shrink-0 mt-1" size={24} />
                 <span className="text-slate-700 text-lg">Investigação Avançada de <Link to="/auditoria" className="font-bold text-slate-900 hover:text-brand-600 transition-colors">Problemas Técnicos</Link> Críticos (Auditoria Profunda).</span>
               </li>
               <li className="flex items-start gap-4">
-                <ShieldCheck className="text-emerald-500 shrink-0 mt-1" size={24} />
+                <ShieldCheck className="text-brand-600 shrink-0 mt-1" size={24} />
                 <span className="text-slate-700 text-lg">Arquitetura de Informação e Silos de Conteúdo semântico.</span>
               </li>
               <li className="flex items-start gap-4">
-                <ShieldCheck className="text-emerald-500 shrink-0 mt-1" size={24} />
+                <ShieldCheck className="text-brand-600 shrink-0 mt-1" size={24} />
                 <span className="text-slate-700 text-lg">Link Profile e Táticas Massivas de Aquisição de Backlinks Direcionados.</span>
               </li>
             </ul>

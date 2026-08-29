@@ -155,6 +155,7 @@ export default function LinkBuildingPage() {
 
       {/* Roadmap Section */}
       <ServiceRoadmap 
+        id="processo"
         title="Nossa Engenharia de Autoridade"
         subtitle="Entenda como construímos a credibilidade do seu domínio de forma segura, escalável e livre de punições do Google."
         steps={[
